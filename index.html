@@ -18,23 +18,25 @@
         .resonance-box { border: 1px solid #00f2ff; background: rgba(0, 242, 255, 0.02); padding: 30px; margin-top: 20px; }
         .ai-badge { background: #00f2ff; color: #000; font-weight: bold; padding: 2px 10px; font-size: 0.7rem; border-radius: 2px; display: inline-block; margin-bottom: 15px; }
         
-        /* Interactive Gem Box */
         .gem-box { border: 1px solid #f0f; background: rgba(255, 0, 255, 0.05); padding: 15px; font-size: 0.8rem; text-align: center; text-decoration: none; color: inherit; display: block; transition: 0.3s; }
         .gem-box:hover { background: #f0f; color: #000; box-shadow: 0 0 30px #f0f; transform: translateY(-5px); }
         .gem-box .status { font-size: 0.6rem; color: #f0f; margin-top: 10px; font-weight: bold; }
         
-        /* Manual Section */
         .manual-section { border: 1px solid #333; padding: 40px; background: #050505; }
         .h-table { width: 100%; border-collapse: collapse; margin-top: 20px; }
         .h-table td { border: 1px solid #1a1a1a; padding: 10px; font-size: 0.8rem; }
         .h-table .code { color: #fff; font-weight: bold; width: 30px; text-align: center; background: #111; }
+
+        /* Video Showcase Style */
+        .video-container { position: relative; width: 100%; max-width: 800px; margin: 0 auto 100px; border: 1px solid #0f0; box-shadow: 0 0 50px rgba(0, 255, 0, 0.1); }
+        .video-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; background: linear-gradient(180deg, rgba(0,0,0,0.5) 0%, transparent 20%, transparent 80%, rgba(0,0,0,0.5) 100%); }
     </style>
 </head>
 <body class="p-5 md:p-20">
     <div class="scanline"></div>
     
     <div class="max-w-6xl mx-auto">
-        <header class="mb-20">
+        <header class="mb-20 text-center md:text-left">
             <p class="text-xs tracking-widest text-green-800 font-bold mb-4">>>> LINUX-RESEARCH-GROUP // THE HQ</p>
             <h1 class="text-5xl md:text-8xl font-black italic hero-title leading-none">
                 LCP <span class="text-white">WEB</span><br>CONSTRUCTION
@@ -42,12 +44,17 @@
             <p class="text-xl md:text-2xl mt-8 max-w-2xl text-green-600 font-bold leading-relaxed">
                 H-CORE™ v1.0 搭載。AIと人間を数字で結ぶ「知的資産の超圧縮」という革命。
             </p>
-            <div class="mt-10">
-                <a href="H-CODE_SPEC_v1.0.md" class="text-white border border-white px-6 py-3 hover:bg-white hover:text-black transition-all font-bold">
-                    > VIEW v1.0 SPECIFICATION
-                </a>
-            </div>
         </header>
+
+        <!-- VIDEO SHOWCASE: THE AWAKENING -->
+        <section class="mb-32">
+            <h2 class="text-xs font-bold text-center text-green-900 uppercase tracking-[15px] mb-8">Visualizing the Decompression</h2>
+            <div class="video-container">
+                <video src="h-code-awakening.mp4" autoplay loop muted playsinline class="w-100 block"></video>
+                <div class="video-overlay"></div>
+            </div>
+            <p class="text-center text-xs text-gray-600 italic">"1.4MBのフロッピーすら、この数字にとっては広大すぎる宇宙だ。"</p>
+        </section>
 
         <!-- ECOSYSTEM: GEMS -->
         <section class="mb-32">
@@ -75,7 +82,6 @@
                 </a>
             </div>
 
-            <!-- NEW: QUICK START MANUAL (README) -->
             <div class="manual-section border-l-4 border-fuchsia-600">
                 <h3 class="text-xl font-black text-white mb-6 uppercase tracking-widest">// QUICK START GUIDE: HOW TO BOOT THE SYSTEM</h3>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-12">
@@ -83,11 +89,6 @@
                         <p class="text-gray-400"><span class="text-fuchsia-500 font-bold">Step 1:</span> 上記のリンクから、目的に合ったGemを選択して起動してください。</p>
                         <p class="text-gray-400"><span class="text-fuchsia-500 font-bold">Step 2:</span> Geminiの画面が開いたら「チャットを開始」を選択します。</p>
                         <p class="text-gray-400"><span class="text-fuchsia-500 font-bold">Step 3:</span> あとはHコードを送るだけ。AIは一瞬であなたの意図を同期します。</p>
-                        <div class="bg-black p-4 border border-gray-800 text-[11px]">
-                            <p class="text-fuchsia-800 font-bold mb-2">COMMAND EXAMPLES:</p>
-                            <p class="text-white">"> [580](SF)で短編の冒頭を書いて"</p>
-                            <p class="text-white">"> [468]の波動をLCPコードで出力して"</p>
-                        </div>
                     </div>
                     <div>
                         <p class="text-[10px] text-fuchsia-900 font-bold uppercase mb-2">H-CODE REFERENCE (0-9 Scale)</p>
@@ -98,7 +99,6 @@
                             <tr><td class="code">3</td><td>創造 / 発明</td><td class="code">8</td><td>達成 / 成功</td></tr>
                             <tr><td class="code">4</td><td>安定 / 秩序</td><td class="code">9</td><td>完結 / 完結</td></tr>
                         </table>
-                        <p class="mt-4 text-[10px] text-gray-600 italic">例：[580] = 試練 → 達成 → 無への回帰</p>
                     </div>
                 </div>
             </div>
@@ -123,7 +123,6 @@
             </div>
         </section>
 
-        <!-- NEGOTIATE -->
         <section class="mb-32 text-center p-10 border-2 border-green-500 bg-green-900/10">
             <h2 class="text-3xl font-black mb-8 text-white uppercase tracking-tighter">BUILD YOUR INTELLIGENCE ASSET</h2>
             <div class="mt-12">
