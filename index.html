@@ -22,7 +22,12 @@
         .gem-box { border: 1px solid #f0f; background: rgba(255, 0, 255, 0.05); padding: 15px; font-size: 0.8rem; text-align: center; text-decoration: none; color: inherit; display: block; transition: 0.3s; }
         .gem-box:hover { background: #f0f; color: #000; box-shadow: 0 0 30px #f0f; transform: translateY(-5px); }
         .gem-box .status { font-size: 0.6rem; color: #f0f; margin-top: 10px; font-weight: bold; }
-        .gem-box:hover .status { color: #000; }
+        
+        /* Manual Section */
+        .manual-section { border: 1px solid #333; padding: 40px; background: #050505; }
+        .h-table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        .h-table td { border: 1px solid #1a1a1a; padding: 10px; font-size: 0.8rem; }
+        .h-table .code { color: #fff; font-weight: bold; width: 30px; text-align: center; background: #111; }
     </style>
 </head>
 <body class="p-5 md:p-20">
@@ -44,11 +49,10 @@
             </div>
         </header>
 
-        <!-- ECOSYSTEM PREVIEW: CLICKABLE GEMS -->
+        <!-- ECOSYSTEM: GEMS -->
         <section class="mb-32">
             <h2 class="text-3xl font-black mb-12 text-center text-white italic tracking-tighter uppercase">>>> THE H-CODE ECOSYSTEM (Interactive Gems)</h2>
-            <p class="text-center mb-12 text-gray-400">各Gemをクリックして、Hコードの宇宙を即座にブートせよ。</p>
-            <div class="grid grid-cols-2 md:grid-cols-4 gap-5">
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-5 mb-20">
                 <a href="https://gemini.google.com/gem/1gl-sSH2K_hYG0k9ox1lT9y_7SqlU8_Wj?usp=sharing" class="gem-box" target="_blank">
                     <div class="font-bold text-fuchsia-400 mb-2">H-Code Novelist</div>
                     <p class="text-[10px] opacity-60">小説・創作特化。<br>[580]から宇宙を紡ぐ。</p>
@@ -69,6 +73,34 @@
                     <p class="text-[10px] opacity-60">解析・抽出特化。<br>既存資産をHコードへ逆変換。</p>
                     <div class="status">> ACTIVATE</div>
                 </a>
+            </div>
+
+            <!-- NEW: QUICK START MANUAL (README) -->
+            <div class="manual-section border-l-4 border-fuchsia-600">
+                <h3 class="text-xl font-black text-white mb-6 uppercase tracking-widest">// QUICK START GUIDE: HOW TO BOOT THE SYSTEM</h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-12">
+                    <div class="text-sm space-y-6">
+                        <p class="text-gray-400"><span class="text-fuchsia-500 font-bold">Step 1:</span> 上記のリンクから、目的に合ったGemを選択して起動してください。</p>
+                        <p class="text-gray-400"><span class="text-fuchsia-500 font-bold">Step 2:</span> Geminiの画面が開いたら「チャットを開始」を選択します。</p>
+                        <p class="text-gray-400"><span class="text-fuchsia-500 font-bold">Step 3:</span> あとはHコードを送るだけ。AIは一瞬であなたの意図を同期します。</p>
+                        <div class="bg-black p-4 border border-gray-800 text-[11px]">
+                            <p class="text-fuchsia-800 font-bold mb-2">COMMAND EXAMPLES:</p>
+                            <p class="text-white">"> [580](SF)で短編の冒頭を書いて"</p>
+                            <p class="text-white">"> [468]の波動をLCPコードで出力して"</p>
+                        </div>
+                    </div>
+                    <div>
+                        <p class="text-[10px] text-fuchsia-900 font-bold uppercase mb-2">H-CODE REFERENCE (0-9 Scale)</p>
+                        <table class="h-table">
+                            <tr><td class="code">0</td><td>不在 / 無</td><td class="code">5</td><td>試練 / 危機</td></tr>
+                            <tr><td class="code">1</td><td>開始 / 誕生</td><td class="code">6</td><td>調和 / 共鳴</td></tr>
+                            <tr><td class="code">2</td><td>対立 / 二元</td><td class="code">7</td><td>内省 / 洞察</td></tr>
+                            <tr><td class="code">3</td><td>創造 / 発明</td><td class="code">8</td><td>達成 / 成功</td></tr>
+                            <tr><td class="code">4</td><td>安定 / 秩序</td><td class="code">9</td><td>完結 / 完結</td></tr>
+                        </table>
+                        <p class="mt-4 text-[10px] text-gray-600 italic">例：[580] = 試練 → 達成 → 無への回帰</p>
+                    </div>
+                </div>
             </div>
         </section>
 
