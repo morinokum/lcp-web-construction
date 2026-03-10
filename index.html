@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LCP WEB CONSTRUCTION | LINUX RESEARCH GROUP</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;700&family=Noto+Sans+JP:wght@400;900&display=swap');
+        body { background-color: #000; color: #0f0; font-family: 'Fira Code', 'Noto Sans JP', monospace; overflow-x: hidden; margin: 0; }
+        .scanline { width: 100%; height: 100px; z-index: 99; pointer-events: none; background: linear-gradient(0deg, rgba(0, 255, 0, 0) 0%, rgba(0, 255, 0, 0.05) 50%, rgba(0, 255, 0, 0) 100%); opacity: 0.1; position: fixed; bottom: 100%; animation: scanline 8s linear infinite; }
+        @keyframes scanline { 0% { bottom: 100%; } 100% { bottom: -100%; } }
+        .hero-title { text-shadow: 0 0 20px #0f0; }
+        .btn-lcp { border: 2px solid #0f0; color: #0f0; padding: 20px 40px; text-decoration: none; font-weight: bold; font-size: 1.5rem; transition: 0.3s; display: inline-block; background: rgba(0,255,0,0.05); }
+        .btn-lcp:hover { background: #0f0; color: #000; box-shadow: 0 0 30px #0f0; transform: scale(1.05); }
+        .card-lcp { border: 1px solid #050; padding: 30px; background: rgba(0, 255, 0, 0.02); transition: 0.3s; }
+        .card-lcp:hover { border-color: #0f0; background: rgba(0, 255, 0, 0.05); }
+        .stat-num { font-size: 2.5rem; font-weight: 900; color: #fff; }
+    </style>
+</head>
+<body class="p-5 md:p-20">
+    <div class="scanline"></div>
+    
+    <div class="max-w-6xl mx-auto">
+        <header class="mb-20">
+            <p class="text-xs tracking-widest text-green-800 font-bold mb-4">>>> LINUX RESEARCH GROUP // B2B SERVICE DIVISION</p>
+            <h1 class="text-5xl md:text-8xl font-black italic hero-title leading-none">
+                LCP <span class="text-white">WEB</span><br>CONSTRUCTION
+            </h1>
+            <p class="text-xl md:text-2xl mt-8 max-w-2xl text-green-600 font-bold leading-relaxed">
+                APIコストをゼロにし、AIと完全に同期する「知的資産ターミナル」を一撃で構築。
+                あなたの技術とビジョンを、次世代のWeb資産へと昇華させる。
+            </p>
+        </header>
+
+        <section class="grid grid-cols-1 md:grid-cols-3 gap-8 mb-32">
+            <div class="card-lcp">
+                <div class="stat-num">01.</div>
+                <h3 class="text-xl font-black mt-4 mb-2 text-white">100% SYNC</h3>
+                <p class="text-sm opacity-60">LCPプロトコルにより、AI（Gemini CLI）と手元の端末、そして公開ページが完全に同期。更新に迷いなし。</p>
+            </div>
+            <div class="card-lcp">
+                <div class="stat-num">02.</div>
+                <h3 class="text-xl font-black mt-4 mb-2 text-white">ZERO COST</h3>
+                <p class="text-sm opacity-60">サーバー維持費、API利用料を極限まで削減。GitHub Pagesを活用した永久不滅のホスティング。</p>
+            </div>
+            <div class="card-lcp">
+                <div class="stat-num">03.</div>
+                <h3 class="text-xl font-black mt-4 mb-2 text-white">CYBER DESIGN</h3>
+                <p class="text-sm opacity-60">ドクターひろし直系のハッカー・ミニマリズム。視認性とインパクトを両立した究極のUI。</p>
+            </div>
+        </section>
+
+        <section class="mb-32 text-center p-10 border-2 border-green-500 bg-green-900/10">
+            <h2 class="text-3xl font-black mb-8 text-white">商売用・法人向けパッケージも展開中</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-10 text-left">
+                <div>
+                    <h4 class="text-xl font-bold text-green-400 mb-2">【個人・エンジニア向】</h4>
+                    <p class="text-sm opacity-80 mb-4">ポートフォリオ、ブログ、資産公開用。あなたのコードがそのままサイトになる感覚。</p>
+                    <p class="text-2xl font-black text-white">¥ ASK</p>
+                </div>
+                <div>
+                    <h4 class="text-xl font-bold text-green-400 mb-2">【法人・研究機関向】</h4>
+                    <p class="text-sm opacity-80 mb-4">LCPプロトコルの導入、AIエージェントとの連携、社内資産のターミナル化。究極の効率化を。</p>
+                    <p class="text-2xl font-black text-white">¥ CONSULTING</p>
+                </div>
+            </div>
+            <div class="mt-12">
+                <a href="https://github.com/LINUX-RESEARCH-GROUP/lcp-web-construction/issues" class="btn-lcp" target="_blank">
+                    >> 構築の依頼を出す / NEGOTIATE <<
+                </a>
+            </div>
+        </section>
+
+        <footer class="mt-40 pt-10 border-t border-green-900 flex justify-between items-end opacity-40">
+            <div>
+                <p class="text-xs">STATUS: READY TO CONTRACT</p>
+                <p class="text-xs">ORG: LINUX RESEARCH GROUP</p>
+            </div>
+            <div class="text-right">
+                <p class="text-[10px]">&copy; 2026 DR. HIROSHI LAB</p>
+                <p class="text-[10px]">THE FUTURE OF WEB IS LCP.</p>
+            </div>
+        </footer>
+    </div>
+</body>
+</html>
