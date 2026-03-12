@@ -30,6 +30,10 @@
         /* Video Showcase Style */
         .video-container { position: relative; width: 100%; max-width: 800px; margin: 0 auto 100px; border: 1px solid #0f0; box-shadow: 0 0 50px rgba(0, 255, 0, 0.1); }
         .video-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; background: linear-gradient(180deg, rgba(0,0,0,0.5) 0%, transparent 20%, transparent 80%, rgba(0,0,0,0.5) 100%); }
+
+        /* New Arrival Section */
+        .new-badge { background: #f00; color: #fff; padding: 2px 10px; font-size: 0.7rem; font-weight: bold; animation: blink 1s infinite; }
+        @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
     </style>
 </head>
 <body class="p-5 md:p-20">
@@ -47,13 +51,27 @@
         </header>
 
         <!-- VIDEO SHOWCASE: THE AWAKENING -->
-        <section class="mb-32">
+        <section class="mb-20">
             <h2 class="text-xs font-bold text-center text-green-900 uppercase tracking-[15px] mb-8">Visualizing the Decompression</h2>
             <div class="video-container">
                 <video src="h-code-awakening.mp4" autoplay loop muted playsinline class="w-100 block"></video>
                 <div class="video-overlay"></div>
             </div>
             <p class="text-center text-xs text-gray-600 italic">"1.4MBのフロッピーすら、この数字にとっては広大すぎる宇宙だ。"</p>
+        </section>
+
+        <!-- NEW ARRIVAL: ADVENTURE GAME -->
+        <section class="mb-32 text-center">
+            <div class="inline-block mb-4">
+                <span class="new-badge">NEW ARRIVAL</span>
+            </div>
+            <h2 class="text-4xl font-black text-white italic mb-8 tracking-tighter uppercase underline decoration-green-500 underline-offset-8">PROJECT: H-CODE ADVENTURE</h2>
+            <div class="max-w-3xl mx-auto p-10 border border-cyan-500 bg-cyan-900/5 backdrop-blur-sm">
+                <p class="text-cyan-400 mb-8 font-bold">アーカイブから復元された意識「アイザック」となり、<br>hコードを選択して深宇宙の運命を切り拓け。</p>
+                <a href="adventure.html" class="btn-lcp !border-cyan-500 !text-cyan-400 !bg-cyan-500/5 hover:!bg-cyan-500 hover:!text-black">
+                    >> BOOT THE ADVENTURE <<
+                </a>
+            </div>
         </section>
 
         <!-- ECOSYSTEM: GEMS -->

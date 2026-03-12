@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>H-CODE ADVENTURE SYSTEM</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Noto+Sans+JP:wght@400;700&display=swap');
+
+        :root {
+            --h-gold: #d4af37;
+            --h-blue: #00f2ff;
+            --h-bg: #050a10;
+        }
+
+        body {
+            background-color: var(--h-bg);
+            color: #e0e0e0;
+            font-family: 'Noto Sans JP', sans-serif;
+            overflow: hidden;
+            height: 100vh;
+            margin: 0;
+        }
+
+        .mono { font-family: 'JetBrains Mono', monospace; }
+
+        .h-border {
+            border: 1px solid var(--h-blue);
+            box-shadow: 0 0 15px rgba(0, 242, 255, 0.2);
+        }
+
+        .h-button {
+            transition: all 0.3s ease;
+            background: rgba(0, 242, 255, 0.05);
+            border: 1px solid rgba(0, 242, 255, 0.3);
+        }
+
+        .h-button:hover {
+            background: rgba(0, 242, 255, 0.2);
+            border-color: var(--h-blue);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 242, 255, 0.3);
+        }
+
+        .glitch-text {
+            text-shadow: 2px 0 #ff00c1, -2px 0 #00fff9;
+        }
+
+        #bg-overlay {
+            background: linear-gradient(180deg, rgba(5,10,16,0) 0%, rgba(5,10,16,0.8) 100%);
+            position: absolute;
+            inset: 0;
+            pointer-events: none;
+        }
+
+        .scanline {
+            width: 100%;
+            height: 2px;
+            background: rgba(0, 242, 255, 0.1);
+            position: absolute;
+            animation: scan 4s linear infinite;
+            z-index: 10;
+        }
+
+        @keyframes scan {
+            from { top: 0; }
+            to { top: 100%; }
+        }
+
+        .code-display {
+            font-size: 5rem;
+            font-weight: bold;
+            color: var(--h-gold);
+            opacity: 0.1;
+            position: absolute;
+            right: 20px;
+            bottom: 20px;
+            pointer-events: none;
+        }
+        
+        .fade-in { animation: fadeIn 0.8s forwards; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        
+        .custom-scrollbar::-webkit-scrollbar { width: 4px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: rgba(0,0,0,0.1); }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: var(--h-blue); border-radius: 10px; }
+    </style>
+</head>
+<body class="flex flex-col items-center justify-center p-4">
+    <div class="scanline"></div>
+    <div id="bg-overlay"></div>
+
+    <!-- UI Container -->
+    <div class="relative z-20 w-full max-w-4xl h-[80vh] flex flex-col h-border bg-black/40 backdrop-blur-md rounded-lg p-6 overflow-hidden">
+        
+        <!-- Header / YGGDRASIL ANALYSIS -->
+        <div class="flex justify-between items-start mb-6 border-b border-white/10 pb-4">
+            <div>
+                <h1 class="text-xs mono text-cyan-400 tracking-widest uppercase">System: H-CODE ADVENTURE v1.0</h1>
+                <h2 id="location-name" class="text-xl font-bold mt-1">PROMINENCE ALPHA - BRIDGE</h2>
+            </div>
+            <div class="text-right">
+                <div class="text-[10px] mono text-white/40">YGGDRASIL ANALYSIS</div>
+                <div id="yggdrasil-code" class="text-lg mono text-yellow-500 font-bold tracking-tighter">---</div>
+            </div>
+        </div>
+
+        <!-- Main Narrative Area -->
+        <div id="narrative-box" class="flex-grow overflow-y-auto mb-6 pr-4 custom-scrollbar">
+            <p id="scenario-text" class="text-lg leading-relaxed fade-in">
+                [SYSTEM INITIALIZING...] <br>
+                アーカイブからアイザックをダウンロード中...
+            </p>
+        </div>
+
+        <!-- H-CODE SELECT UI -->
+        <div id="choice-container" class="grid grid-cols-2 md:grid-cols-5 gap-3">
+            <!-- Buttons will be injected here -->
+        </div>
+
+        <!-- Code Indicator -->
+        <div id="current-h-code" class="code-display mono"></div>
+        
+        <div class="mt-6 text-center">
+            <a href="index.html" class="text-[10px] text-white/20 hover:text-cyan-400 transition-colors">>> BACK TO HQ</a>
+        </div>
+    </div>
+
+    <!-- Feedback Modal -->
+    <div id="modal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm">
+        <div class="h-border bg-gray-900 p-8 max-w-md w-full text-center rounded-xl">
+            <h3 id="modal-title" class="text-2xl font-bold mb-4 italic"></h3>
+            <p id="modal-desc" class="mb-6 text-gray-300"></p>
+            <button onclick="closeModal()" class="h-button px-8 py-2 rounded text-cyan-400 mono">NEXT PHASE</button>
+        </div>
+    </div>
+
+    <script>
+        const hCodes = {
+            0: "不在 / 死 / 停止",
+            1: "開始 / 誕生 / 出発",
+            2: "対立 / 戦闘 / 衝突",
+            3: "創造 / 発明 / 解決",
+            4: "安定 / 日常 / 平衡",
+            5: "試練 / 困難 / 危機",
+            6: "調和 / 共存 / 交渉",
+            7: "内省 / 思考 / 洞察",
+            8: "達成 / 勝利 / 成功",
+            9: "完結 / 終焉 / ループ"
+        };
+
+        const scenario = {
+            start: {
+                text: "西暦4500年。アーカイブから復元された君、アイザックの意識が覚醒する。眼前に広がるのは、宇宙AI『Yggdrasil』が管理する深宇宙の光景だ。隣にはハイブリッドの副官が立っている。「アイザック、我々の長い旅がここから始まります。最初の行動コードを入力してください」",
+                location: "アーカイブ・コア",
+                choices: [1, 4, 7],
+                correct: 1,
+                analysis: "1 (STATUS: BOOTING)",
+                routes: {
+                    1: { next: 'encounter', msg: "「承知しました。プロミネンス・アルファ、発進します」", title: "H-CODE 1: 開始" },
+                    4: { next: 'start', msg: "「安定を選択しました。しかし、現状維持は死を意味します」", title: "H-CODE 4: 安定" },
+                    7: { next: 'start', msg: "「内省は重要ですが、今は行動の時です」", title: "H-CODE 7: 内省" }
+                }
+            },
+            encounter: {
+                text: "航行中、前方にネクスト種族の偵察艦隊を捕捉。エネルギー残量は0%に近い。プロミネンス・アルファの兵装は沈黙している。副官が叫ぶ。「敵艦隊接近！この絶望的な状況、どう定義しますか？」",
+                location: "プロミネンス・アルファ 艦橋",
+                choices: [2, 5, 0],
+                correct: 5,
+                analysis: "52 (STATUS: CRISIS VS ENEMY)",
+                routes: {
+                    5: { next: 'resolution', msg: "「これは『試練』だ。可能性を見出せ！」", title: "H-CODE 5: 試練" },
+                    2: { next: 'gameOver', msg: "「エネルギー無き『対立』は、ただの自死です」", title: "H-CODE 2: 対立" },
+                    0: { next: 'gameOver', msg: "「『停止』を選択。システムは沈黙した...」", title: "H-CODE 0: 不在" }
+                }
+            },
+            resolution: {
+                text: "エネルギー不足の中、君は『試練』を選択したことで、眠っていた予備回路を強制駆動させることに成功した。敵司令官から通信が入る。「人類の遺産よ、我々と争うか、あるいは別の道を示すか？」",
+                location: "交信チャンネル",
+                choices: [2, 6, 8],
+                correct: 6,
+                analysis: "68 (STATUS: HARMONY TO SUCCESS)",
+                routes: {
+                    6: { next: 'ending', msg: "「『調和』を選択。敵司令官は君のコードに興味を示した」", title: "H-CODE 6: 調和" },
+                    2: { next: 'gameOver', msg: "「無謀な『対立』の結果、艦は塵となった」", title: "H-CODE 2: 対立" },
+                    8: { next: 'gameOver', msg: "「過程を飛ばした『達成』は幻に過ぎない」", title: "H-CODE 8: 達成" }
+                }
+            },
+            ending: {
+                text: "敵との交渉は成功し、新たな共生ルートが開かれた。君の意識は次の階層へと昇華していく。「おめでとう、アイザック。君は第一のコードシーケンス [1-5-8(1)] を完成させた」",
+                location: "超AI YGGDRASIL 内部",
+                choices: [9],
+                correct: 9,
+                analysis: "8(1) (STATUS: LOOP START)",
+                routes: {
+                    9: { next: 'start', msg: "一つの完結。そして、新たな1（開始）へ。", title: "H-CODE 8(1): 複合解放" }
+                }
+            },
+            gameOver: {
+                text: "目の前が白転する。意味の消失。物語はここで途絶えた。だが、Hコードは保存される。再試行し、正しいシーケンスを学習せよ。",
+                location: "VOID",
+                choices: [9],
+                correct: 9,
+                analysis: "000 (STATUS: NULL)",
+                routes: {
+                    9: { next: 'start', msg: "9（完結）を経て、再び1（開始）へ戻る。", title: "H-CODE 9: ループ" }
+                }
+            }
+        };
+
+        let currentScene = 'start';
+
+        function initGame() {
+            renderScene();
+        }
+
+        function renderScene() {
+            const scene = scenario[currentScene];
+            document.getElementById('scenario-text').innerHTML = scene.text;
+            document.getElementById('location-name').innerText = scene.location;
+            document.getElementById('yggdrasil-code').innerText = scene.analysis;
+            
+            const choiceContainer = document.getElementById('choice-container');
+            choiceContainer.innerHTML = '';
+
+            scene.choices.forEach(code => {
+                const btn = document.createElement('button');
+                btn.className = 'h-button p-3 rounded flex flex-col items-center';
+                btn.onclick = () => selectCode(code);
+                btn.innerHTML = `
+                    <span class="mono text-2xl font-bold text-cyan-400">${code}</span>
+                    <span class="text-[10px] text-white/60">${hCodes[code].split(' / ')[0]}</span>
+                `;
+                choiceContainer.appendChild(btn);
+            });
+
+            document.getElementById('current-h-code').innerText = '';
+        }
+
+        function selectCode(code) {
+            const scene = scenario[currentScene];
+            const route = scene.routes[code];
+
+            if (route) {
+                showModal(route.title, route.msg, route.next);
+                document.getElementById('current-h-code').innerText = code;
+            }
+        }
+
+        function showModal(title, desc, next) {
+            document.getElementById('modal-title').innerText = title;
+            document.getElementById('modal-desc').innerText = desc;
+            document.getElementById('modal').classList.remove('hidden');
+            window.nextSceneTarget = next;
+        }
+
+        function closeModal() {
+            document.getElementById('modal').classList.add('hidden');
+            currentScene = window.nextSceneTarget;
+            renderScene();
+        }
+
+        window.onload = initGame;
+    </script>
+</body>
+</html>
