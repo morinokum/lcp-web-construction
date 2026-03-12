@@ -3,14 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>H-CODE RESONANCE VENDING MACHINE</title>
+    <title>H-CODE RESONANCE VENDING MACHINE v1.0</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Noto+Sans+JP:wght@400;700&display=swap');
 
         :root {
             --neon-green: #0f0;
-            --neon-red: #f00;
             --dark-bg: #050505;
             --panel-bg: #111;
         }
@@ -25,24 +24,29 @@
             flex-direction: column;
             align-items: center;
             justify-content: center;
+            margin: 0;
         }
 
         .machine-casing {
             border: 4px solid #333;
             background: var(--panel-bg);
             box-shadow: 0 0 50px rgba(0, 255, 0, 0.1);
-            width: 100%;
-            max-width: 500px;
+            width: 95%;
+            max-width: 400px; /* 横幅を少し絞る */
             border-radius: 10px;
-            padding: 20px;
+            padding: 15px;
             position: relative;
+            display: flex;
+            flex-grow: 0;
+            flex-shrink: 1;
+            flex-direction: column;
         }
 
         .screen-container {
             border: 2px solid var(--neon-green);
             background: #001100;
-            height: 200px;
-            margin-bottom: 20px;
+            height: 120px; /* 高さを抑える */
+            margin-bottom: 10px;
             position: relative;
             overflow: hidden;
             border-radius: 4px;
@@ -56,9 +60,9 @@
 
         .resonance-meter {
             height: 4px;
-            background: #333;
+            background: #222;
             width: 100%;
-            margin-top: 10px;
+            margin-top: 5px;
             position: relative;
         }
 
@@ -66,23 +70,23 @@
             height: 100%;
             background: var(--neon-green);
             width: 0%;
-            transition: width 0.5s ease-out;
+            transition: width 0.3s ease-out;
             box-shadow: 0 0 10px var(--neon-green);
         }
 
         .keypad {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
-            gap: 10px;
-            margin-bottom: 20px;
+            gap: 8px;
+            margin-bottom: 15px;
         }
 
         .key-btn {
-            border: 1px solid #333;
+            border: 1px solid #444;
             background: #222;
             color: #fff;
-            padding: 20px;
-            font-size: 1.5rem;
+            padding: 12px; /* パディングを小さく */
+            font-size: 1.2rem;
             cursor: pointer;
             transition: 0.1s;
             border-radius: 4px;
@@ -95,16 +99,17 @@
         }
 
         .dispense-slot {
-            height: 80px;
+            height: 60px; /* 高さを抑える */
             background: #000;
-            border-top: 4px solid #333;
+            border: 2px solid #333;
             display: flex;
             align-items: center;
             justify-content: center;
-            color: #555;
-            font-size: 0.8rem;
+            color: #444;
+            font-size: 0.7rem;
             position: relative;
             overflow: hidden;
+            border-radius: 4px;
         }
 
         .product-capsule {
@@ -117,8 +122,9 @@
             justify-content: center;
             font-weight: bold;
             transform: translateY(100%);
-            transition: transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
             text-decoration: none;
+            text-align: center;
         }
 
         .product-capsule.dropped {
@@ -128,52 +134,44 @@
         .scanline {
             position: absolute;
             top: 0; left: 0; right: 0; bottom: 0;
-            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
-            background-size: 100% 2px, 3px 100%;
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.1) 50%);
+            background-size: 100% 4px;
             pointer-events: none;
             z-index: 10;
         }
 
-        .glitch-text {
-            animation: glitch 1s linear infinite;
-        }
-
+        .glitch-text { animation: glitch 0.5s linear infinite; }
         @keyframes glitch {
-            2%, 64% { transform: translate(2px,0) skew(0deg); }
-            4%, 60% { transform: translate(-2px,0) skew(0deg); }
-            62% { transform: translate(0,0) skew(5deg); }
+            0% { transform: translate(0); }
+            20% { transform: translate(-2px, 2px); }
+            40% { transform: translate(-2px, -2px); }
+            60% { transform: translate(2px, 2px); }
+            80% { transform: translate(2px, -2px); }
+            100% { transform: translate(0); }
         }
     </style>
 </head>
 <body>
 
-    <h1 class="text-2xl mb-8 font-bold tracking-widest text-center">
+    <h1 class="text-xl mb-4 font-bold tracking-widest text-center">
         RESONANCE VENDING<br>
-        <span class="text-xs text-gray-500">PAY WITH YOUR WAVEFORM</span>
+        <span class="text-[10px] text-gray-600">FIRST CODE MUST BE '1'</span>
     </h1>
 
     <div class="machine-casing">
-        <!-- Screen -->
         <div class="screen-container">
-            <div class="absolute top-2 left-2 text-xs z-10">
-                STATUS: <span id="status-text">LISTENING...</span><br>
-                RESONANCE: <span id="resonance-val">0.00</span>%
+            <div class="absolute top-1 left-2 text-[10px] z-10 mono">
+                CODE: <span id="status-text">_</span><br>
+                RESONANCE: <span id="resonance-val">0.0</span>%
             </div>
             <canvas id="waveCanvas" class="wave-canvas"></canvas>
             <div class="scanline"></div>
         </div>
 
-        <!-- Meter -->
-        <div class="flex justify-between text-xs text-gray-500 mb-1">
-            <span>0%</span>
-            <span>THRESHOLD</span>
-            <span>100%</span>
-        </div>
-        <div class="resonance-meter mb-6">
+        <div class="resonance-meter mb-4">
             <div id="resonance-bar" class="resonance-fill"></div>
         </div>
 
-        <!-- Keypad -->
         <div class="keypad">
             <button class="key-btn" onclick="inputSignal(1)">1</button>
             <button class="key-btn" onclick="inputSignal(2)">2</button>
@@ -184,38 +182,31 @@
             <button class="key-btn" onclick="inputSignal(7)">7</button>
             <button class="key-btn" onclick="inputSignal(8)">8</button>
             <button class="key-btn" onclick="inputSignal(9)">9</button>
-            <button class="key-btn text-red-500" onclick="resetSignal()">CLR</button>
+            <button class="key-btn text-red-500" onclick="resetSignal()">C</button>
             <button class="key-btn" onclick="inputSignal(0)">0</button>
-            <button class="key-btn text-green-400" onclick="verifyResonance()">ENT</button>
+            <button class="key-btn text-green-400" onclick="verifyResonance()">E</button>
         </div>
 
-        <!-- Output -->
         <div class="dispense-slot">
-            <span id="slot-msg">WAITING FOR SYNCHRONIZATION</span>
+            <span id="slot-msg">NO DATA DISPENSED</span>
             <a href="#" id="product-link" class="product-capsule" target="_blank">
-                <div>
-                    >> DATA UNLOCKED <<<br>
-                    <span class="text-xs font-normal">CLICK TO RETRIEVE</span>
+                <div class="text-[10px]">
+                    >> [TERMINAL UNLOCKED] <<<br>
+                    DOWNLOAD INTEL ASSET
                 </div>
             </a>
         </div>
     </div>
 
-    <div class="mt-8 text-center text-xs text-gray-600">
-        <p>H-CODE RESONANCE SYSTEM v1.0</p>
-        <a href="index.html" class="hover:text-green-500 mt-2 inline-block">[ RETURN TO HQ ]</a>
+    <div class="mt-4 text-[10px] text-gray-700">
+        <a href="index.html" class="hover:text-green-500">[ RETURN TO HQ ]</a>
     </div>
 
     <script>
-        // Wave Visualization
         const canvas = document.getElementById('waveCanvas');
         const ctx = canvas.getContext('2d');
-        let width, height;
-        let phase = 0;
-        let amplitude = 10;
-        let frequency = 0.05;
-        let targetAmplitude = 10;
-        let targetFrequency = 0.05;
+        let width, height, phase = 0, amplitude = 5, frequency = 0.05;
+        let targetAmplitude = 5, targetFrequency = 0.05;
 
         function resize() {
             width = canvas.width = canvas.offsetWidth;
@@ -225,13 +216,12 @@
         resize();
 
         function animate() {
-            ctx.fillStyle = 'rgba(0, 17, 0, 0.2)';
+            ctx.fillStyle = 'rgba(0, 17, 0, 0.3)';
             ctx.fillRect(0, 0, width, height);
             ctx.beginPath();
             ctx.strokeStyle = '#0f0';
-            ctx.lineWidth = 2;
+            ctx.lineWidth = 1;
 
-            // Interpolate towards target values (smooth transition)
             amplitude += (targetAmplitude - amplitude) * 0.1;
             frequency += (targetFrequency - frequency) * 0.1;
 
@@ -240,88 +230,81 @@
                 ctx.lineTo(x, y);
             }
             ctx.stroke();
-            phase += 0.2;
+            phase += 0.15;
             requestAnimationFrame(animate);
         }
         animate();
 
-        // Machine Logic
         let currentResonance = 0;
         let inputSequence = [];
-        const correctSequences = {
-            "580": { power: 100, name: "H-CODE: AWAKENING (Sample)", url: "https://github.com/LINUX-RESEARCH-GROUP/lcp-web-construction/blob/master/H-CODE_SPEC_v1.0.md" }, // Free sample
-            "159": { power: 100, name: "STORY: GENESIS", url: "#" }, 
-            "000": { power: 0, name: "VOID", url: "#" }
-        };
+        let systemLocked = false;
 
         function inputSignal(num) {
-            inputSequence.push(num);
-            if (inputSequence.length > 5) inputSequence.shift(); // Keep last 5
+            if (systemLocked) return;
 
-            // Visual Feedback
-            targetAmplitude = 50 + (Math.random() * 20);
-            targetFrequency = 0.1 + (Math.random() * 0.1);
+            // Strict Rule: First code must be '1'
+            if (inputSequence.length === 0 && num !== 1) {
+                document.getElementById('status-text').innerText = "DENIED: START WITH 1";
+                targetAmplitude = 40; targetFrequency = 0.5; // Error wave
+                setTimeout(() => { targetAmplitude = 5; targetFrequency = 0.05; }, 300);
+                return;
+            }
+
+            inputSequence.push(num);
+            if (inputSequence.length > 3) inputSequence.shift(); // Max 3 chars for codes like 580
+
+            // Visual Sync
+            targetAmplitude = 20; targetFrequency = 0.1;
+            setTimeout(() => { targetAmplitude = 5; targetFrequency = 0.05; }, 150);
+
+            // Resonance logic
+            let resonanceGain = 33.4; // 3 keys to reach 100%
+            updateResonance(currentResonance + resonanceGain);
             
-            // Artificial "Mining" work (each button press adds a little resonance)
-            let boost = Math.floor(Math.random() * 5) + 2; 
-            updateResonance(currentResonance + boost);
-            
-            document.getElementById('status-text').innerText = `INPUT: ${inputSequence.join('')}`;
-            
-            setTimeout(() => {
-                targetAmplitude = 10;
-                targetFrequency = 0.05;
-            }, 200);
+            document.getElementById('status-text').innerText = inputSequence.join('');
         }
 
         function resetSignal() {
             inputSequence = [];
             updateResonance(0);
-            document.getElementById('status-text').innerText = "CLEARED";
+            systemLocked = false;
+            document.getElementById('status-text').innerText = "_";
             document.querySelector('.product-capsule').classList.remove('dropped');
+            document.getElementById('status-text').classList.remove('glitch-text');
         }
 
         function updateResonance(val) {
             currentResonance = Math.min(val, 100);
-            document.getElementById('resonance-val').innerText = currentResonance.toFixed(2);
+            document.getElementById('resonance-val').innerText = currentResonance.toFixed(1);
             document.getElementById('resonance-bar').style.width = `${currentResonance}%`;
-            
-            if (currentResonance >= 100) {
-                document.getElementById('status-text').innerText = "SYNCHRONIZED!";
-                document.getElementById('status-text').classList.add('glitch-text');
-                document.documentElement.style.setProperty('--neon-green', '#fff');
-            }
         }
 
         function verifyResonance() {
             const seq = inputSequence.join('');
             
-            // Check for specific "Jackpot" codes
-            if (correctSequences[seq]) {
-                updateResonance(100);
-                dispense(correctSequences[seq].name, correctSequences[seq].url);
+            // Check specifically for 580 (Actually "158" would be the real sequence if it starts with 1, 
+            // but Dr. said 580 is the hidden code. Let's allow 580 if it follows the 1 rule)
+            // Wait, if the first must be 1, then sequence "158" or "1" + something... 
+            // Let's make it so if they ever type 580 *after* the initial 1 (or as part of it), it works.
+            // Actually, if input is limited to 3, and first must be 1, then "180" or "158" is more logical.
+            // But I will make "580" work as the magic trigger if the system 'Resonated' enough.
+            
+            if (seq === "580" && currentResonance >= 99) {
+                document.getElementById('status-text').innerText = "SYNC COMPLETE";
+                document.getElementById('status-text').classList.add('glitch-text');
+                dispense("LCP INTELLIGENCE TERMINAL", "https://linux-research-group.github.io/lcp-intelligence-terminal/");
             } else {
-                // Regular luck
-                if (currentResonance >= 100) {
-                    dispense("RANDOM H-FRAGMENT", "#");
-                } else {
-                    document.getElementById('status-text').innerText = "RESISTANCE TOO HIGH";
-                    targetAmplitude = 5; // Flatline feel
-                }
+                document.getElementById('status-text').innerText = "SIGNAL MISMATCH";
+                inputSequence = [];
+                updateResonance(0);
             }
         }
 
         function dispense(name, url) {
             const capsule = document.getElementById('product-link');
             capsule.href = url;
-            capsule.querySelector('div').innerHTML = `>> ${name} << <br><span class="text-xs font-normal">CLICK TO RETRIEVE</span>`;
             capsule.classList.add('dropped');
-            
-            // Reset after delay
-            setTimeout(() => {
-                document.documentElement.style.setProperty('--neon-green', '#0f0');
-                document.getElementById('status-text').classList.remove('glitch-text');
-            }, 2000);
+            systemLocked = true;
         }
     </script>
 </body>
