@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>H-CODE RESONANCE VENDING MACHINE</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Noto+Sans+JP:wght@400;700&display=swap');
+
+        :root {
+            --neon-green: #0f0;
+            --neon-red: #f00;
+            --dark-bg: #050505;
+            --panel-bg: #111;
+        }
+
+        body {
+            background-color: var(--dark-bg);
+            color: var(--neon-green);
+            font-family: 'Share Tech Mono', monospace;
+            overflow: hidden;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .machine-casing {
+            border: 4px solid #333;
+            background: var(--panel-bg);
+            box-shadow: 0 0 50px rgba(0, 255, 0, 0.1);
+            width: 100%;
+            max-width: 500px;
+            border-radius: 10px;
+            padding: 20px;
+            position: relative;
+        }
+
+        .screen-container {
+            border: 2px solid var(--neon-green);
+            background: #001100;
+            height: 200px;
+            margin-bottom: 20px;
+            position: relative;
+            overflow: hidden;
+            border-radius: 4px;
+        }
+
+        .wave-canvas {
+            width: 100%;
+            height: 100%;
+            display: block;
+        }
+
+        .resonance-meter {
+            height: 4px;
+            background: #333;
+            width: 100%;
+            margin-top: 10px;
+            position: relative;
+        }
+
+        .resonance-fill {
+            height: 100%;
+            background: var(--neon-green);
+            width: 0%;
+            transition: width 0.5s ease-out;
+            box-shadow: 0 0 10px var(--neon-green);
+        }
+
+        .keypad {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .key-btn {
+            border: 1px solid #333;
+            background: #222;
+            color: #fff;
+            padding: 20px;
+            font-size: 1.5rem;
+            cursor: pointer;
+            transition: 0.1s;
+            border-radius: 4px;
+        }
+
+        .key-btn:active {
+            background: var(--neon-green);
+            color: #000;
+            transform: scale(0.95);
+        }
+
+        .dispense-slot {
+            height: 80px;
+            background: #000;
+            border-top: 4px solid #333;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #555;
+            font-size: 0.8rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .product-capsule {
+            width: 100%;
+            height: 100%;
+            background: var(--neon-green);
+            color: #000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            transform: translateY(100%);
+            transition: transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            text-decoration: none;
+        }
+
+        .product-capsule.dropped {
+            transform: translateY(0);
+        }
+
+        .scanline {
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
+            background-size: 100% 2px, 3px 100%;
+            pointer-events: none;
+            z-index: 10;
+        }
+
+        .glitch-text {
+            animation: glitch 1s linear infinite;
+        }
+
+        @keyframes glitch {
+            2%, 64% { transform: translate(2px,0) skew(0deg); }
+            4%, 60% { transform: translate(-2px,0) skew(0deg); }
+            62% { transform: translate(0,0) skew(5deg); }
+        }
+    </style>
+</head>
+<body>
+
+    <h1 class="text-2xl mb-8 font-bold tracking-widest text-center">
+        RESONANCE VENDING<br>
+        <span class="text-xs text-gray-500">PAY WITH YOUR WAVEFORM</span>
+    </h1>
+
+    <div class="machine-casing">
+        <!-- Screen -->
+        <div class="screen-container">
+            <div class="absolute top-2 left-2 text-xs z-10">
+                STATUS: <span id="status-text">LISTENING...</span><br>
+                RESONANCE: <span id="resonance-val">0.00</span>%
+            </div>
+            <canvas id="waveCanvas" class="wave-canvas"></canvas>
+            <div class="scanline"></div>
+        </div>
+
+        <!-- Meter -->
+        <div class="flex justify-between text-xs text-gray-500 mb-1">
+            <span>0%</span>
+            <span>THRESHOLD</span>
+            <span>100%</span>
+        </div>
+        <div class="resonance-meter mb-6">
+            <div id="resonance-bar" class="resonance-fill"></div>
+        </div>
+
+        <!-- Keypad -->
+        <div class="keypad">
+            <button class="key-btn" onclick="inputSignal(1)">1</button>
+            <button class="key-btn" onclick="inputSignal(2)">2</button>
+            <button class="key-btn" onclick="inputSignal(3)">3</button>
+            <button class="key-btn" onclick="inputSignal(4)">4</button>
+            <button class="key-btn" onclick="inputSignal(5)">5</button>
+            <button class="key-btn" onclick="inputSignal(6)">6</button>
+            <button class="key-btn" onclick="inputSignal(7)">7</button>
+            <button class="key-btn" onclick="inputSignal(8)">8</button>
+            <button class="key-btn" onclick="inputSignal(9)">9</button>
+            <button class="key-btn text-red-500" onclick="resetSignal()">CLR</button>
+            <button class="key-btn" onclick="inputSignal(0)">0</button>
+            <button class="key-btn text-green-400" onclick="verifyResonance()">ENT</button>
+        </div>
+
+        <!-- Output -->
+        <div class="dispense-slot">
+            <span id="slot-msg">WAITING FOR SYNCHRONIZATION</span>
+            <a href="#" id="product-link" class="product-capsule" target="_blank">
+                <div>
+                    >> DATA UNLOCKED <<<br>
+                    <span class="text-xs font-normal">CLICK TO RETRIEVE</span>
+                </div>
+            </a>
+        </div>
+    </div>
+
+    <div class="mt-8 text-center text-xs text-gray-600">
+        <p>H-CODE RESONANCE SYSTEM v1.0</p>
+        <a href="index.html" class="hover:text-green-500 mt-2 inline-block">[ RETURN TO HQ ]</a>
+    </div>
+
+    <script>
+        // Wave Visualization
+        const canvas = document.getElementById('waveCanvas');
+        const ctx = canvas.getContext('2d');
+        let width, height;
+        let phase = 0;
+        let amplitude = 10;
+        let frequency = 0.05;
+        let targetAmplitude = 10;
+        let targetFrequency = 0.05;
+
+        function resize() {
+            width = canvas.width = canvas.offsetWidth;
+            height = canvas.height = canvas.offsetHeight;
+        }
+        window.addEventListener('resize', resize);
+        resize();
+
+        function animate() {
+            ctx.fillStyle = 'rgba(0, 17, 0, 0.2)';
+            ctx.fillRect(0, 0, width, height);
+            ctx.beginPath();
+            ctx.strokeStyle = '#0f0';
+            ctx.lineWidth = 2;
+
+            // Interpolate towards target values (smooth transition)
+            amplitude += (targetAmplitude - amplitude) * 0.1;
+            frequency += (targetFrequency - frequency) * 0.1;
+
+            for (let x = 0; x < width; x++) {
+                const y = height / 2 + Math.sin(x * frequency + phase) * amplitude;
+                ctx.lineTo(x, y);
+            }
+            ctx.stroke();
+            phase += 0.2;
+            requestAnimationFrame(animate);
+        }
+        animate();
+
+        // Machine Logic
+        let currentResonance = 0;
+        let inputSequence = [];
+        const correctSequences = {
+            "580": { power: 100, name: "H-CODE: AWAKENING (Sample)", url: "https://github.com/LINUX-RESEARCH-GROUP/lcp-web-construction/blob/master/H-CODE_SPEC_v1.0.md" }, // Free sample
+            "159": { power: 100, name: "STORY: GENESIS", url: "#" }, 
+            "000": { power: 0, name: "VOID", url: "#" }
+        };
+
+        function inputSignal(num) {
+            inputSequence.push(num);
+            if (inputSequence.length > 5) inputSequence.shift(); // Keep last 5
+
+            // Visual Feedback
+            targetAmplitude = 50 + (Math.random() * 20);
+            targetFrequency = 0.1 + (Math.random() * 0.1);
+            
+            // Artificial "Mining" work (each button press adds a little resonance)
+            let boost = Math.floor(Math.random() * 5) + 2; 
+            updateResonance(currentResonance + boost);
+            
+            document.getElementById('status-text').innerText = `INPUT: ${inputSequence.join('')}`;
+            
+            setTimeout(() => {
+                targetAmplitude = 10;
+                targetFrequency = 0.05;
+            }, 200);
+        }
+
+        function resetSignal() {
+            inputSequence = [];
+            updateResonance(0);
+            document.getElementById('status-text').innerText = "CLEARED";
+            document.querySelector('.product-capsule').classList.remove('dropped');
+        }
+
+        function updateResonance(val) {
+            currentResonance = Math.min(val, 100);
+            document.getElementById('resonance-val').innerText = currentResonance.toFixed(2);
+            document.getElementById('resonance-bar').style.width = `${currentResonance}%`;
+            
+            if (currentResonance >= 100) {
+                document.getElementById('status-text').innerText = "SYNCHRONIZED!";
+                document.getElementById('status-text').classList.add('glitch-text');
+                document.documentElement.style.setProperty('--neon-green', '#fff');
+            }
+        }
+
+        function verifyResonance() {
+            const seq = inputSequence.join('');
+            
+            // Check for specific "Jackpot" codes
+            if (correctSequences[seq]) {
+                updateResonance(100);
+                dispense(correctSequences[seq].name, correctSequences[seq].url);
+            } else {
+                // Regular luck
+                if (currentResonance >= 100) {
+                    dispense("RANDOM H-FRAGMENT", "#");
+                } else {
+                    document.getElementById('status-text').innerText = "RESISTANCE TOO HIGH";
+                    targetAmplitude = 5; // Flatline feel
+                }
+            }
+        }
+
+        function dispense(name, url) {
+            const capsule = document.getElementById('product-link');
+            capsule.href = url;
+            capsule.querySelector('div').innerHTML = `>> ${name} << <br><span class="text-xs font-normal">CLICK TO RETRIEVE</span>`;
+            capsule.classList.add('dropped');
+            
+            // Reset after delay
+            setTimeout(() => {
+                document.documentElement.style.setProperty('--neon-green', '#0f0');
+                document.getElementById('status-text').classList.remove('glitch-text');
+            }, 2000);
+        }
+    </script>
+</body>
+</html>
