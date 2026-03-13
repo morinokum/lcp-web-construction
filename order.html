@@ -13,6 +13,9 @@
         .plan-box { border: 1px solid #30363d; background: #161b22; padding: 30px; border-radius: 8px; margin-bottom: 20px; }
         .btn-order { background: #238636; color: white; padding: 20px 40px; border-radius: 6px; font-weight: bold; display: inline-block; text-decoration: none; transition: 0.2s; }
         .btn-order:hover { background: #2ea44f; }
+        .btn-sponsor { background: #db61a2; color: white; padding: 15px 30px; border-radius: 6px; font-weight: bold; display: inline-flex; align-items: center; text-decoration: none; transition: 0.2s; border: 1px solid rgba(219, 97, 162, 0.3); }
+        .btn-sponsor:hover { background: #be4d8a; box-shadow: 0 0 20px rgba(219, 97, 162, 0.3); }
+        .heart-icon { margin-right: 10px; font-size: 1.2rem; }
         h1, h2 { color: #fff; }
     </style>
 </head>
@@ -42,12 +45,23 @@
             </div>
         </section>
 
+        <section class="mb-16 p-8 border border-pink-500/30 bg-pink-900/5 rounded-xl">
+            <h2 class="text-xl font-bold mb-4 text-pink-400 italic">■ お支払い・決済（推奨）</h2>
+            <p class="text-sm opacity-90 mb-6">
+                制作費用のお支払いや継続的なサポートには、GitHub公式の決済システム **GitHub Sponsors** を推奨しております。クレジットカード決済に対応し、手数料も（現在は）GitHubが負担するため、最も効率的にドクターへの支援が可能です。
+            </p>
+            <a href="https://github.com/sponsors/LINUX-RESEARCH-GROUP" class="btn-sponsor" target="_blank">
+                <span class="heart-icon">❤</span> GitHub Sponsors で支払う / 支援する
+            </a>
+            <p class="mt-4 text-[10px] text-gray-500 italic">※その他の決済手段（銀行振込、PayPal等）をご希望の場合は、お打ち合わせ時にご相談ください。</p>
+        </section>
+
         <section class="mb-16">
-            <h2 class="text-2xl font-bold mb-6 border-l-4 border-green-500 pl-4">お支払い・フロー</h2>
+            <h2 class="text-2xl font-bold mb-6 border-l-4 border-green-500 pl-4">お取引フロー</h2>
             <div class="space-y-4 text-sm opacity-90">
                 <p><span class="accent">Step 1:</span> 下記のボタンから、GitHubのIssue（掲示板）で依頼内容を送信。</p>
                 <p><span class="accent">Step 2:</span> ドクターひろし本人とヒアリング。仕様と金額を確定。</p>
-                <p><span class="accent">Step 3:</span> お支払いは <span class="white font-bold underline">GitHub Sponsors</span> または別途指定の方法で決済。</p>
+                <p><span class="accent">Step 3:</span> お支払いは上記の **GitHub Sponsors** で決済（または別途相談）。</p>
                 <p><span class="accent">Step 4:</span> 構築開始。完了後、リポジトリの譲渡・公開。</p>
             </div>
         </section>
@@ -55,7 +69,6 @@
         <div class="text-center py-20 bg-green-900/10 rounded-xl border border-green-500/30">
             <h2 class="text-2xl font-black mb-8">準備は整いましたか？</h2>
             <p class="text-sm text-gray-400 mb-10">ボタンを押すと、専用の依頼フォーム（GitHub Issue）が開きます。</p>
-            <!-- ここで、テンプレートを明示的に指定したリンクを貼る -->
             <a href="https://github.com/LINUX-RESEARCH-GROUP/lcp-web-construction/issues/new?assignees=h011145&labels=order&template=order_form.md&title=%5BORDER%5D+%E5%80%99%E8%A3%9C%EF%BC%9A%E3%81%8A%E5%90%8D%E5%89%8D" class="btn-order">
                 >> 依頼フォーム（Issue）を開く <<
             </a>
