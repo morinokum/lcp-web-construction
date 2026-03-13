@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LCP SYSTEM INDEX | COMMAND CENTER</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Noto+Sans+JP:wght@400;700&display=swap');
+        body { background-color: #050505; color: #0f0; font-family: 'Share Tech Mono', 'Noto Sans JP', monospace; line-height: 1.6; padding: 20px; }
+        .container { max-width: 1000px; margin: 0 auto; }
+        .index-table { width: 100%; border-collapse: collapse; margin-top: 40px; border: 1px solid #1a1a1a; }
+        .index-table th { background: #111; color: #fff; text-align: left; padding: 15px; border-bottom: 2px solid #0f0; font-size: 0.8rem; }
+        .index-table td { padding: 15px; border-bottom: 1px solid #1a1a1a; font-size: 0.9rem; transition: 0.2s; }
+        .index-table tr:hover td { background: rgba(0, 255, 0, 0.05); }
+        .tag-id { background: #0f0; color: #000; font-weight: bold; padding: 2px 8px; border-radius: 2px; font-size: 0.7rem; }
+        .status-live { color: #0f0; animation: blink 2s infinite; }
+        @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
+        .btn-link { color: #0f0; text-decoration: underline; }
+        .btn-link:hover { color: #fff; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header class="mb-20">
+            <h1 class="text-3xl font-bold tracking-tighter uppercase mb-2">LCP SYSTEM INDEX</h1>
+            <p class="text-xs opacity-50 font-mono">>> CONNECTED TO DR. HIROSHI LAB HQ</p>
+        </header>
+
+        <section>
+            <h2 class="text-xs font-bold text-gray-500 uppercase tracking-widest mb-6">MANAGEMENT TABLE</h2>
+            <table class="index-table">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>NAME / PROJECT</th>
+                        <th>URL / REPOSITORY</th>
+                        <th>STATUS</th>
+                        <th>REMARKS</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- HQ -->
+                    <tr>
+                        <td><span class="tag-id">HQ1</span></td>
+                        <td class="font-bold text-white">LCP WEB HQ</td>
+                        <td><a href="index.html" class="btn-link">lcp-web-construction</a></td>
+                        <td><span class="status-live">● LIVE</span></td>
+                        <td class="text-xs opacity-60">メイン本店 / 総合受付</td>
+                    </tr>
+                    <!-- SALES -->
+                    <tr>
+                        <td><span class="tag-id">S1</span></td>
+                        <td class="font-bold text-white">GH-PAGES MANIFESTO</td>
+                        <td><a href="https://linux-research-group.github.io/github-pages-revolution/" class="btn-link">gh-pages-revolution</a></td>
+                        <td><span class="status-live">● LIVE</span></td>
+                        <td class="text-xs opacity-60">宣伝用インデックス1 (ダーク)</td>
+                    </tr>
+                    <!-- GAMES -->
+                    <tr>
+                        <td><span class="tag-id">G1</span></td>
+                        <td class="font-bold text-white">H-CODE ADVENTURE</td>
+                        <td><a href="adventure.html" class="btn-link">adventure.html</a></td>
+                        <td><span class="status-live">● LIVE</span></td>
+                        <td class="text-xs opacity-60">アイザックの宇宙漂流ゲーム</td>
+                    </tr>
+                    <!-- TRANSACTION -->
+                    <tr>
+                        <td><span class="tag-id">T1</span></td>
+                        <td class="font-bold text-white">RESONANCE VENDING</td>
+                        <td><a href="vending.html" class="btn-link">vending.html</a></td>
+                        <td><span class="status-live">● LIVE</span></td>
+                        <td class="text-xs opacity-60">波動共鳴型自動販売機 (Beta)</td>
+                    </tr>
+                    <tr>
+                        <td><span class="tag-id">T2</span></td>
+                        <td class="font-bold text-white">ORDER GUIDELINE</td>
+                        <td><a href="order.html" class="btn-link">order.html</a></td>
+                        <td><span class="status-live">● LIVE</span></td>
+                        <td class="text-xs opacity-60">お取引のしおり / 制作プラン</td>
+                    </tr>
+                    <!-- LEGACY / ARCHIVE -->
+                    <tr>
+                        <td><span class="tag-id">A1</span></td>
+                        <td class="font-bold text-white">NEO WORLD SAGA</td>
+                        <td><a href="https://h011145.github.io/" class="btn-link">h011145.github.io</a></td>
+                        <td><span class="status-live">● LIVE</span></td>
+                        <td class="text-xs opacity-60">オフィシャル・サーガ / アーカイブ</td>
+                    </tr>
+                    <tr>
+                        <td><span class="tag-id">A2</span></td>
+                        <td class="font-bold text-white">TERMINAL</td>
+                        <td><a href="https://linux-research-group.github.io/lcp-intelligence-terminal/" class="btn-link">lcp-intelligence-terminal</a></td>
+                        <td><span class="status-live">● LIVE</span></td>
+                        <td class="text-xs opacity-60">諜報端末 / 極秘リンク先</td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+
+        <footer class="mt-40 pt-10 border-t border-green-900/30 opacity-20 text-[10px] uppercase font-bold text-center">
+            SYSTEM INDEX v1.0 // EXTENSIBILITY FOCUSED // ARCHIVE PROTECTION
+        </footer>
+    </div>
+</body>
+</html>
