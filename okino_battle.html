@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>UNIT-10: WITCH BATTLE VS OKINO [HIROSHI_ALGORITHM]</title>
+    <title>UNIT-10: WITCH BATTLE VS OKINO [DUAL_ALGORITHM]</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap');
         body { margin: 0; background: #000; color: #fff; font-family: 'Share Tech Mono', monospace; overflow: hidden; touch-action: none; }
@@ -23,7 +23,7 @@
         </div>
         <div class="hp-bar-wrap"><div id="boss-hp"></div></div>
     </div>
-    <div id="msg">ACCESSING ARCHIVE...<br>[ TOUCH TO START BATTLE ]</div>
+    <div id="msg">ACCESSING ARCHIVE...<br>[ TOUCH TO DECODE ]</div>
     <canvas id="gameCanvas"></canvas>
     <a href="arcade.html" class="btn" style="bottom: 20px;">BACK TO ARCADE</a>
 
@@ -34,9 +34,9 @@
         const scoreEl = document.getElementById('score');
         const msgEl = document.getElementById('msg');
 
-        let W, H, gameActive = false, score = 0, frame = 0;
+        let W, H, gameActive = false, score = 0, frame = 0, phase = "idle";
 
-        // --- FM BGM ENGINE (HIROSHI THEORY ALGORITHM) ---
+        // --- FM BGM ENGINE (DUAL ALGORITHM) ---
         const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
         const mainGain = audioCtx.createGain();
         mainGain.connect(audioCtx.destination);
@@ -44,9 +44,8 @@
 
         const emotions = {
             "joy": { "tempo": 192, "rhythm": [0.5, 2, 0.5, 1, 1, 1, 1, 1, 1, 0.5] },
-            "anger": { "tempo": 180, "rhythm": [0.25, 0.25, 0.25, 0.25] },
-            "sorrow": { "tempo": 76, "rhythm": [3] },
-            "pleasure": { "tempo": 69, "rhythm": [1.5, 0.5, 1.5, 0.5] }
+            "sorrow_intro": { "tempo": 50, "rhythm": [2, 2, 4] },
+            "sorrow_main": { "tempo": 76, "rhythm": [3] }
         };
 
         const frequencies = {
@@ -55,11 +54,22 @@
             'C5': 523.25, 'D5': 587.33, 'E5': 659.25, 'F5': 698.46, 'G5': 783.99, 'A5': 880.00, 'B5': 987.77, 'C6': 1046.50
         };
 
-        const bgmTracks = [
+        // INTRO TRACKS
+        const introTracks = [
+            { "emotion": "sorrow_intro", "sequence": ["A4","G4","E4","D4"], "step": 0, "fm": {"depth": 100,"ratio": 0.5,"rel": 1.5} },
+            { "emotion": "sorrow_intro", "sequence": ["C3","G2"], "step": 0, "fm": {"depth": 50,"ratio": 0.25,"rel": 2} },
+            { "emotion": "sorrow_intro", "sequence": ["E5","B4"], "step": 0, "fm": {"depth": 200,"ratio": 1.4,"rel": 1.2} }
+        ];
+
+        // MAIN TRACKS (BY DR. HIROSHI)
+        const mainTracks = [
             { "emotion": "joy", "sequence": ["A4", "F3", "E5", "E5", "F3", "E4", "B4", "A4", "D3", "C3"], "step": 0, "fm": { "depth": 1861, "ratio": 3.5, "rel": 0.3 } },
             { "emotion": "joy", "sequence": ["G4", "B3", "F5", "E5", "D5", "F3", "D3", "F4"], "step": 0, "fm": { "depth": 1620, "ratio": 4.4, "rel": 0.95 } },
-            { "emotion": "sorrow", "sequence": ["B5", "A5", "G5", "G3", "F3", "D3"], "step": 0, "fm": { "depth": 1578, "ratio": 6.3, "rel": 1.6 } }
+            { "emotion": "sorrow_main", "sequence": ["B5", "A5", "G5", "G3", "F3", "D3"], "step": 0, "fm": { "depth": 1578, "ratio": 6.3, "rel": 1.6 } }
         ];
+
+        let bgmTimers = [];
+        let currentBgmSet = null;
 
         function playFM(note, fmParams) {
             if(!frequencies[note]) return;
@@ -69,29 +79,24 @@
             const modGain = audioCtx.createGain();
             const env = audioCtx.createGain();
 
-            carrier.type = 'sine';
-            carrier.frequency.value = freq;
-            modulator.type = 'sine';
-            modulator.frequency.value = freq * fmParams.ratio;
+            carrier.type = 'sine'; carrier.frequency.value = freq;
+            modulator.type = 'sine'; modulator.frequency.value = freq * fmParams.ratio;
             modGain.gain.value = fmParams.depth;
 
             env.gain.setValueAtTime(0.2, audioCtx.currentTime);
             env.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + fmParams.rel);
 
-            modulator.connect(modGain);
-            modGain.connect(carrier.frequency);
-            carrier.connect(env);
-            env.connect(mainGain);
+            modulator.connect(modGain); modGain.connect(carrier.frequency);
+            carrier.connect(env); env.connect(mainGain);
 
-            modulator.start();
-            carrier.start();
+            modulator.start(); carrier.start();
             modulator.stop(audioCtx.currentTime + fmParams.rel);
             carrier.stop(audioCtx.currentTime + fmParams.rel);
         }
 
-        function playBgmTrack(idx) {
-            if(!gameActive) return;
-            const t = bgmTracks[idx];
+        function playBgmTrack(idx, set) {
+            if(currentBgmSet !== set) return;
+            const t = set[idx];
             const emo = emotions[t.emotion];
             const note = t.sequence[t.step % t.sequence.length];
             const interval = (60 / emo.tempo) * emo.rhythm[t.step % emo.rhythm.length] * 1000;
@@ -99,10 +104,18 @@
             if(note) playFM(note, t.fm);
             
             t.step++;
-            setTimeout(() => playBgmTrack(idx), interval);
+            const timer = setTimeout(() => playBgmTrack(idx, set), interval);
+            bgmTimers.push(timer);
         }
 
-        // --- OKINO PIXEL DATA ---
+        function switchBgm(newSet) {
+            bgmTimers.forEach(clearTimeout);
+            bgmTimers = [];
+            currentBgmSet = newSet;
+            currentBgmSet.forEach((_, i) => playBgmTrack(i, newSet));
+        }
+
+        // --- OKINO PIXEL DATA (SAME AS BEFORE) ---
         const okinoPixels = [
             {x:6,y:9,c:"#df58b4"},{x:6,y:8,c:"#0929ce"},{x:7,y:7,c:"#0929ce"},{x:9,y:6,c:"#ab5eb5"},{x:9,y:5,c:"#ffffff"},
             {x:10,y:5,c:"#ffffff"},{x:10,y:4,c:"#131111"},{x:11,y:4,c:"#ce091c"},{x:11,y:3,c:"#ce091c"},{x:10,y:3,c:"#131111"},
@@ -140,10 +153,8 @@
         function resize() {
             W = canvas.width = window.innerWidth;
             H = canvas.height = window.innerHeight;
-            player.x = W / 2;
-            player.y = H - 100;
-            boss.x = W / 2 - 80;
-            boss.tx = boss.x;
+            player.x = W / 2; player.y = H - 100;
+            boss.x = W / 2 - 80; boss.tx = boss.x;
         }
 
         function init() {
@@ -153,17 +164,20 @@
             const onMove = (e) => {
                 const cx = e.touches ? e.touches[0].clientX : e.clientX;
                 const cy = e.touches ? e.touches[0].clientY : e.clientY;
-                player.x = cx;
-                player.y = cy;
+                player.x = cx; player.y = cy;
             };
             window.addEventListener('mousemove', onMove);
             window.addEventListener('touchmove', (e) => { onMove(e); e.preventDefault(); }, {passive:false});
             
             const onStart = () => {
-                if(!gameActive) {
+                if(phase === "idle") {
                     audioCtx.resume();
+                    phase = "intro";
+                    switchBgm(introTracks);
+                    msgEl.innerHTML = "WITCH DETECTED<br>[ TOUCH TO START BATTLE ]";
+                } else if(phase === "intro") {
                     startGame();
-                } else {
+                } else if(gameActive) {
                     fire();
                 }
             };
@@ -175,19 +189,16 @@
 
         function startGame() {
             gameActive = true;
+            phase = "main";
             score = 0;
             boss.hp = boss.maxHp;
             bossBullets.length = 0;
             player.bullets.length = 0;
             msgEl.style.display = "none";
-            
-            // Start FM BGM Tracks
-            bgmTracks.forEach((_, i) => playBgmTrack(i));
+            switchBgm(mainTracks);
         }
 
-        function fire() {
-            player.bullets.push({x: player.x, y: player.y - 20, v: 15});
-        }
+        function fire() { player.bullets.push({x: player.x, y: player.y - 20, v: 15}); }
 
         function spawnBossBullet(type) {
             if(type === 'magenta') {
@@ -201,74 +212,57 @@
         }
 
         function drawOkino(x, y, scale, flicker) {
-            ctx.save();
-            ctx.translate(x, y);
+            ctx.save(); ctx.translate(x, y);
             if(flicker) ctx.globalAlpha = 0.5 + Math.random()*0.5;
-            okinoPixels.forEach(p => {
-                ctx.fillStyle = p.c;
-                ctx.fillRect(p.x * scale, p.y * scale, scale, scale);
-            });
+            okinoPixels.forEach(p => { ctx.fillStyle = p.c; ctx.fillRect(p.x * scale, p.y * scale, scale, scale); });
             ctx.restore();
         }
 
         function update() {
             if(!gameActive) return;
             frame++;
-
             boss.x += (boss.tx - boss.x) * 0.03;
-            if(frame % 80 === 0) {
-                boss.tx = Math.random() * (W - 160);
-            }
-
+            if(frame % 80 === 0) boss.tx = Math.random() * (W - 160);
             if(frame % 50 === 0) spawnBossBullet('magenta');
             if(frame % 120 === 0) spawnBossBullet('blue');
 
             for(let i = player.bullets.length - 1; i >= 0; i--) {
-                const b = player.bullets[i];
-                b.y -= b.v;
+                const b = player.bullets[i]; b.y -= b.v;
                 if(b.y < -20) { player.bullets.splice(i, 1); continue; }
                 if(b.x > boss.x && b.x < boss.x + 160 && b.y > boss.y && b.y < boss.y + 160) {
-                    boss.hp -= 10;
-                    score += 100;
-                    player.bullets.splice(i, 1);
+                    boss.hp -= 10; score += 100; player.bullets.splice(i, 1);
                     if(boss.hp <= 0) win();
                 }
             }
 
             for(let i = bossBullets.length - 1; i >= 0; i--) {
-                const b = bossBullets[i];
-                b.x += b.vx || 0;
-                b.y += b.vy || 0;
+                const b = bossBullets[i]; b.x += b.vx || 0; b.y += b.vy || 0;
                 if(b.y > H + 50 || b.x < -50 || b.x > W + 50) { bossBullets.splice(i, 1); continue; }
-                const dx = b.x - player.x;
-                const dy = b.y - player.y;
-                if(Math.sqrt(dx*dx + dy*dy) < b.r + 10) {
-                    lose();
-                }
+                const dx = b.x - player.x, dy = b.y - player.y;
+                if(Math.sqrt(dx*dx + dy*dy) < b.r + 10) lose();
             }
-
             scoreEl.innerText = score;
             bossHpEl.style.width = (boss.hp / boss.maxHp * 100) + "%";
         }
 
         function win() {
-            gameActive = false;
+            gameActive = false; phase = "idle";
             msgEl.style.display = "block";
             msgEl.innerHTML = "WITCH DISPELLED<br>ARCHIVE STABILIZED<br>[ CLICK TO REPLAY ]";
             msgEl.style.color = "#0fc";
+            bgmTimers.forEach(clearTimeout);
         }
 
         function lose() {
-            gameActive = false;
+            gameActive = false; phase = "idle";
             msgEl.style.display = "block";
             msgEl.innerHTML = "CURSED BY OKINO<br>DATA CORRUPTED<br>[ CLICK TO REPLAY ]";
             msgEl.style.color = "#f00";
+            bgmTimers.forEach(clearTimeout);
         }
 
         function draw() {
-            ctx.fillStyle = "#000";
-            ctx.fillRect(0, 0, W, H);
-
+            ctx.fillStyle = "#000"; ctx.fillRect(0, 0, W, H);
             ctx.fillStyle = "#333";
             for(let i=0; i<30; i++) ctx.fillRect((i*W/30), (frame*2 + i*H/30)%H, 2, 2);
 
@@ -276,25 +270,16 @@
                 drawOkino(boss.x, boss.y + Math.sin(frame*0.05)*15, 10, boss.hp < 200);
             }
 
-            ctx.fillStyle = "#0fc";
-            ctx.beginPath();
-            ctx.moveTo(player.x, player.y - 20);
-            ctx.lineTo(player.x - 15, player.y + 10);
-            ctx.lineTo(player.x + 15, player.y + 10);
-            ctx.fill();
+            ctx.fillStyle = "#0fc"; ctx.beginPath();
+            ctx.moveTo(player.x, player.y - 20); ctx.lineTo(player.x - 15, player.y + 10); ctx.lineTo(player.x + 15, player.y + 10); ctx.fill();
 
-            ctx.fillStyle = "#fff";
-            player.bullets.forEach(b => ctx.fillRect(b.x-2, b.y, 4, 15));
-
+            ctx.fillStyle = "#fff"; player.bullets.forEach(b => ctx.fillRect(b.x-2, b.y, 4, 15));
             bossBullets.forEach(b => {
-                ctx.fillStyle = b.c;
-                ctx.beginPath(); ctx.arc(b.x, b.y, b.r, 0, Math.PI*2); ctx.fill();
+                ctx.fillStyle = b.c; ctx.beginPath(); ctx.arc(b.x, b.y, b.r, 0, Math.PI*2); ctx.fill();
             });
 
-            update();
-            requestAnimationFrame(draw);
+            update(); requestAnimationFrame(draw);
         }
-
         init();
     </script>
 </body>
