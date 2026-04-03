@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>UNIT-12: FM NEOSOUND LAB</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap');
+        :root { --neon: #00d2ff; --bg: #0d0208; }
+        body { background-color: var(--bg); color: var(--neon); font-family: 'Share Tech Mono', monospace; margin: 0; padding: 20px; display: flex; flex-direction: column; align-items: center; height: 100vh; }
+        .header { border-bottom: 2px solid var(--neon); width: 100%; padding-bottom: 10px; margin-bottom: 20px; text-align: center; }
+        
+        .lab-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 30px; width: 100%; max-width: 900px; }
+        .control-panel { border: 1px solid #003b44; padding: 20px; background: rgba(0, 210, 255, 0.05); }
+        .label { display: block; font-size: 0.8em; margin-bottom: 10px; color: #fff; }
+        input[type=range] { width: 100%; cursor: pointer; accent-color: var(--neon); }
+        
+        .osc-viz { width: 100%; height: 150px; background: #000; border: 1px solid var(--neon); margin-top: 20px; }
+        
+        .piano-keys { display: flex; gap: 5px; margin-top: 30px; flex-wrap: wrap; justify-content: center; }
+        .key { background: transparent; border: 1px solid var(--neon); color: var(--neon); padding: 15px; cursor: pointer; min-width: 50px; }
+        .key:active { background: var(--neon); color: #000; }
+
+        .btn { background: transparent; border: 1px solid var(--neon); color: var(--neon); padding: 10px 20px; cursor: pointer; text-decoration: none; margin-top: 20px; }
+        .btn:hover { background: var(--neon); color: #000; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>FM_NEOSOUND_LAB_v1.0</h1>
+        <p>FREQUENCY MODULATION ARCHIVE RESONANCE</p>
+    </div>
+
+    <div class="lab-grid">
+        <!-- Carrier Settings -->
+        <div class="control-panel">
+            <span class="label">CARRIER (The Base Sound)</span>
+            <span class="label">Volume: <span id="car-vol-val">0.5</span></span>
+            <input type="range" id="car-vol" min="0" max="1" step="0.01" value="0.5">
+            
+            <span class="label" style="margin-top:20px;">Oscillator Type:</span>
+            <select id="car-type" class="btn" style="width:100%; margin-top:0;">
+                <option value="sine">SINE (Smooth)</option>
+                <option value="square">SQUARE (Solid)</option>
+                <option value="sawtooth">SAWTOOTH (Sharp)</option>
+                <option value="triangle">TRIANGLE (Soft)</option>
+            </select>
+        </div>
+
+        <!-- Modulator Settings -->
+        <div class="control-panel" style="border-color: #f0f;">
+            <span class="label" style="color: #f0f;">MODULATOR (The Texture Creator)</span>
+            <span class="label">Modulation Depth (Index): <span id="mod-depth-val">500</span></span>
+            <input type="range" id="mod-depth" min="0" max="2000" step="1" value="500" style="accent-color: #f0f;">
+            
+            <span class="label" style="margin-top:20px; color: #f0f;">Frequency Ratio: <span id="mod-ratio-val">2.0</span></span>
+            <input type="range" id="mod-ratio" min="0.1" max="10" step="0.1" value="2.0" style="accent-color: #f0f;">
+        </div>
+    </div>
+
+    <canvas id="viz" class="osc-viz"></canvas>
+
+    <div class="piano-keys" id="keyboard">
+        <!-- JS will populate -->
+    </div>
+
+    <div style="display:flex; gap:20px;">
+        <a href="arcade.html" class="btn">BACK TO ARCADE</a>
+    </div>
+
+    <script>
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        let carrier = null;
+        let modulator = null;
+        let modGain = null;
+        let mainGain = audioCtx.createGain();
+        mainGain.connect(audioCtx.destination);
+
+        const freqMap = {
+            'C3': 130.81, 'D3': 146.83, 'E3': 164.81, 'F3': 174.61, 'G3': 196.00, 'A3': 220.00, 'B3': 246.94,
+            'C4': 261.63, 'D4': 293.66, 'E4': 329.63, 'F4': 349.23, 'G4': 392.00, 'A4': 440.00, 'B4': 493.88, 'C5': 523.25
+        };
+
+        // UI Binding
+        const carVol = document.getElementById('car-vol');
+        const modDepth = document.getElementById('mod-depth');
+        const modRatio = document.getElementById('mod-ratio');
+        const carType = document.getElementById('car-type');
+
+        const updateVal = (id, val) => document.getElementById(id + '-val').innerText = val;
+        
+        carVol.oninput = (e) => { mainGain.gain.value = e.target.value; updateVal('car-vol', e.target.value); };
+        modDepth.oninput = (e) => { if(modGain) modGain.gain.setValueAtTime(e.target.value, audioCtx.currentTime); updateVal('mod-depth', e.target.value); };
+        modRatio.oninput = (e) => { updateVal('mod-ratio', e.target.value); };
+
+        function playFM(freq) {
+            if(carrier) { carrier.stop(); modulator.stop(); }
+            
+            audioCtx.resume();
+
+            // 1. Create Nodes
+            carrier = audioCtx.createOscillator();
+            modulator = audioCtx.createOscillator();
+            modGain = audioCtx.createGain();
+            
+            // 2. Configure
+            carrier.type = carType.value;
+            carrier.frequency.value = freq;
+            
+            modulator.type = 'sine';
+            modulator.frequency.value = freq * parseFloat(modRatio.value);
+            modGain.gain.value = parseFloat(modDepth.value);
+            
+            // 3. Connect: MODULATOR -> GAIN -> CARRIER FREQUENCY
+            modulator.connect(modGain);
+            modGain.connect(carrier.frequency);
+            
+            // 4. Connect: CARRIER -> OUTPUT
+            carrier.connect(mainGain);
+            
+            modulator.start();
+            carrier.start();
+        }
+
+        function stopFM() {
+            if(carrier) {
+                carrier.stop();
+                modulator.stop();
+                carrier = null;
+            }
+        }
+
+        // Keyboard
+        const keyboard = document.getElementById('keyboard');
+        Object.keys(freqMap).forEach(note => {
+            const k = document.createElement('button');
+            k.className = 'key';
+            k.innerText = note;
+            k.onmousedown = () => playFM(freqMap[note]);
+            k.onmouseup = stopFM;
+            k.ontouchstart = (e) => { e.preventDefault(); playFM(freqMap[note]); };
+            k.ontouchend = stopFM;
+            keyboard.appendChild(k);
+        });
+
+        // Simple Visualizer
+        const canvas = document.getElementById('viz');
+        const vCtx = canvas.getContext('2d');
+        const analyser = audioCtx.createAnalyser();
+        mainGain.connect(analyser);
+        analyser.fftSize = 2048;
+        const bufferLength = analyser.frequencyBinCount;
+        const dataArray = new Uint8Array(bufferLength);
+
+        function drawViz() {
+            requestAnimationFrame(drawViz);
+            analyser.getByteTimeDomainData(dataArray);
+            vCtx.fillStyle = '#0d0208';
+            vCtx.fillRect(0, 0, canvas.width, canvas.height);
+            vCtx.lineWidth = 2;
+            vCtx.strokeStyle = '#00d2ff';
+            vCtx.beginPath();
+            let sliceWidth = canvas.width * 1.0 / bufferLength;
+            let x = 0;
+            for(let i = 0; i < bufferLength; i++) {
+                let v = dataArray[i] / 128.0;
+                let y = v * canvas.height / 2;
+                if(i === 0) vCtx.moveTo(x, y); else vCtx.lineTo(x, y);
+                x += sliceWidth;
+            }
+            vCtx.lineTo(canvas.width, canvas.height/2);
+            vCtx.stroke();
+        }
+        canvas.width = 800; canvas.height = 150;
+        drawViz();
+    </script>
+</body>
+</html>
