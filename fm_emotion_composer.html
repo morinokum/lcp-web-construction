@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>UNIT-13: FM EMOTION COMPOSER</title>
+    <title>UNIT-13: FM EMOTION COMPOSER [ALGORITHM EDITOR]</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap');
         :root { --fm-neon: #00d2ff; --bg: #0d0208; }
@@ -21,6 +21,7 @@
         .panel { border: 1px solid #003b44; padding: 15px; background: rgba(0, 210, 255, 0.03); }
         .label { display: block; font-size: 0.7em; color: #fff; margin-bottom: 5px; }
         input[type=range] { width: 100%; cursor: pointer; accent-color: var(--fm-neon); }
+        input[type=text] { background: #000; border: 1px solid var(--fm-neon); color: var(--fm-neon); padding: 5px; font-family: 'Share Tech Mono'; width: 100%; box-sizing: border-box; }
 
         .emotion-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 5px; }
         .btn { background: transparent; border: 1px solid var(--fm-neon); color: var(--fm-neon); padding: 8px; cursor: pointer; font-family: 'Share Tech Mono'; font-size: 0.8em; }
@@ -40,7 +41,7 @@
 </head>
 <body>
     <div class="header">
-        <div><h1 style="margin:0; font-size: 1.2em;">FM_EMOTION_COMPOSER_v1.0</h1></div>
+        <div><h1 style="margin:0; font-size: 1.2em;">FM_EMOTION_COMPOSER_v1.1</h1></div>
         <div id="status" style="font-size: 0.8em;">READY</div>
     </div>
 
@@ -54,12 +55,21 @@
         <!-- FM & Emotion Parameters -->
         <div class="controls-left">
             <div class="panel">
-                <span class="label">EMOTION RHYTHM BASE</span>
+                <span class="label">EMOTION SELECT</span>
                 <div class="emotion-grid">
                     <button id="joy" class="btn active" onclick="setEmotion('joy')">喜</button>
                     <button id="anger" class="btn" onclick="setEmotion('anger')">怒</button>
                     <button id="sorrow" class="btn" onclick="setEmotion('sorrow')">哀</button>
                     <button id="pleasure" class="btn" onclick="setEmotion('pleasure')">楽</button>
+                </div>
+                
+                <div style="margin-top:15px;">
+                    <span class="label">TEMPO (BPM): <span id="tempo-val">120</span></span>
+                    <input type="range" id="tempo-range" min="40" max="240" step="1" value="120" oninput="updateEmotionParams()">
+                    
+                    <span class="label" style="margin-top:10px;">RHYTHM PATTERN (CSV):</span>
+                    <input type="text" id="rhythm-pattern" value="1, 0.5, 0.5, 1" oninput="updateEmotionParams()" placeholder="e.g. 1, 0.5, 0.25">
+                    <span style="font-size: 0.6em; color: #666;">*1=1beat, 0.5=8th, 0.25=16th</span>
                 </div>
             </div>
 
@@ -79,9 +89,9 @@
         </div>
 
         <!-- Note Injection & Sequence -->
-        <div class="controls-right flex flex-col gap-4">
+        <div class="controls-right">
             <div class="piano-roll" id="piano"></div>
-            <div>
+            <div style="margin-top:20px;">
                 <span class="label">CURRENT TRACK SEQUENCE</span>
                 <div id="seq-view" class="sequence-view"></div>
                 <button class="btn" style="width:100%; margin-top:5px; border-color:#f00; color:#f00;" onclick="clearSequence()">CLEAR TRACK</button>
@@ -112,7 +122,7 @@
         const frequencies = {
             'C3': 130.81, 'D3': 146.83, 'E3': 164.81, 'F3': 174.61, 'G3': 196.00, 'A3': 220.00, 'B3': 246.94,
             'C4': 261.63, 'D4': 293.66, 'E4': 329.63, 'F4': 349.23, 'G4': 392.00, 'A4': 440.00, 'B4': 493.88,
-            'C5': 523.25, 'D5': 587.33, 'E5': 659.25, 'F5': 698.46, 'G5': 783.99, 'A5': 880.00, 'B5': 987.77
+            'C5': 523.25, 'D5': 587.33, 'E5': 659.25, 'F5': 698.46, 'G5': 783.99, 'A5': 880.00, 'B5': 987.77, 'C6': 1046.50
         };
 
         let tracks = [
@@ -128,7 +138,8 @@
         Object.keys(frequencies).forEach(note => {
             const b = document.createElement('button');
             b.className = 'note-btn btn';
-            b.innerText = note.replace('4','');
+            b.innerText = note.replace('4','').replace('5','').replace('3','').replace('6','');
+            b.title = note;
             b.onclick = () => addNote(note);
             piano.appendChild(b);
         });
@@ -145,7 +156,7 @@
             currentTrackIdx = idx;
             document.querySelectorAll('.track-btn').forEach((b, i) => b.classList.toggle('active', i === idx));
             const t = tracks[idx];
-            setEmotion(t.emotion);
+            setEmotion(t.emotion, true);
             document.getElementById('mod-depth').value = t.fm.depth;
             document.getElementById('mod-ratio').value = t.fm.ratio;
             document.getElementById('env-rel').value = t.fm.rel;
@@ -157,7 +168,7 @@
             document.getElementById('mod-depth-val').innerText = document.getElementById('mod-depth').value;
             document.getElementById('mod-ratio-val').innerText = document.getElementById('mod-ratio').value;
             document.getElementById('env-rel-val').innerText = document.getElementById('env-rel').value;
-            // Update Track FM settings
+            
             tracks[currentTrackIdx].fm.depth = parseFloat(document.getElementById('mod-depth').value);
             tracks[currentTrackIdx].fm.ratio = parseFloat(document.getElementById('mod-ratio').value);
             tracks[currentTrackIdx].fm.rel = parseFloat(document.getElementById('env-rel').value);
@@ -168,21 +179,42 @@
             document.getElementById(id).oninput = updateUI;
         });
 
-        function setEmotion(e) {
+        function setEmotion(e, skipPreset = false) {
             tracks[currentTrackIdx].emotion = e;
             document.querySelectorAll('.emotion-grid .btn').forEach(b => b.classList.toggle('active', b.id === e));
-            // Apply preset FM if needed
-            if(!isPlaying) {
-                document.getElementById('mod-depth').value = emotions[e].fm.depth;
-                document.getElementById('mod-ratio').value = emotions[e].fm.ratio;
+            
+            // Sync UI with emotion preset
+            const emo = emotions[e];
+            document.getElementById('tempo-range').value = emo.tempo;
+            document.getElementById('tempo-val').innerText = emo.tempo;
+            document.getElementById('rhythm-pattern').value = emo.rhythm.join(', ');
+
+            if(!isPlaying && !skipPreset) {
+                document.getElementById('mod-depth').value = emo.fm.depth;
+                document.getElementById('mod-ratio').value = emo.fm.ratio;
                 updateUI();
             }
+        }
+
+        function updateEmotionParams() {
+            const e = tracks[currentTrackIdx].emotion;
+            const tempo = parseInt(document.getElementById('tempo-range').value);
+            const patternStr = document.getElementById('rhythm-pattern').value;
+            
+            emotions[e].tempo = tempo;
+            document.getElementById('tempo-val').innerText = tempo;
+            
+            // Parse CSV rhythm
+            try {
+                const arr = patternStr.split(',').map(s => parseFloat(s.trim())).filter(n => !isNaN(n));
+                if(arr.length > 0) emotions[e].rhythm = arr;
+            } catch(err) {}
         }
 
         function addNote(note) {
             playFM(note, tracks[currentTrackIdx].fm);
             tracks[currentTrackIdx].sequence.push(note);
-            if(tracks[currentTrackIdx].sequence.length > 24) tracks[currentTrackIdx].sequence.shift();
+            if(tracks[currentTrackIdx].sequence.length > 32) tracks[currentTrackIdx].sequence.shift();
             updateSeqView();
         }
 
@@ -248,6 +280,7 @@
             const t = tracks[idx];
             const emo = emotions[t.emotion];
             const note = t.sequence[t.step % t.sequence.length];
+            // interval depends on current tempo and current rhythm step
             const interval = (60 / emo.tempo) * emo.rhythm[t.step % emo.rhythm.length] * 1000;
 
             if(note) playFM(note, t.fm);
@@ -257,10 +290,11 @@
         }
 
         function exportJSON() {
-            const blob = new Blob([JSON.stringify(tracks, null, 2)], { type: 'application/json' });
+            const data = { tracks, emotions };
+            const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
             const a = document.createElement('a');
             a.href = URL.createObjectURL(blob);
-            a.download = `fm_music_archive.json`;
+            a.download = `fm_music_algorithm_archive.json`;
             a.click();
         }
 
@@ -268,9 +302,11 @@
             const file = e.target.files[0];
             const reader = new FileReader();
             reader.onload = (event) => {
-                tracks = JSON.parse(event.target.result);
+                const data = JSON.parse(event.target.result);
+                if(data.tracks) tracks = data.tracks;
+                if(data.emotions) Object.assign(emotions, data.emotions);
                 switchTrack(0);
-                alert("FM ARCHIVE LOADED");
+                alert("FM ALGORITHM LOADED");
             };
             reader.readAsText(file);
         }
