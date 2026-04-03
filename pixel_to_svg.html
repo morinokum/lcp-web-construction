@@ -3,107 +3,83 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>SVG Pixel Editor Pro</title>
+    <title>SVG Pixel Editor Pro: COLLECTION</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        body {
-            background: #0f172a;
-            color: #f8fafc;
-            user-select: none;
-            touch-action: none;
-            font-family: 'Inter', sans-serif;
-        }
+        @import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap');
+        body { background: #0f172a; color: #f8fafc; user-select: none; touch-action: none; font-family: 'Share Tech Mono', monospace; }
         .grid-container {
-            display: grid;
-            gap: 1px;
-            background: #334155;
-            border: 4px solid #334155;
-            border-radius: 8px;
-            width: fit-content;
-            margin: 0 auto;
-            box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.5);
+            display: grid; gap: 1px; background: #334155; border: 4px solid #334155; border-radius: 8px;
+            width: fit-content; margin: 0 auto; box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.5);
         }
-        .cell {
-            width: clamp(15px, 5vw, 25px);
-            height: clamp(15px, 5vw, 25px);
-            background: #1e293b;
-            cursor: crosshair;
-            transition: background 0.1s;
-        }
-        .cell:hover {
-            filter: brightness(1.5);
-        }
-        pre {
-            background: #020617;
-            color: #22d3ee;
-            padding: 15px;
-            border-radius: 12px;
-            font-size: 11px;
-            max-height: 200px;
-            overflow: auto;
-            white-space: pre-wrap;
-            border: 1px solid #1e293b;
-            font-family: 'Fira Code', monospace;
-        }
-        .copy-success {
-            animation: bounce 0.5s ease-in-out;
-        }
-        @keyframes bounce {
-            0%, 100% { transform: scale(1); }
-            50% { transform: scale(1.05); }
-        }
+        .cell { width: clamp(15px, 4vw, 22px); height: clamp(15px, 4vw, 22px); background: #1e293b; cursor: crosshair; transition: background 0.1s; }
+        .cell:hover { filter: brightness(1.5); }
+        pre { background: #020617; color: #22d3ee; padding: 10px; border-radius: 8px; font-size: 10px; max-height: 150px; overflow: auto; border: 1px solid #1e293b; }
+        .sidebar { background: rgba(30, 41, 59, 0.5); border-right: 1px solid #334155; }
+        .gallery-item { border: 1px solid #334155; padding: 5px; cursor: pointer; transition: 0.2s; }
+        .gallery-item:hover { border-color: #22d3ee; background: rgba(34, 211, 238, 0.1); }
+        .gallery-item.active { border-color: #22d3ee; background: rgba(34, 211, 238, 0.2); }
     </style>
 </head>
-<body class="p-4">
+<body class="flex h-screen overflow-hidden">
 
-    <div class="max-w-md mx-auto">
-        <header class="mb-6 text-center">
-            <h1 class="text-3xl font-black bg-clip-text text-transparent bg-gradient-to-r from-cyan-400 to-blue-500">
-                PIXEL TO SVG
-            </h1>
-            <p class="text-xs text-slate-400 mt-1 uppercase tracking-widest">描いて、コピーして、Geminiへ</p>
+    <!-- Sidebar: Character Collection -->
+    <aside class="sidebar w-64 flex flex-col p-4 overflow-y-auto">
+        <h2 class="text-cyan-400 text-xs font-bold tracking-widest mb-4 uppercase">Archive Collection</h2>
+        <div id="gallery" class="flex flex-col gap-2 mb-4">
+            <!-- Saved items will appear here -->
+        </div>
+        <div class="mt-auto pt-4 border-t border-slate-700 flex flex-col gap-2">
+            <button onclick="exportAll()" class="w-full py-2 bg-slate-700 hover:bg-slate-600 text-[10px] font-bold rounded">EXPORT ALL JSON</button>
+            <label class="w-full py-2 bg-slate-700 hover:bg-slate-600 text-[10px] font-bold rounded text-center cursor-pointer">
+                IMPORT ALL JSON <input type="file" style="display:none;" onchange="importAll(event)">
+            </label>
+            <a href="arcade.html" class="text-center text-slate-500 text-[10px] hover:text-cyan-400 mt-2">BACK TO ARCADE</a>
+        </div>
+    </aside>
+
+    <!-- Main: Editor -->
+    <main class="flex-grow p-6 flex flex-col gap-4 overflow-y-auto">
+        <header class="flex justify-between items-center">
+            <h1 class="text-2xl font-black bg-clip-text text-transparent bg-gradient-to-r from-cyan-400 to-blue-500">PIXEL TO SVG: COLLECTION</h1>
+            <div class="flex items-center gap-4">
+                <input type="text" id="char-name" placeholder="CHAR_NAME..." class="bg-slate-900 border border-slate-700 px-3 py-1 text-sm rounded text-cyan-400 outline-none">
+                <button onclick="saveCurrent()" class="px-4 py-1 bg-cyan-500 hover:bg-cyan-400 text-slate-950 text-xs font-bold rounded shadow-lg shadow-cyan-500/20">SAVE TO LOCAL</button>
+            </div>
         </header>
 
-        <!-- Tools Area -->
-        <div class="bg-slate-800 p-4 rounded-2xl mb-6 flex flex-wrap items-center justify-between gap-4">
-            <div class="flex items-center gap-3">
-                <div class="relative">
-                    <input type="color" id="color-picker" class="w-12 h-12 rounded-lg cursor-pointer bg-transparent border-none" value="#22d3ee">
+        <div class="flex flex-wrap gap-6 justify-center">
+            <!-- Left: Tools & Grid -->
+            <div class="flex flex-col gap-4">
+                <div class="bg-slate-800 p-3 rounded-xl flex items-center justify-between gap-4">
+                    <div class="flex items-center gap-3">
+                        <input type="color" id="color-picker" class="w-10 h-10 rounded cursor-pointer bg-transparent border-none" value="#22d3ee">
+                        <div class="text-[10px] font-bold text-slate-400">LEFT: PAINT<br>RIGHT: ERASE</div>
+                    </div>
+                    <button id="clear-btn" class="px-3 py-1 bg-slate-700 hover:bg-red-500/20 hover:text-red-400 rounded text-[10px] font-bold">CLEAR</button>
                 </div>
-                <div class="text-xs font-bold text-slate-400">
-                    LEFT: PAINT<br>RIGHT: ERASE
+                <div id="pixel-grid" class="grid-container"></div>
+            </div>
+
+            <!-- Right: Code & Export -->
+            <div class="flex flex-col gap-4 w-full max-w-sm">
+                <div>
+                    <div class="flex justify-between items-center mb-2">
+                        <span class="text-[10px] font-bold text-slate-500">GENERATED SVG</span>
+                        <button onclick="copyCode()" class="text-[10px] text-cyan-400 hover:underline">COPY CODE</button>
+                    </div>
+                    <pre id="code-output">Draw to generate...</pre>
+                </div>
+                <div class="flex flex-col gap-2">
+                    <button onclick="exportCurrent()" class="w-full py-2 border border-slate-700 hover:border-cyan-400 text-[10px] text-slate-400 hover:text-cyan-400 rounded">EXPORT CURRENT JSON</button>
+                    <label class="w-full py-2 border border-slate-700 hover:border-cyan-400 text-[10px] text-slate-400 hover:text-cyan-400 rounded text-center cursor-pointer">
+                        IMPORT CURRENT JSON <input type="file" style="display:none;" onchange="importCurrent(event)">
+                    </label>
                 </div>
             </div>
-            
-            <div class="flex gap-2">
-                <button id="clear-btn" class="px-4 py-2 bg-slate-700 hover:bg-red-500/20 hover:text-red-400 rounded-xl text-sm transition font-bold">
-                    CLEAR
-                </button>
-                <button id="copy-btn" class="px-5 py-2 bg-cyan-500 hover:bg-cyan-400 text-slate-950 rounded-xl text-sm font-black transition shadow-lg shadow-cyan-500/20">
-                    COPY CODE
-                </button>
-            </div>
         </div>
+    </main>
 
-        <!-- The Canvas Grid -->
-        <div id="pixel-grid" class="grid-container">
-            <!-- Cells generated by JS -->
-        </div>
-
-        <!-- Code Output Area -->
-        <div class="mt-8">
-            <div class="flex justify-between items-center mb-3">
-                <span class="text-[10px] font-bold text-slate-500 tracking-tighter">GENERATED SVG SOURCE</span>
-                <span id="copy-toast" class="text-[10px] font-bold text-cyan-400 opacity-0 transition-opacity uppercase">Copied to Clipboard!</span>
-            </div>
-            <pre id="code-output">Start drawing to generate code...</pre>
-        </div>
-        <div class="mt-4 text-center">
-            <a href="arcade.html" class="text-cyan-400 text-xs hover:underline uppercase tracking-widest">Back to Arcade</a>
-        </div>
-    </div>
-
-    <!-- Hidden textarea for clipboard fallback -->
     <textarea id="hidden-copy-area" class="fixed -top-full opacity-0 pointer-events-none"></textarea>
 
     <script>
@@ -112,13 +88,20 @@
         const codeOutput = document.getElementById('code-output');
         const colorPicker = document.getElementById('color-picker');
         const clearBtn = document.getElementById('clear-btn');
-        const copyBtn = document.getElementById('copy-btn');
-        const copyToast = document.getElementById('copy-toast');
+        const charNameInput = document.getElementById('char-name');
+        const gallery = document.getElementById('gallery');
         const hiddenArea = document.getElementById('hidden-copy-area');
 
         let isPainting = false;
         let isErasing = false;
         let pixels = {}; 
+        let collection = [];
+        let currentId = null;
+
+        function init() {
+            initGrid();
+            loadCollection();
+        }
 
         function initGrid() {
             gridContainer.style.gridTemplateColumns = `repeat(${GRID_SIZE}, 1fr)`;
@@ -126,38 +109,21 @@
                 for (let x = 0; x < GRID_SIZE; x++) {
                     const cell = document.createElement('div');
                     cell.classList.add('cell');
-                    cell.dataset.x = x;
-                    cell.dataset.y = y;
-                    
-                    // Mouse interaction
-                    cell.addEventListener('mousedown', (e) => {
-                        isPainting = true;
-                        isErasing = (e.button === 2);
-                        handlePaint(cell);
-                    });
+                    cell.dataset.x = x; cell.dataset.y = y;
+                    cell.addEventListener('mousedown', (e) => { isPainting = true; isErasing = (e.button === 2); handlePaint(cell); });
                     cell.addEventListener('mouseenter', () => { if (isPainting) handlePaint(cell); });
                     cell.addEventListener('contextmenu', (e) => e.preventDefault());
-
-                    // Touch interaction
-                    cell.addEventListener('touchstart', (e) => {
-                        isPainting = true;
-                        handlePaint(cell);
-                        e.preventDefault();
-                    }, { passive: false });
-
+                    cell.addEventListener('touchstart', (e) => { isPainting = true; handlePaint(cell); e.preventDefault(); }, { passive: false });
                     gridContainer.appendChild(cell);
                 }
             }
         }
 
-        // Global touch move handler for drawing
         window.addEventListener('touchmove', (e) => {
             if (!isPainting) return;
             const touch = e.touches[0];
             const target = document.elementFromPoint(touch.clientX, touch.clientY);
-            if (target && target.classList.contains('cell')) {
-                handlePaint(target);
-            }
+            if (target && target.classList.contains('cell')) handlePaint(target);
             e.preventDefault();
         }, { passive: false });
 
@@ -165,27 +131,15 @@
         window.addEventListener('touchend', () => { isPainting = false; isErasing = false; });
 
         function handlePaint(cell) {
-            const x = cell.dataset.x;
-            const y = cell.dataset.y;
+            const x = cell.dataset.x; const y = cell.dataset.y;
             const key = `${x},${y}`;
-
-            if (isErasing) {
-                cell.style.backgroundColor = '';
-                delete pixels[key];
-            } else {
-                const color = colorPicker.value;
-                cell.style.backgroundColor = color;
-                pixels[key] = color;
-            }
+            if (isErasing) { cell.style.backgroundColor = ''; delete pixels[key]; }
+            else { const color = colorPicker.value; cell.style.backgroundColor = color; pixels[key] = color; }
             updateSVGCode();
         }
 
         function updateSVGCode() {
-            if (Object.keys(pixels).length === 0) {
-                codeOutput.innerText = "Start drawing to generate code...";
-                return;
-            }
-
+            if (Object.keys(pixels).length === 0) { codeOutput.innerText = "Draw to generate..."; return; }
             let svg = `<svg viewBox="0 0 ${GRID_SIZE} ${GRID_SIZE}" xmlns="http://www.w3.org/2000/svg">\n`;
             for (const key in pixels) {
                 const [x, y] = key.split(',');
@@ -196,42 +150,112 @@
         }
 
         function copyCode() {
-            const code = codeOutput.innerText;
-            if (code.startsWith("Start")) return;
+            hiddenArea.value = codeOutput.innerText; hiddenArea.select();
+            document.execCommand('copy');
+            alert("SVG Code Copied to Clipboard!");
+        }
 
-            // Fallback copy logic for iFrame/Mobile environments
-            hiddenArea.value = code;
-            hiddenArea.select();
-            
-            try {
-                const successful = document.execCommand('copy');
-                if (successful) {
-                    showToast();
-                }
-            } catch (err) {
-                console.error('Copy failed', err);
+        // --- COLLECTION LOGIC ---
+
+        function loadCollection() {
+            const data = localStorage.getItem('pixel_collection');
+            if (data) collection = JSON.parse(data);
+            renderGallery();
+        }
+
+        function renderGallery() {
+            gallery.innerHTML = "";
+            collection.forEach(item => {
+                const div = document.createElement('div');
+                div.className = `gallery-item text-[10px] ${currentId === item.id ? 'active' : ''}`;
+                div.innerText = item.name || '(No Name)';
+                div.onclick = () => loadFromCollection(item.id);
+                gallery.appendChild(div);
+            });
+        }
+
+        function saveCurrent() {
+            const name = charNameInput.value || "UNNAMED";
+            if (currentId) {
+                const idx = collection.findIndex(i => i.id === currentId);
+                collection[idx] = { id: currentId, name, pixels: { ...pixels } };
+            } else {
+                const id = Date.now();
+                collection.unshift({ id, name, pixels: { ...pixels } });
+                currentId = id;
+            }
+            localStorage.setItem('pixel_collection', JSON.stringify(collection));
+            renderGallery();
+            alert("SAVED TO LOCAL STORAGE");
+        }
+
+        function loadFromCollection(id) {
+            const item = collection.find(i => i.id === id);
+            if (item) {
+                currentId = item.id;
+                charNameInput.value = item.name;
+                pixels = { ...item.pixels };
+                // Update Grid
+                document.querySelectorAll('.cell').forEach(c => {
+                    const key = `${c.dataset.x},${c.dataset.y}`;
+                    c.style.backgroundColor = pixels[key] || '';
+                });
+                updateSVGCode();
+                renderGallery();
             }
         }
 
-        function showToast() {
-            copyBtn.classList.add('copy-success');
-            copyToast.style.opacity = '1';
-            
-            setTimeout(() => {
-                copyBtn.classList.remove('copy-success');
-                copyToast.style.opacity = '0';
-            }, 2000);
+        function exportCurrent() {
+            const data = { name: charNameInput.value, pixels };
+            const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+            const a = document.createElement('a');
+            a.href = URL.createObjectURL(blob);
+            a.download = `pixel_char_${charNameInput.value || 'data'}.json`;
+            a.click();
+        }
+
+        function importCurrent(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                const data = JSON.parse(e.target.result);
+                charNameInput.value = data.name;
+                pixels = data.pixels;
+                saveCurrent(); // Save imported to local
+                loadFromCollection(currentId);
+            };
+            reader.readAsText(file);
+        }
+
+        function exportAll() {
+            const blob = new Blob([JSON.stringify(collection, null, 2)], { type: 'application/json' });
+            const a = document.createElement('a');
+            a.href = URL.createObjectURL(blob);
+            a.download = `pixel_collection_backup.json`;
+            a.click();
+        }
+
+        function importAll(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                collection = JSON.parse(e.target.result);
+                localStorage.setItem('pixel_collection', JSON.stringify(collection));
+                renderGallery();
+                alert("COLLECTION IMPORTED");
+            };
+            reader.readAsText(file);
         }
 
         clearBtn.addEventListener('click', () => {
             document.querySelectorAll('.cell').forEach(c => c.style.backgroundColor = '');
-            pixels = {};
+            pixels = {}; currentId = null; charNameInput.value = "";
             updateSVGCode();
         });
 
-        copyBtn.addEventListener('click', copyCode);
-
-        initGrid();
+        init();
     </script>
 </body>
 </html>
