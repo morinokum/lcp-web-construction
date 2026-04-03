@@ -1,0 +1,35 @@
+[
+  {
+    "emotion": "anger",
+    "sequence": ["C5", "C5", "D5", "C5", "F5", "E5", "D5", "C5", "G5", "F5", "E5", "D5", "A5", "G5", "F5", "E5", "B5", "A5", "G5", "F5", "C6", "B5", "A5", "G5"],
+    "step": 0,
+    "timer": null,
+    "fm": {
+      "depth": 1800,
+      "ratio": 1.4,
+      "rel": 0.2
+    }
+  },
+  {
+    "emotion": "anger",
+    "sequence": ["C4", "G4", "C4", "G4", "D4", "A4", "D4", "A4", "E4", "B4", "E4", "B4", "F4", "C5", "F4", "C5", "G4", "D5", "G4", "D5", "A4", "E5", "A4", "E5"],
+    "step": 0,
+    "timer": null,
+    "fm": {
+      "depth": 800,
+      "ratio": 2.8,
+      "rel": 0.15
+    }
+  },
+  {
+    "emotion": "anger",
+    "sequence": ["C3", "C3", "C3", "B2", "C3", "C3", "C3", "G2", "C3", "C3", "C3", "A2", "C3", "C3", "C3", "F2", "C3", "C3", "C3", "E2", "C3", "C3", "C3", "D2"],
+    "step": 0,
+    "timer": null,
+    "fm": {
+      "depth": 1200,
+      "ratio": 0.5,
+      "rel": 0.4
+    }
+  }
+]

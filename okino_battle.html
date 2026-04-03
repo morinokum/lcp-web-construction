@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>UNIT-10: WITCH BATTLE VS OKINO</title>
+    <title>UNIT-10: WITCH BATTLE VS OKINO [FM_RESONANCE]</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap');
         body { margin: 0; background: #000; color: #fff; font-family: 'Share Tech Mono', monospace; overflow: hidden; touch-action: none; }
@@ -36,47 +36,65 @@
 
         let W, H, gameActive = false, score = 0, frame = 0;
 
-        // --- BGM ENGINE & DATA ---
+        // --- FM BGM ENGINE (UPGRADED FROM UNIT-13) ---
         const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
         const mainGain = audioCtx.createGain();
         mainGain.connect(audioCtx.destination);
-        mainGain.gain.value = 0.2; // BGM Volume
+        mainGain.gain.value = 0.3;
+
+        const emotions = {
+            anger: { tempo: 180, rhythm: [0.25, 0.25, 0.25, 0.25] }
+        };
 
         const frequencies = {
             'C3': 130.81, 'D3': 146.83, 'E3': 164.81, 'F3': 174.61, 'G3': 196.00, 'A3': 220.00, 'B3': 246.94,
             'C4': 261.63, 'D4': 293.66, 'E4': 329.63, 'F4': 349.23, 'G4': 392.00, 'A4': 440.00, 'B4': 493.88,
-            'C5': 523.25, 'D5': 587.33, 'E5': 659.25, 'F5': 698.46, 'G5': 783.99, 'A5': 880.00, 'B5': 987.77
+            'C5': 523.25, 'D5': 587.33, 'E5': 659.25, 'F5': 698.46, 'G5': 783.99, 'A5': 880.00, 'B5': 987.77, 'C6': 1046.50
         };
 
+        // HYBRID COUNTERSTRIKE DATA
         const bgmTracks = [
-            { emotion: "joy", sequence: ["A3", "D3", "A3"], step: 0 },
-            { emotion: "joy", sequence: ["D3", "E3", "G3"], step: 0 },
-            { emotion: "joy", sequence: ["D4", "E4", "D3"], step: 0 }
+            { emotion: "anger", sequence: ["C5", "C5", "D5", "C5", "F5", "E5", "D5", "C5", "G5", "F5", "E5", "D5", "A5", "G5", "F5", "E5", "B5", "A5", "G5", "F5", "C6", "B5", "A5", "G5"], step: 0, fm: { depth: 1800, ratio: 1.4, rel: 0.2 } },
+            { emotion: "anger", sequence: ["C4", "G4", "C4", "G4", "D4", "A4", "D4", "A4", "E4", "B4", "E4", "B4", "F4", "C5", "F4", "C5", "G4", "D5", "G4", "D5", "A4", "E5", "A4", "E5"], step: 0, fm: { depth: 800, ratio: 2.8, rel: 0.15 } },
+            { emotion: "anger", sequence: ["C3", "C3", "C3", "B2", "C3", "C3", "C3", "G2", "C3", "C3", "C3", "A2", "C3", "C3", "C3", "F2", "C3", "C3", "C3", "E2", "C3", "C3", "C3", "D2"], step: 0, fm: { depth: 1200, ratio: 0.5, rel: 0.4 } }
         ];
 
-        const joyRhythm = { tempo: 140, rhythm: [1, 0.5, 0.5, 1] };
-
-        function play8bit(note, dur) {
+        function playFM(note, fmParams) {
             if(!frequencies[note]) return;
-            const osc = audioCtx.createOscillator();
-            const g = audioCtx.createGain();
-            osc.type = 'square';
-            osc.frequency.value = frequencies[note];
-            g.gain.setValueAtTime(0.05, audioCtx.currentTime);
-            g.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + dur);
-            osc.connect(g);
-            g.connect(mainGain);
-            osc.start();
-            osc.stop(audioCtx.currentTime + dur);
+            const freq = frequencies[note];
+            const carrier = audioCtx.createOscillator();
+            const modulator = audioCtx.createOscillator();
+            const modGain = audioCtx.createGain();
+            const env = audioCtx.createGain();
+
+            carrier.type = 'sine';
+            carrier.frequency.value = freq;
+            modulator.type = 'sine';
+            modulator.frequency.value = freq * fmParams.ratio;
+            modGain.gain.value = fmParams.depth;
+
+            env.gain.setValueAtTime(0.2, audioCtx.currentTime);
+            env.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + fmParams.rel);
+
+            modulator.connect(modGain);
+            modGain.connect(carrier.frequency);
+            carrier.connect(env);
+            env.connect(mainGain);
+
+            modulator.start();
+            carrier.start();
+            modulator.stop(audioCtx.currentTime + fmParams.rel);
+            carrier.stop(audioCtx.currentTime + fmParams.rel);
         }
 
         function playBgmTrack(idx) {
             if(!gameActive) return;
             const t = bgmTracks[idx];
-            const nextNote = t.sequence[t.step % t.sequence.length];
-            const interval = (60 / joyRhythm.tempo) * joyRhythm.rhythm[t.step % joyRhythm.rhythm.length] * 1000;
+            const emo = emotions[t.emotion];
+            const note = t.sequence[t.step % t.sequence.length];
+            const interval = (60 / emo.tempo) * emo.rhythm[t.step % emo.rhythm.length] * 1000;
 
-            if(nextNote) play8bit(nextNote, interval / 1000);
+            if(note) playFM(note, t.fm);
             
             t.step++;
             setTimeout(() => playBgmTrack(idx), interval);
@@ -102,7 +120,7 @@
             {x:11,y:0,c:"#ce091c"},{x:11,y:1,c:"#ce091c"},{x:10,y:2,c:"#ce091c"},{x:11,y:5,c:"#ce091c"},{x:11,y:6,c:"#ce091c"},
             {x:4,y:7,c:"#0929ce"},{x:3,y:7,c:"#0929ce"},{x:3,y:6,c:"#0929ce"},{x:3,y:8,c:"#0929ce"},{x:2,y:9,c:"#0929ce"},
             {x:2,y:10,c:"#0929ce"},{x:13,y:7,c:"#0929ce"},{x:11,y:9,c:"#df58b4"},{x:4,y:10,c:"#0929ce"},{x:4,y:11,c:"#0929ce"},
-            {x:14,y:8,c:"#0929ce"},{x:14,y:9,c:"#0929ce"},{x:14,y:10,c:"#0929ce"},{x:13,y:10,c:"#0929ce"},{x:13,y:11,c:"#0929ce"},
+            {x:14,y:8,c:"#0929ce"},{x:14,y:9,c:"#0929ce"},{x:14,y:10,c:"#0929ce"},{x:13,y:10,c:"#0929ce"},{x:13,y:11,c:"#ce09ad"},
             {x:7,y:11,c:"#0929ce"},{x:8,y:11,c:"#0929ce"},{x:9,y:11,c:"#0929ce"},{x:10,y:11,c:"#0929ce"},{x:10,y:12,c:"#0929ce"},
             {x:9,y:12,c:"#0929ce"},{x:8,y:12,c:"#0929ce"},{x:7,y:12,c:"#0929ce"},{x:6,y:12,c:"#0929ce"},{x:6,y:13,c:"#0929ce"},
             {x:7,y:13,c:"#0929ce"},{x:8,y:13,c:"#0929ce"},{x:8,y:14,c:"#ce09ad"},{x:9,y:13,c:"#0929ce"},{x:6,y:14,c:"#ce09ad"},
@@ -161,7 +179,7 @@
             player.bullets.length = 0;
             msgEl.style.display = "none";
             
-            // Start BGM Tracks
+            // Start FM BGM Tracks
             bgmTracks.forEach((_, i) => playBgmTrack(i));
         }
 
