@@ -3,13 +3,19 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GOIN NOTE: DEADLINE CHRONICLE</title>
+    <title>GOIN NOTE: EXPERT CHRONICLE</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap');
 
+        :root {
+            --term-green: #00ff41;
+            --term-red: #ff0000;
+            --term-expert: #f0f;
+        }
+
         body {
             background-color: #0d0208;
-            color: #00ff41;
+            color: var(--term-green);
             font-family: 'Share Tech Mono', monospace;
             margin: 0; padding: 20px;
             display: flex; flex-direction: column; height: 95vh;
@@ -18,21 +24,21 @@
         }
 
         .header {
-            border-bottom: 2px solid #00ff41;
+            border-bottom: 2px solid var(--term-green);
             margin-bottom: 10px; padding-bottom: 5px;
             display: flex; justify-content: space-between; align-items: center;
         }
 
         #timer-bar {
-            height: 10px; background: #00ff41; width: 100%;
-            margin-bottom: 20px; box-shadow: 0 0 10px #00ff41;
+            height: 10px; background: var(--term-green); width: 100%;
+            margin-bottom: 20px; box-shadow: 0 0 10px var(--term-green);
         }
 
         #note-area {
             flex-grow: 1;
             background: transparent;
             border: 1px solid #003b00;
-            color: #00ff41;
+            color: var(--term-green);
             font-family: 'Share Tech Mono', monospace;
             font-size: 1.5em;
             padding: 20px;
@@ -48,15 +54,17 @@
         }
 
         .btn {
-            background: transparent; color: #00ff41; border: 1px solid #00ff41;
+            background: transparent; color: var(--term-green); border: 1px solid var(--term-green);
             padding: 5px 15px; cursor: pointer; font-family: 'Share Tech Mono', monospace;
             text-decoration: none; font-size: 0.9em;
         }
-        .btn:hover { background: #00ff41; color: #000; box-shadow: 0 0 15px #00ff41; }
+        .btn:hover { background: var(--term-green); color: #000; box-shadow: 0 0 15px var(--term-green); }
 
-        #save-btn { font-weight: bold; font-size: 1.2em; border-width: 2px; }
+        .btn-expert { color: var(--term-expert); border-color: var(--term-expert); }
+        .btn-expert:hover { background: var(--term-expert); color: #000; box-shadow: 0 0 15px var(--term-expert); }
+        .btn-active { background: rgba(0, 255, 65, 0.2); font-weight: bold; }
+        .btn-active-expert { background: rgba(255, 0, 255, 0.2); font-weight: bold; }
 
-        /* Animation Classes */
         .shake { animation: shake 0.1s infinite; }
         @keyframes shake {
             0% { transform: translate(1px, 1px); }
@@ -65,32 +73,40 @@
         }
 
         #log-panel {
-            position: fixed; top: 50px; right: 20px; width: 250px;
-            background: rgba(0, 20, 0, 0.9); border: 1px solid #00ff41;
-            padding: 10px; font-size: 0.8em; max-height: 200px; overflow-y: auto;
-            display: none;
+            position: fixed; top: 60px; right: 20px; width: 250px;
+            background: rgba(0, 10, 0, 0.95); border: 1px solid var(--term-green);
+            padding: 10px; font-size: 0.8em; max-height: 300px; overflow-y: auto;
+            display: none; z-index: 200;
         }
+
+        .mode-expert { color: var(--term-expert) !important; border-color: var(--term-expert) !important; }
+        .mode-expert #timer-bar { background-color: var(--term-expert) !important; box-shadow: 0 0 10px var(--term-expert); }
+        .mode-expert #note-area { border-color: var(--term-expert); color: var(--term-expert); }
     </style>
 </head>
 <body id="body">
-    <div class="header">
-        <div style="font-size: 1.2em;">[ MISSION: DEADLINE_CHRONICLE ]</div>
-        <button class="btn" onclick="toggleLog()">VIEW LOGS</button>
+    <div class="header" id="header-ui">
+        <div>[ MISSION: <span id="mode-title">NORMAL_CHRONICLE</span> ]</div>
+        <div>
+            <button id="btn-normal" class="btn btn-active" onclick="setMode(60, 'NORMAL')">NORMAL (60s)</button>
+            <button id="btn-expert" class="btn btn-expert" onclick="setMode(10, 'EXPERT')">EXPERT (10s)</button>
+        </div>
+        <button class="btn" onclick="toggleLog()">LOGS</button>
         <a href="arcade.html" class="btn">ABORT</a>
     </div>
 
     <div id="timer-bar"></div>
 
-    <textarea id="note-area" placeholder="INITIATING... WRITE FAST OR LOSE ALL."></textarea>
+    <textarea id="note-area" placeholder="TYPE TO INITIATE..."></textarea>
 
-    <div id="log-panel" id="log-panel">
+    <div id="log-panel">
         <strong>--- SAVED ARCHIVES ---</strong>
         <div id="log-content"></div>
     </div>
 
     <div class="status-bar">
-        <div>TIME REMAINING: <span id="time-left">60.0</span>s</div>
-        <button id="save-btn" class="btn" onclick="saveArchive()">SAVE ARCHIVE [ESC]</button>
+        <div>TIME: <span id="time-left">60.0</span>s</div>
+        <button id="save-btn" class="btn" style="font-weight:bold; border-width:2px;" onclick="saveArchive()">SAVE [ESC]</button>
         <div>SYNC: <span id="word-count">0</span> chars</div>
     </div>
 
@@ -102,11 +118,34 @@
         const wordCount = document.getElementById('word-count');
         const logContent = document.getElementById('log-content');
         const logPanel = document.getElementById('log-panel');
+        const modeTitle = document.getElementById('mode-title');
+        const btnNormal = document.getElementById('btn-normal');
+        const btnExpert = document.getElementById('btn-expert');
 
-        let duration = 60.0; // Seconds
+        let duration = 60.0;
         let timeLeft = duration;
         let isActive = false;
         let startTime = 0;
+        let currentMode = 'NORMAL';
+
+        function setMode(sec, name) {
+            if(isActive) return;
+            duration = sec;
+            timeLeft = sec;
+            currentMode = name;
+            timeLeftEl.innerText = sec.toFixed(1);
+            modeTitle.innerText = name + '_CHRONICLE';
+            
+            if(name === 'EXPERT') {
+                body.classList.add('mode-expert');
+                btnExpert.classList.add('btn-active-expert');
+                btnNormal.classList.remove('btn-active');
+            } else {
+                body.classList.remove('mode-expert');
+                btnNormal.classList.add('btn-active');
+                btnExpert.classList.remove('btn-active-expert');
+            }
+        }
 
         noteArea.addEventListener('input', () => {
             if(!isActive && noteArea.value.length > 0) {
@@ -115,7 +154,6 @@
             wordCount.innerText = noteArea.value.length;
         });
 
-        // Hotkey for Save
         window.addEventListener('keydown', (e) => {
             if(e.key === "Escape") saveArchive();
         });
@@ -128,7 +166,6 @@
 
         function update() {
             if(!isActive) return;
-
             const elapsed = (Date.now() - startTime) / 1000;
             timeLeft = Math.max(0, duration - elapsed);
             
@@ -136,14 +173,15 @@
             timerBar.style.width = progress + "%";
             timeLeftEl.innerText = timeLeft.toFixed(1);
 
-            // Visual Effects based on time
-            if (timeLeft < 10) {
-                body.style.backgroundColor = `rgb(${Math.floor((10 - timeLeft) * 20)}, 0, 0)`;
+            const warningThreshold = duration * 0.5;
+            const criticalThreshold = duration * 0.15;
+
+            if (timeLeft < criticalThreshold) {
+                body.style.backgroundColor = currentMode === 'EXPERT' ? "#404" : "#400";
                 noteArea.classList.add('shake');
-                timerBar.style.backgroundColor = "#ff0000";
-            } else if (timeLeft < 30) {
-                body.style.backgroundColor = `rgb(${Math.floor((30 - timeLeft) * 4)}, 0, 0)`;
-                timerBar.style.backgroundColor = "#ffaa00";
+                timerBar.style.backgroundColor = "#f00";
+            } else if (timeLeft < warningThreshold) {
+                body.style.backgroundColor = "#200";
             }
 
             if(timeLeft <= 0) {
@@ -155,37 +193,34 @@
 
         function saveArchive() {
             if(!isActive || timeLeft <= 0) return;
-            
             const content = noteArea.value;
             if(content.trim() === "") return;
 
-            // Save to LocalStorage
             const logs = JSON.parse(localStorage.getItem('goin_logs') || "[]");
-            logs.unshift({ date: new Date().toLocaleString(), text: content });
-            localStorage.setItem('goin_logs', JSON.stringify(logs.slice(0, 10))); // Keep last 10
+            logs.unshift({ date: new Date().toLocaleString(), text: `[${currentMode}] ` + content });
+            localStorage.setItem('goin_logs', JSON.stringify(logs.slice(0, 10)));
 
             isActive = false;
-            alert("SUCCESS: ARCHIVE SECURED.\nTime left: " + timeLeft.toFixed(1) + "s");
+            alert("SUCCESS: ARCHIVE SECURED.\nMode: " + currentMode + "\nTime: " + timeLeft.toFixed(1) + "s");
             resetMission();
         }
 
         function failMission() {
             isActive = false;
             noteArea.value = "";
-            noteArea.classList.remove('shake');
             body.style.backgroundColor = "#f00";
-            alert("CRITICAL FAILURE: DATA PURGED.");
+            alert("CRITICAL FAILURE: ARCHIVE PURGED.");
             resetMission();
         }
 
         function resetMission() {
             timeLeft = duration;
             noteArea.value = "";
-            noteArea.placeholder = "MISSION RESET. TYPE TO INITIATE.";
+            noteArea.placeholder = "TYPE TO INITIATE MISSION...";
             noteArea.classList.remove('shake');
             body.style.backgroundColor = "#0d0208";
             timerBar.style.width = "100%";
-            timerBar.style.backgroundColor = "#00ff41";
+            timerBar.style.backgroundColor = currentMode === 'EXPERT' ? "var(--term-expert)" : "var(--term-green)";
             wordCount.innerText = "0";
             loadLogs();
         }
@@ -198,9 +233,9 @@
         function loadLogs() {
             const logs = JSON.parse(localStorage.getItem('goin_logs') || "[]");
             logContent.innerHTML = logs.map(l => `
-                <div style="border-bottom: 1px dotted #00ff41; margin-bottom: 5px; padding-bottom: 5px;">
+                <div style="border-bottom: 1px dotted #00ff41; margin-bottom: 5px; padding-bottom: 5px; color: ${l.text.startsWith('[EXPERT]') ? '#f0f' : '#0fc'}">
                     <small>${l.date}</small><br>
-                    ${l.text.substring(0, 30)}...
+                    ${l.text.substring(0, 40)}...
                 </div>
             `).join('');
         }
