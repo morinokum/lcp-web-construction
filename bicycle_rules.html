@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BICYCLE SAFETY PROTOCOL</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap');
+
+        body {
+            background-color: #000;
+            color: #00ff41;
+            font-family: 'Share Tech Mono', monospace;
+            margin: 0;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            text-align: center;
+        }
+
+        #display-area {
+            font-size: 3.5vw;
+            width: 90%;
+            height: 40vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 2px solid #003b00;
+            padding: 20px;
+            box-shadow: inset 0 0 20px #003b00;
+            position: relative;
+        }
+
+        #rule-text {
+            line-height: 1.4;
+            transition: opacity 0.1s;
+        }
+
+        .header {
+            position: absolute;
+            top: 20px;
+            width: 100%;
+            font-size: 1.2em;
+            letter-spacing: 5px;
+        }
+
+        .controls {
+            position: absolute;
+            bottom: 50px;
+            display: flex;
+            gap: 20px;
+        }
+
+        .btn {
+            background: transparent;
+            color: #00ff41;
+            border: 1px solid #00ff41;
+            padding: 10px 25px;
+            cursor: pointer;
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 1.1em;
+        }
+
+        .btn:hover {
+            background: #00ff41;
+            color: #000;
+        }
+
+        .btn-active {
+            background: #00ff41;
+            color: #000;
+            box-shadow: 0 0 15px #00ff41;
+        }
+
+        #progress-bar {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            height: 5px;
+            background: #00ff41;
+            width: 0%;
+        }
+
+        #counter {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            font-size: 0.8em;
+        }
+
+        .hyper-mode {
+            color: #ff0000 !important;
+            border-color: #ff0000 !important;
+        }
+        .hyper-mode #progress-bar { background: #ff0000; }
+        .hyper-mode #display-area { border-color: #ff0000; box-shadow: inset 0 0 20px #440000; }
+    </style>
+</head>
+<body id="body">
+    <div class="header">BICYCLE_SAFETY_PROTOCOL_v1.0</div>
+
+    <div id="display-area">
+        <div id="counter">00 / 100</div>
+        <div id="rule-text">SYSTEM READY... PRESS START</div>
+        <div id="progress-bar"></div>
+    </div>
+
+    <div class="controls">
+        <button id="btn-normal" class="btn" onclick="setMode(3000, 'NORMAL')">NORMAL (3.0s)</button>
+        <button id="btn-hyper" class="btn" onclick="setMode(500, 'HYPER')">HYPER (0.5s)</button>
+        <button id="btn-start" class="btn btn-active" onclick="startTraining()">START TRAINING</button>
+        <a href="arcade.html" class="btn" style="text-decoration:none;">EXIT</a>
+    </div>
+
+    <script>
+        const rules = [
+            "1. 自転車は軽車両。原則「車道の左側」を通行せよ。",
+            "2. 歩道を通行できるのは「例外」のみ。歩行者優先を徹底。",
+            "3. 交差点では信号遵守。一時停止場所では必ず止まれ。",
+            "4. 夜間は必ずライトを点灯。無灯火は重大な違反。",
+            "5. 飲酒運転は禁止。酒気帯びでも厳罰（3年以下の懲役等）。",
+            "6. 二人乗りは原則禁止。幼児用座席がある場合を除く。",
+            "7. 並進（横に並んで走ること）は禁止。",
+            "8. スマートフォンを見ながらの運転は禁止（ながらスマホ）。",
+            "9. 傘差し運転は視界を遮り不安定。禁止行為である。",
+            "10. イヤホンで大音量の音楽を聴きながらの運転は危険。",
+            "11. ブレーキのない自転車（ピスト等）での公道走行禁止。",
+            "12. 右側通行（逆走）は重大な違反。左側通行を死守せよ。",
+            "13. 歩道でのベル乱用禁止。歩行者を退かせるためではない。",
+            "14. ヘルメットの着用は「努力義務」。命を守るための盾。",
+            "15. 児童（13歳未満）へのヘルメット着用は保護者の義務。",
+            "16. 交差点での右折は「二段階右折」が必須。",
+            "17. 踏切前では必ず一時停止。安全確認を怠るな。",
+            "18. 反則金制度（青切符）が導入。交通違反には罰金が発生。",
+            "19. ながらスマホで事故を起こした場合、1年以下の懲役等。",
+            "20. 酒気帯び運転の幇助（酒提供、車両提供）も厳罰。",
+            "21. 道路標識を注視せよ。「自転車通行止め」に注意。",
+            "22. 歩道通行時、歩行者の妨げになる場合は一時停止。",
+            "23. 走行中の「手放し運転」は禁止。ハンドルを確実に保持せ do.",
+            "24. 荷物運搬時、規定のサイズ・重さを超えるのは違反。",
+            "25. 自転車専用通行帯がある場合は、そこを通行せよ。",
+            "26. 信号が黄色に変わる際、安全に停止できるなら止まれ。",
+            "27. 緊急車両が接近した際は、進路を譲る義務がある。",
+            "28. 道路上の段差や溝には常に警戒を怠るな。",
+            "29. 他の車両との「安全な距離」を維持せよ。",
+            "30. 横断歩道に歩行者がいる場合は、その通行を妨げない。",
+            "31. 幼児用座席に乗せる際は、シートベルトを必ず着用。",
+            "32. 自転車道がある場合、そこを通行するのが原則。",
+            "33. トラック等の内輪差に注意。巻き込み事故を回避せよ。",
+            "34. 視界の悪い場所では、積極的にライトを使用。",
+            "35. 冬期の凍結路面では、スリップに最大限の注意。",
+            "36. 自転車の定期的な点検・整備（TSマーク推奨）。",
+            "37. 保険（個人賠償責任保険等）への加入を強く推奨。",
+            "38. 警笛鳴らせの標識がある場所では、ベルを使用せよ。",
+            "39. 一方通行でも「自転車を除く」の補助標識を確認。",
+            "40. 歩道内では、車道寄りの部分を徐行せよ。",
+            "41. 安全運転義務違反：他人に危害を及ぼす運転の禁止。",
+            "42. 高齢者や障害者付近を通行する際は特に配慮。",
+            "43. 自転車でも「ひき逃げ」は犯罪。即座に救護・通報。",
+            "44. 交通事故の際は、警察への報告義務がある。",
+            "45. 追い越しの際は、右側から安全に行え。",
+            "46. 進路変更の際は、後方の安全を必ず目視確認。",
+            "47. 下り坂での過速度注意。ブレーキを適切に使用せよ。",
+            "48. 自転車ラック使用時、通路を塞がないように配慮。",
+            "49. 雨天時のマンホールや白線は滑りやすい。注意。",
+            "50. 酒酔い運転：5年以下の懲役、100万円以下の罰金。",
+            // ... 簡易的に100個までループさせるため、残りは重要度の高いものをランダムに水増し
+            "51. スマートフォンの手保持使用だけで反則金の対象。",
+            "52. 遮断機が閉じている踏切への進入は絶対禁止。",
+            "53. 自転車は車両。歩行者の動きを予測して運転せよ。",
+            "54. 道路工事現場付近では、交通誘導員の指示に従え。",
+            "55. 狭い路地からの飛び出しに注意。徐行が基本。",
+            "56. 駐輪禁止場所への放置は交通の妨げになる。",
+            "57. 前方の車両が左折合図を出している場合、巻き込み注意。",
+            "58. 自転車でも一方通行逆走はNG（補助標識がない場合）。",
+            "59. 二段階右折を無視して直接右折するのは違反。",
+            "60. トンネル内ではライト点灯が法的に義務。",
+            "61. 交通ルールの無視は、自身の命を危険にさらす行為。",
+            "62. 公園内など、自転車走行禁止区域には入らない。",
+            "63. 集団走行時は、前後左右の安全を確認。",
+            "64. 車両の陰からの飛び出しを常に警戒せよ。",
+            "65. バス停付近では、乗降客の安全を最優先。",
+            "66. 犬の散歩をしながらの運転は禁止（不安定）。",
+            "67. 重い荷物をハンドルにかけての運転は操縦不能を招く。",
+            "68. 反射材（リフレクター）の装着は夜間の生存率を上げる。",
+            "69. 交差点での強引な割り込みは事故の元。",
+            "70. 疲労時は集中力が低下。無理な運転は避けよ。",
+            "71. ルールを知らなかったでは済まされない。法は法。",
+            "72. 自転車事故の損害賠償は数千万円に及ぶこともある。",
+            "73. 自転車は便利な道具だが、時に凶器となることを忘れるな。",
+            "74. 信号のない交差点こそ、徹底した一時停止が必要。",
+            "75. 他の自転車を追い越す際、声をかける等の配慮。",
+            "76. 狭い橋の上では、無理な追い越しを避ける。",
+            "77. 道路上のゴミや落下物を避ける際、後方確認を徹底。",
+            "78. 自身の走行スピードを常に把握し、制御下に置け。",
+            "79. 路側帯を通行する際は、歩行者の通行を妨げない速度で。",
+            "80. 事故を未然に防ぐ「防衛運転」を常に意識せよ。",
+            "81. 自転車保険の有効期限を定期的に確認せよ。",
+            "82. TSマークの更新（年1回）で点検と保険を同時に確保。",
+            "83. 子供を前に乗せる際は、専用のチャイルドシートを使用。",
+            "84. 学校付近や通学路では、子供の急な動きに注意。",
+            "85. 夕暮れ時（薄暮）こそ、早めのライト点灯が必要。",
+            "86. 商店街など人が多い場所では、自転車を降りて押す勇気。",
+            "87. 自転車の鍵かけを徹底し、盗難を防止せよ。",
+            "88. 他人の自転車を勝手に借りるのは「窃盗」に当たる。",
+            "89. 交通弱者（歩行者）に対する「優しさ」がルール。 ",
+            "90. サイクリングロードでもスピードの出し過ぎは危険。",
+            "91. 自転車用のナビアプリ使用中も、画面注視は禁止。",
+            "92. ヘルメットはSGマーク等の安全基準を満たすものを選べ。",
+            "93. 自転車レーンの逆走は、対向車との正面衝突を招く。",
+            "94. 高い段差を乗り越える際は、直角に進入せよ。",
+            "95. 雨天時のブレーキは制動距離が伸びることを計算に入れよ。",
+            "96. 道路状況（工事、水たまり）を予測して走行ラインを選択。",
+            "97. 警察官の停止指示には必ず従わなければならない。",
+            "98. 自転車利用者のマナー向上が、社会の安全を創る。",
+            "99. ドクターひろし流：ルールを守ることは、自由への近道。",
+            "100. 完了。全ルールを遵守し、慈愛の走行を完遂せよ。"
+        ];
+
+        let currentInterval = 3000;
+        let currentIndex = 0;
+        let timer = null;
+        let startTime = 0;
+
+        const ruleText = document.getElementById('rule-text');
+        const progressBar = document.getElementById('progress-bar');
+        const counter = document.getElementById('counter');
+        const body = document.getElementById('body');
+
+        function setMode(ms, mode) {
+            currentInterval = ms;
+            document.getElementById('btn-normal').classList.toggle('btn-active', mode === 'NORMAL');
+            document.getElementById('btn-hyper').classList.toggle('btn-active', mode === 'HYPER');
+            body.className = (mode === 'HYPER') ? 'hyper-mode' : '';
+            if (timer) {
+                stopTraining();
+                startTraining();
+            }
+        }
+
+        function startTraining() {
+            if (timer) clearInterval(timer);
+            currentIndex = 0;
+            nextRule();
+            timer = setInterval(nextRule, currentInterval);
+        }
+
+        function stopTraining() {
+            clearInterval(timer);
+            timer = null;
+        }
+
+        function nextRule() {
+            if (currentIndex >= rules.length) {
+                stopTraining();
+                ruleText.innerText = "TRAINING COMPLETE. ARCHIVE SECURED.";
+                return;
+            }
+
+            ruleText.style.opacity = 0;
+            setTimeout(() => {
+                ruleText.innerText = rules[currentIndex];
+                ruleText.style.opacity = 1;
+                counter.innerText = `${String(currentIndex + 1).padStart(2, '0')} / 100`;
+                currentIndex++;
+            }, 50);
+
+            // Progress Bar Animation
+            progressBar.style.transition = 'none';
+            progressBar.style.width = '0%';
+            setTimeout(() => {
+                progressBar.style.transition = `width ${currentInterval}ms linear`;
+                progressBar.style.width = '100%';
+            }, 10);
+        }
+    </script>
+</body>
+</html>
