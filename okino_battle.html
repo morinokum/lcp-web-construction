@@ -2,17 +2,17 @@
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>UNIT-10: WITCH BATTLE VS OKINO</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap');
         body { margin: 0; background: #000; color: #fff; font-family: 'Share Tech Mono', monospace; overflow: hidden; touch-action: none; }
-        canvas { display: block; image-rendering: pixelated; }
-        #ui { position: absolute; top: 10px; left: 10px; pointer-events: none; width: calc(100% - 20px); }
+        canvas { display: block; image-rendering: pixelated; cursor: crosshair; }
+        #ui { position: absolute; top: 10px; left: 10px; pointer-events: none; width: calc(100% - 20px); z-index: 10; }
         .hp-bar-wrap { width: 100%; height: 10px; background: #200; border: 1px solid #f00; margin-top: 5px; }
         #boss-hp { height: 100%; background: linear-gradient(90deg, #f00, #f0f); width: 100%; transition: width 0.1s; }
-        #msg { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); text-align: center; font-size: 2em; text-shadow: 0 0 10px #f0f; display: none; }
-        .btn { position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%); background: transparent; color: #0fc; border: 1px solid #0fc; padding: 10px 20px; cursor: pointer; }
+        #msg { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); text-align: center; font-size: 2em; text-shadow: 0 0 10px #f0f; z-index: 20; }
+        .btn { position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%); background: rgba(0,0,0,0.8); color: #0fc; border: 1px solid #0fc; padding: 10px 20px; cursor: pointer; text-decoration: none; z-index: 30; }
     </style>
 </head>
 <body>
@@ -23,9 +23,9 @@
         </div>
         <div class="hp-bar-wrap"><div id="boss-hp"></div></div>
     </div>
-    <div id="msg"></div>
+    <div id="msg">ACCESSING ARCHIVE...<br>[ TOUCH TO START ]</div>
     <canvas id="gameCanvas"></canvas>
-    <a href="arcade.html" class="btn" style="bottom: 80px; text-decoration:none;">ABORT BATTLE</a>
+    <a href="arcade.html" class="btn" style="bottom: 20px;">BACK TO ARCADE</a>
 
     <script>
         const canvas = document.getElementById('gameCanvas');
@@ -36,7 +36,6 @@
 
         let W, H, gameActive = false, score = 0, frame = 0;
         
-        // --- OKINO PIXEL DATA (Extracted from your SVG) ---
         const okinoPixels = [
             {x:6,y:9,c:"#df58b4"},{x:6,y:8,c:"#0929ce"},{x:7,y:7,c:"#0929ce"},{x:9,y:6,c:"#ab5eb5"},{x:9,y:5,c:"#ffffff"},
             {x:10,y:5,c:"#ffffff"},{x:10,y:4,c:"#131111"},{x:11,y:4,c:"#ce091c"},{x:11,y:3,c:"#ce091c"},{x:10,y:3,c:"#131111"},
@@ -67,48 +66,79 @@
             {x:9,y:8,c:"#0929ce"},{x:10,y:8,c:"#0929ce"},{x:11,y:8,c:"#0929ce"},{x:10,y:9,c:"#0929ce"},{x:5,y:8,c:"#0929ce"}
         ];
 
-        const player = { x: 0, y: 0, hp: 3, bullets: [] };
-        const boss = { x: 0, y: 50, hp: 500, maxHp: 500, tx: 0, ty: 50, phase: 1 };
-        const particles = [];
+        const player = { x: 0, y: 0, bullets: [] };
+        const boss = { x: 0, y: 50, hp: 1000, maxHp: 1000, tx: 0, ty: 50 };
         const bossBullets = [];
 
         function resize() {
             W = canvas.width = window.innerWidth;
             H = canvas.height = window.innerHeight;
             player.x = W / 2;
-            player.y = H - 80;
+            player.y = H - 100;
+            boss.x = W / 2 - 80;
+            boss.tx = boss.x;
         }
 
         function init() {
             resize();
             window.addEventListener('resize', resize);
-            window.addEventListener('mousemove', e => { player.x = e.clientX; player.y = e.clientY; });
-            window.addEventListener('touchmove', e => { player.x = e.touches[0].clientX; player.y = e.touches[0].clientY; e.preventDefault(); }, {passive:false});
-            window.addEventListener('mousedown', () => { if(gameActive) fire(); });
             
+            const onMove = (e) => {
+                const cx = e.touches ? e.touches[0].clientX : e.clientX;
+                const cy = e.touches ? e.touches[0].clientY : e.clientY;
+                player.x = cx;
+                player.y = cy;
+            };
+            window.addEventListener('mousemove', onMove);
+            window.addEventListener('touchmove', (e) => { onMove(e); e.preventDefault(); }, {passive:false});
+            
+            window.addEventListener('mousedown', () => { 
+                if(!gameActive) {
+                    startGame();
+                } else {
+                    fire();
+                }
+            });
+            window.addEventListener('touchstart', (e) => {
+                if(!gameActive) {
+                    startGame();
+                } else {
+                    fire();
+                }
+                e.preventDefault();
+            }, {passive:false});
+
+            draw(); // Start loop
+        }
+
+        function startGame() {
             gameActive = true;
-            loop();
+            score = 0;
+            boss.hp = boss.maxHp;
+            bossBullets.length = 0;
+            player.bullets.length = 0;
+            msgEl.style.display = "none";
         }
 
         function fire() {
-            player.bullets.push({x: player.x, y: player.y - 20, v: 12});
+            player.bullets.push({x: player.x, y: player.y - 20, v: 15});
         }
 
         function spawnBossBullet(type) {
             if(type === 'magenta') {
-                for(let i=0; i<8; i++) {
-                    const a = (i/8) * Math.PI * 2 + frame*0.05;
-                    bossBullets.push({x: boss.x + 80, y: boss.y + 120, vx: Math.cos(a)*4, vy: Math.sin(a)*4, c: "#f0f", r: 5});
+                for(let i=0; i<12; i++) {
+                    const a = (i/12) * Math.PI * 2 + frame*0.08;
+                    bossBullets.push({x: boss.x + 80, y: boss.y + 80, vx: Math.cos(a)*5, vy: Math.sin(a)*5, c: "#f0f", r: 6});
                 }
             } else if(type === 'blue') {
-                bossBullets.push({x: Math.random()*W, y: -20, vx: 0, vy: 6, c: "#0929ce", r: 15});
+                bossBullets.push({x: Math.random()*W, y: -20, vx: 0, vy: 8, c: "#0929ce", r: 20});
             }
         }
 
         function drawOkino(x, y, scale, flicker) {
             ctx.save();
             ctx.translate(x, y);
-            if(flicker) ctx.globalAlpha = Math.random();
+            if(flicker) ctx.globalAlpha = 0.5 + Math.random()*0.5;
             okinoPixels.forEach(p => {
                 ctx.fillStyle = p.c;
                 ctx.fillRect(p.x * scale, p.y * scale, scale, scale);
@@ -121,32 +151,35 @@
             frame++;
 
             // Boss AI
-            boss.x += (boss.tx - boss.x) * 0.05;
-            if(frame % 60 === 0) {
-                boss.tx = Math.random() * (W - 200);
+            boss.x += (boss.tx - boss.x) * 0.03;
+            if(frame % 80 === 0) {
+                boss.tx = Math.random() * (W - 160);
             }
 
-            if(frame % 40 === 0) spawnBossBullet('magenta');
-            if(frame % 100 === 0) spawnBossBullet('blue');
+            if(frame % 50 === 0) spawnBossBullet('magenta');
+            if(frame % 120 === 0) spawnBossBullet('blue');
 
             // Player Bullets
-            player.bullets.forEach((b, i) => {
+            for(let i = player.bullets.length - 1; i >= 0; i--) {
+                const b = player.bullets[i];
                 b.y -= b.v;
-                if(b.y < -20) player.bullets.splice(i, 1);
-                // Hit Boss
+                if(b.y < -20) { player.bullets.splice(i, 1); continue; }
+                
+                // Hit Boss (Simple box collision)
                 if(b.x > boss.x && b.x < boss.x + 160 && b.y > boss.y && b.y < boss.y + 160) {
-                    boss.hp -= 5;
-                    score += 10;
+                    boss.hp -= 10;
+                    score += 100;
                     player.bullets.splice(i, 1);
                     if(boss.hp <= 0) win();
                 }
-            });
+            }
 
             // Boss Bullets
-            bossBullets.forEach((b, i) => {
+            for(let i = bossBullets.length - 1; i >= 0; i--) {
+                const b = bossBullets[i];
                 b.x += b.vx || 0;
                 b.y += b.vy || 0;
-                if(b.y > H + 20 || b.x < -20 || b.x > W + 20) bossBullets.splice(i, 1);
+                if(b.y > H + 50 || b.x < -50 || b.x > W + 50) { bossBullets.splice(i, 1); continue; }
                 
                 // Hit Player
                 const dx = b.x - player.x;
@@ -154,7 +187,7 @@
                 if(Math.sqrt(dx*dx + dy*dy) < b.r + 10) {
                     lose();
                 }
-            });
+            }
 
             scoreEl.innerText = score;
             bossHpEl.style.width = (boss.hp / boss.maxHp * 100) + "%";
@@ -163,41 +196,40 @@
         function win() {
             gameActive = false;
             msgEl.style.display = "block";
-            msgEl.innerHTML = "WITCH DISPELLED<br>ARCHIVE STABILIZED";
+            msgEl.innerHTML = "WITCH DISPELLED<br>ARCHIVE STABILIZED<br>[ CLICK TO REPLAY ]";
             msgEl.style.color = "#0fc";
         }
 
         function lose() {
             gameActive = false;
             msgEl.style.display = "block";
-            msgEl.innerHTML = "CURSED BY OKINO<br>DATA CORRUPTED";
+            msgEl.innerHTML = "CURSED BY OKINO<br>DATA CORRUPTED<br>[ CLICK TO REPLAY ]";
             msgEl.style.color = "#f00";
-            setTimeout(() => location.reload(), 3000);
         }
 
         function draw() {
             ctx.fillStyle = "#000";
             ctx.fillRect(0, 0, W, H);
 
-            // Stars background
-            ctx.fillStyle = "#222";
-            for(let i=0; i<50; i++) ctx.fillRect((i*137)%W, (i*frame)%H, 2, 2);
+            // Stars
+            ctx.fillStyle = "#333";
+            for(let i=0; i<30; i++) ctx.fillRect((i*W/30), (frame*2 + i*H/30)%H, 2, 2);
 
-            drawOkino(boss.x, boss.y + Math.sin(frame*0.05)*10, 10, boss.hp < 100);
+            if(gameActive || boss.hp <= 0 || !score === 0) {
+                drawOkino(boss.x, boss.y + Math.sin(frame*0.05)*15, 10, boss.hp < 200);
+            }
 
-            // Player (Simplified triangle)
+            // Player (Fighter)
             ctx.fillStyle = "#0fc";
             ctx.beginPath();
-            ctx.moveTo(player.x, player.y - 15);
-            ctx.lineTo(player.x - 15, player.y + 15);
-            ctx.lineTo(player.x + 15, player.y + 15);
+            ctx.moveTo(player.x, player.y - 20);
+            ctx.lineTo(player.x - 15, player.y + 10);
+            ctx.lineTo(player.x + 15, player.y + 10);
             ctx.fill();
 
             // Bullets
-            player.bullets.forEach(b => {
-                ctx.fillStyle = "#fff";
-                ctx.fillRect(b.x-2, b.y, 4, 10);
-            });
+            ctx.fillStyle = "#fff";
+            player.bullets.forEach(b => ctx.fillRect(b.x-2, b.y, 4, 15));
 
             bossBullets.forEach(b => {
                 ctx.fillStyle = b.c;
