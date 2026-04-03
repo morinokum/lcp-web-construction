@@ -90,6 +90,12 @@
 
         .status-online { color: #00ff41; font-weight: bold; }
         .status-legendary { color: var(--term-gold); font-weight: bold; text-shadow: 0 0 10px var(--term-gold); }
+        .status-battle { color: #f0f; font-weight: bold; animation: pulse 1s infinite; }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
 
         .footer {
             margin-top: 40px;
@@ -163,6 +169,9 @@
                 </a>
                 <a href="pixel_to_svg.html" class="menu-item">
                     [UNIT-09] PIXEL_TO_SVG: GENESIS DESIGN ... <span class="status-online">ONLINE</span>
+                </a>
+                <a href="okino_battle.html" class="menu-item">
+                    [UNIT-10] WITCH BATTLE: VS OKINO ... <span class="status-battle">DECISIVE BATTLE</span>
                 </a>
             </nav>
         </section>
