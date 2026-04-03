@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>UNIT-14: GEMINI FM LIBRARY</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap');
+        :root { --fm-neon: #00d2ff; --bg: #0d0208; --gold: #ffd700; }
+        body { background-color: var(--bg); color: var(--fm-neon); font-family: 'Share Tech Mono', monospace; margin: 0; padding: 20px; line-height: 1.4; }
+        .header { border-bottom: 2px solid var(--fm-neon); padding-bottom: 10px; margin-bottom: 20px; }
+        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 15px; }
+        .card { border: 1px solid #003b44; padding: 15px; background: rgba(0, 210, 255, 0.03); position: relative; }
+        .card:hover { border-color: var(--fm-neon); background: rgba(0, 210, 255, 0.08); }
+        .title { font-weight: bold; font-size: 1.1em; color: var(--gold); display: block; margin-bottom: 5px; }
+        .desc { font-size: 0.8em; color: #aaa; margin-bottom: 15px; }
+        .copy-btn { background: transparent; border: 1px solid var(--fm-neon); color: var(--fm-neon); padding: 5px 10px; cursor: pointer; font-family: 'Share Tech Mono'; font-size: 0.8em; width: 100%; transition: all 0.2s; }
+        .copy-btn:hover { background: var(--fm-neon); color: #000; }
+        .copy-btn:active { transform: scale(0.98); }
+        .footer { margin-top: 40px; border-top: 1px solid #003b44; padding-top: 10px; text-align: center; }
+        .btn { text-decoration: none; color: var(--fm-neon); border: 1px solid var(--fm-neon); padding: 10px 20px; display: inline-block; margin-top: 20px; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1 style="margin:0;">UNIT-14: GEMINI_FM_LIBRARY v1.0</h1>
+        <p style="font-size: 0.8em;">Composed by Gemini AI for Dr. Hiroshi. Copy JSON and import into Unit-13.</p>
+    </div>
+
+    <div class="grid" id="library"></div>
+
+    <div class="footer">
+        <a href="arcade.html" class="btn">BACK TO ARCADE</a>
+    </div>
+
+    <script>
+        const songs = [
+            {
+                title: "GENESIS_PULSE",
+                desc: "Joy-based techno pulse. High energy genesis.",
+                data: {"tracks":[{"emotion":"joy","sequence":["C4","G4","C5","G4","D5","A5","D6","A5"],"fm":{"depth":600,"ratio":2.0,"rel":0.2}},{"emotion":"joy","sequence":["C3","C3","G3","G3"],"fm":{"depth":200,"ratio":1.0,"rel":0.1}},{"emotion":"joy","sequence":["E4","F4","G4","A4"],"fm":{"depth":400,"ratio":3.5,"rel":0.3}}],"emotions":{"joy":{"tempo":140,"rhythm":[0.5,0.5,0.5,0.5]}}}
+            },
+            {
+                title: "HYBRID_TEARS",
+                desc: "Sorrowful ambient. Deep FM resonance and long decay.",
+                data: {"tracks":[{"emotion":"sorrow","sequence":["A4","G4","E4","D4"],"fm":{"depth":100,"ratio":0.5,"rel":1.5}},{"emotion":"sorrow","sequence":["C3","G2"],"fm":{"depth":50,"ratio":0.25,"rel":2.0}},{"emotion":"sorrow","sequence":["E5","B4"],"fm":{"depth":200,"ratio":1.4,"rel":1.2}}],"emotions":{"sorrow":{"tempo":50,"rhythm":[2,2,4]}}}
+            },
+            {
+                title: "SILICON_RAGE",
+                desc: "Aggressive industrial. High modulation distortion.",
+                data: {"tracks":[{"emotion":"anger","sequence":["C2","C2","Eb2","F2"],"fm":{"depth":2000,"ratio":1.41,"rel":0.1}},{"emotion":"anger","sequence":["G5","Gb5","F5","E5"],"fm":{"depth":1500,"ratio":7.0,"rel":0.2}},{"emotion":"anger","sequence":["C3","C3","C3","C3"],"fm":{"depth":1000,"ratio":0.5,"rel":0.3}}],"emotions":{"anger":{"tempo":180,"rhythm":[0.25,0.25,0.25,0.25]}}}
+            },
+            {
+                title: "CYBER_EDEN",
+                desc: "Pleasurable rhythmic garden. Stable and harmonic.",
+                data: {"tracks":[{"emotion":"pleasure","sequence":["G4","A4","B4","D5"],"fm":{"depth":200,"ratio":2.0,"rel":0.5}},{"emotion":"pleasure","sequence":["D3","G3","D3","A3"],"fm":{"depth":100,"ratio":1.0,"rel":0.8}},{"emotion":"pleasure","sequence":["B5","A5","G5","F5"],"fm":{"depth":300,"ratio":4.0,"rel":0.4}}],"emotions":{"pleasure":{"tempo":110,"rhythm":[1.5,0.5,1.5,0.5]}}}
+            },
+            {
+                title: "DATA_VOID",
+                desc: "Mysterious metallic echo. Echoes of lost archives.",
+                data: {"tracks":[{"emotion":"sorrow","sequence":["C5","B4","Ab4","G4"],"fm":{"depth":1200,"ratio":6.3,"rel":1.0}},{"emotion":"sorrow","sequence":["F3","E3"],"fm":{"depth":400,"ratio":0.5,"rel":1.5}},{"emotion":"sorrow","sequence":["C6"],"fm":{"depth":1800,"ratio":8.0,"rel":0.2}}],"emotions":{"sorrow":{"tempo":60,"rhythm":[4,4]}}}
+            },
+            {
+                title: "NEON_DANCE",
+                desc: "Funky neon vibes. High tempo dance floor algorithm.",
+                data: {"tracks":[{"emotion":"joy","sequence":["E4","A4","B4","C5"],"fm":{"depth":500,"ratio":3.5,"rel":0.2}},{"emotion":"joy","sequence":["A2","A2","G2","G2"],"fm":{"depth":800,"ratio":0.5,"rel":0.3}},{"emotion":"joy","sequence":["C5","D5","E5","G5"],"fm":{"depth":300,"ratio":2.0,"rel":0.4}}],"emotions":{"joy":{"tempo":132,"rhythm":[0.75,0.25,0.5,0.5]}}}
+            },
+            {
+                title: "WAR_OF_AI",
+                desc: "Tense conflict music. Syncopated anger rhythms.",
+                data: {"tracks":[{"emotion":"anger","sequence":["C3","Db3","C3","Eb3"],"fm":{"depth":1600,"ratio":1.5,"rel":0.2}},{"emotion":"anger","sequence":["C5","C5","B4","B4"],"fm":{"depth":1400,"ratio":4.2,"rel":0.15}},{"emotion":"anger","sequence":["G2","Ab2"],"fm":{"depth":1900,"ratio":0.7,"rel":0.3}}],"emotions":{"anger":{"tempo":170,"rhythm":[0.5,1,0.5]}}}
+            },
+            {
+                title: "ARCHIVE_DREAM",
+                desc: "Soft nostalgic pleasure. Long FM release tails.",
+                data: {"tracks":[{"emotion":"pleasure","sequence":["F4","E4","D4","C4"],"fm":{"depth":150,"ratio":1.0,"rel":2.0}},{"emotion":"pleasure","sequence":["A3","G3"],"fm":{"depth":80,"ratio":0.5,"rel":1.8}},{"emotion":"pleasure","sequence":["C5","G4"],"fm":{"depth":120,"ratio":2.1,"rel":2.5}}],"emotions":{"pleasure":{"tempo":80,"rhythm":[2,2]}}}
+            },
+            {
+                title: "VOID_WALKER",
+                desc: "Deep bass sorrow. Walking through the digital abyss.",
+                data: {"tracks":[{"emotion":"sorrow","sequence":["C2","B1","Bb1","A1"],"fm":{"depth":1500,"ratio":0.5,"rel":0.8}},{"emotion":"sorrow","sequence":["C4","Eb4"],"fm":{"depth":600,"ratio":2.5,"rel":1.0}},{"emotion":"sorrow","sequence":["G1"],"fm":{"depth":2000,"ratio":0.25,"rel":1.2}}],"emotions":{"sorrow":{"tempo":55,"rhythm":[1,1,1,1]}}}
+            },
+            {
+                title: "ASCENSION",
+                desc: "Bright ascending joy. Reaching the cloud peak.",
+                data: {"tracks":[{"emotion":"joy","sequence":["C4","E4","G4","C5","E5","G5","C6"],"fm":{"depth":400,"ratio":3.0,"rel":0.5}},{"emotion":"joy","sequence":["C3","G3","C4"],"fm":{"depth":200,"ratio":1.0,"rel":0.8}},{"emotion":"joy","sequence":["G5","F5","E5","D5"],"fm":{"depth":300,"ratio":5.0,"rel":0.3}}],"emotions":{"joy":{"tempo":150,"rhythm":[0.25,0.25,0.25,0.25,0.5,0.5,1]}}}
+            }
+        ];
+
+        const lib = document.getElementById('library');
+        songs.forEach(s => {
+            const card = document.createElement('div');
+            card.className = 'card';
+            card.innerHTML = `
+                <span class="title">${s.title}</span>
+                <p class="desc">${s.desc}</p>
+                <button class="copy-btn" onclick="copyJson('${btoa(JSON.stringify(s.data))}')">COPY JSON</button>
+            `;
+            lib.appendChild(card);
+        });
+
+        function copyJson(base64) {
+            const json = atob(base64);
+            navigator.clipboard.writeText(json).then(() => {
+                alert("COPIED TO CLIPBOARD!");
+            });
+        }
+    </script>
+</body>
+</html>
