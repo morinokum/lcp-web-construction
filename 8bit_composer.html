@@ -3,173 +3,248 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>UNIT-11: 8-BIT EMOTION COMPOSER</title>
+    <title>8-BIT EMOTION COMPOSER: MULTI-LAYER</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap');
-        body {
-            background-color: #0d0208;
-            color: #00ff41;
-            font-family: 'Share Tech Mono', monospace;
-            margin: 0; padding: 20px;
-            display: flex; flex-direction: column; align-items: center;
-            height: 100vh;
-        }
-        .header { border-bottom: 2px solid #00ff41; width: 100%; padding-bottom: 10px; margin-bottom: 30px; text-align: center; }
-        .grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px; width: 100%; max-width: 600px; margin-bottom: 40px; }
-        .emotion-btn {
-            background: transparent; border: 2px solid #00ff41; color: #00ff41;
-            padding: 20px; cursor: pointer; font-size: 1.5em; transition: 0.2s;
-        }
-        .emotion-btn:hover { background: rgba(0, 255, 65, 0.1); }
-        .emotion-btn.active { background: #00ff41; color: #000; box-shadow: 0 0 20px #00ff41; }
+        :root { --neon: #00ff41; --bg: #0d0208; }
+        body { background-color: var(--bg); color: var(--neon); font-family: 'Share Tech Mono', monospace; margin: 0; padding: 20px; display: flex; flex-direction: column; height: 95vh; overflow: hidden; }
+        .header { border-bottom: 2px solid var(--neon); padding-bottom: 10px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: flex-end; }
+        
+        .track-panel { display: flex; gap: 10px; margin-bottom: 20px; }
+        .track-btn { background: transparent; border: 1px solid var(--neon); color: var(--neon); padding: 5px 15px; cursor: pointer; }
+        .track-btn.active { background: var(--neon); color: #000; font-weight: bold; }
 
-        .piano-roll { display: flex; gap: 5px; flex-wrap: wrap; justify-content: center; max-width: 800px; }
-        .note-btn {
-            background: transparent; border: 1px solid #003b00; color: #00ff41;
-            width: 60px; height: 60px; cursor: pointer; font-size: 1em; display: flex; align-items: center; justify-content: center;
-        }
-        .note-btn:hover { border-color: #00ff41; }
-        .note-btn:active { background: #00ff41; color: #000; }
+        .editor-grid { display: flex; flex-direction: column; gap: 20px; flex-grow: 1; }
+        .emotion-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
+        .piano-roll { display: flex; gap: 5px; flex-wrap: wrap; justify-content: center; }
+        .btn { background: transparent; border: 1px solid var(--neon); color: var(--neon); padding: 10px; cursor: pointer; font-family: 'Share Tech Mono'; }
+        .btn:hover { background: rgba(0, 255, 65, 0.1); }
+        .btn.active { background: var(--neon); color: #000; }
 
-        .visualizer { width: 100%; height: 100px; border: 1px solid #003b00; margin-top: 40px; display: flex; align-items: flex-end; gap: 2px; }
-        .bar { background: #00ff41; flex-grow: 1; transition: height 0.1s; }
+        .sequence-view { border: 1px solid #003b00; padding: 10px; min-height: 40px; font-size: 0.8em; display: flex; gap: 5px; overflow-x: auto; }
+        .note-tag { background: #003b00; padding: 2px 5px; border-radius: 3px; }
 
-        .controls { margin-top: 30px; display: flex; gap: 20px; }
-        .btn { background: transparent; color: #0fc; border: 1px solid #0fc; padding: 10px 20px; cursor: pointer; text-decoration: none; }
+        .viz-container { width: 100%; height: 60px; border: 1px solid #003b00; margin: 10px 0; display: flex; align-items: flex-end; gap: 1px; }
+        .viz-bar { background: var(--neon); flex-grow: 1; height: 0%; }
+
+        .footer-controls { border-top: 2px solid var(--neon); padding-top: 15px; display: flex; gap: 15px; flex-wrap: wrap; }
+        #rec-indicator { color: #f00; display: none; animation: blink 1s infinite; }
+        @keyframes blink { 50% { opacity: 0; } }
     </style>
 </head>
 <body>
     <div class="header">
-        <h1>8-BIT_EMOTION_COMPOSER_v1.0</h1>
-        <p>SELECT EMOTION BASE & INJECT NOTES</p>
+        <div>
+            <h1 style="margin:0; font-size: 1.5em;">8-BIT_EMOTION_COMPOSER: MULTI-LAYER</h1>
+            <span id="rec-indicator">● RECORDING...</span>
+        </div>
+        <div id="status">READY</div>
     </div>
 
-    <div class="grid">
-        <button id="joy" class="emotion-btn" onclick="setEmotion('joy')">喜 (JOY)</button>
-        <button id="anger" class="emotion-btn" onclick="setEmotion('anger')">怒 (ANGER)</button>
-        <button id="sorrow" class="emotion-btn" onclick="setEmotion('sorrow')">哀 (SORROW)</button>
-        <button id="pleasure" class="emotion-btn" onclick="setEmotion('pleasure')">楽 (PLEASURE)</button>
+    <div class="track-panel">
+        <span>SELECT TRACK:</span>
+        <button id="tr-0" class="track-btn active" onclick="switchTrack(0)">TRACK 1 (LEAD)</button>
+        <button id="tr-1" class="track-btn" onclick="switchTrack(1)">TRACK 2 (SUB)</button>
+        <button id="tr-2" class="track-btn" onclick="switchTrack(2)">TRACK 3 (BASS)</button>
     </div>
 
-    <div class="piano-roll">
-        <button class="note-btn" onclick="playNote('C4')">DO</button>
-        <button class="note-btn" onclick="playNote('D4')">RE</button>
-        <button class="note-btn" onclick="playNote('E4')">MI</button>
-        <button class="note-btn" onclick="playNote('F4')">FA</button>
-        <button class="note-btn" onclick="playNote('G4')">SO</button>
-        <button class="note-btn" onclick="playNote('A4')">LA</button>
-        <button class="note-btn" onclick="playNote('B4')">SI</button>
-        <button class="note-btn" onclick="playNote('C5')">DO^</button>
+    <div class="editor-grid">
+        <div class="emotion-grid">
+            <button id="joy" class="btn active" onclick="setEmotion('joy')">喜 (JOY)</button>
+            <button id="anger" class="btn" onclick="setEmotion('anger')">怒 (ANGER)</button>
+            <button id="sorrow" class="btn" onclick="setEmotion('sorrow')">哀 (SORROW)</button>
+            <button id="pleasure" class="btn" onclick="setEmotion('pleasure')">楽 (PLEASURE)</button>
+        </div>
+
+        <div class="piano-roll" id="piano">
+            <!-- JS will populate -->
+        </div>
+
+        <div>
+            <div style="font-size: 0.7em; margin-bottom: 5px;">CURRENT SEQUENCE:</div>
+            <div id="seq-view" class="sequence-view"></div>
+            <button class="btn" style="font-size: 0.7em; margin-top: 5px;" onclick="clearSequence()">CLEAR TRACK</button>
+        </div>
+
+        <div class="viz-container" id="visualizer"></div>
     </div>
 
-    <div id="visualizer" class="visualizer"></div>
-
-    <div class="controls">
-        <button id="play-stop" class="btn" onclick="togglePlayback()">START EMOTION SYNC</button>
-        <a href="arcade.html" class="btn">BACK TO ARCADE</a>
+    <div class="footer-controls">
+        <button class="btn" style="font-weight:bold;" onclick="togglePlayback()">START/STOP ALL TRACKS</button>
+        <button class="btn" onclick="startRecording()">RECORD TO WAV</button>
+        <button class="btn" onclick="exportJSON()">EXPORT JSON</button>
+        <label class="btn">IMPORT JSON<input type="file" style="display:none" onchange="importJSON(event)"></label>
+        <a href="arcade.html" class="btn" style="text-decoration:none">EXIT</a>
     </div>
 
     <script>
         const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-        let isPlaying = false;
-        let currentEmotion = 'joy';
-        let sequence = [];
-        let step = 0;
-        let timer = null;
+        const mainGain = audioCtx.createGain();
+        mainGain.connect(audioCtx.destination);
+        mainGain.gain.value = 0.5;
+
+        // Recording setup
+        const dest = audioCtx.createMediaStreamDestination();
+        mainGain.connect(dest);
+        let mediaRecorder = null;
+        let chunks = [];
 
         const emotions = {
-            joy: { tempo: 140, rhythm: [1, 0.5, 0.5, 1], color: "#00ff41" },
-            anger: { tempo: 180, rhythm: [0.25, 0.25, 0.25, 0.25], color: "#ff0000" },
-            sorrow: { tempo: 60, rhythm: [2, 1, 1], color: "#0000ff" },
-            pleasure: { tempo: 110, rhythm: [1.5, 0.5, 1.5, 0.5], color: "#f0f" }
+            joy: { tempo: 140, rhythm: [1, 0.5, 0.5, 1] },
+            anger: { tempo: 180, rhythm: [0.25, 0.25, 0.25, 0.25] },
+            sorrow: { tempo: 65, rhythm: [2, 1, 1] },
+            pleasure: { tempo: 115, rhythm: [1.5, 0.5, 1.5, 0.5] }
         };
 
         const frequencies = {
-            'C4': 261.63, 'D4': 293.66, 'E4': 329.63, 'F4': 349.23,
-            'G4': 392.00, 'A4': 440.00, 'B4': 493.88, 'C5': 523.25
+            'C3': 130.81, 'D3': 146.83, 'E3': 164.81, 'F3': 174.61, 'G3': 196.00, 'A3': 220.00, 'B3': 246.94,
+            'C4': 261.63, 'D4': 293.66, 'E4': 329.63, 'F4': 349.23, 'G4': 392.00, 'A4': 440.00, 'B4': 493.88,
+            'C5': 523.25, 'D5': 587.33, 'E5': 659.25, 'F5': 698.46, 'G5': 783.99, 'A5': 880.00, 'B5': 987.77
         };
 
-        // Create Visualizer Bars
+        let tracks = [
+            { emotion: 'joy', sequence: [], step: 0, timer: null },
+            { emotion: 'pleasure', sequence: [], step: 0, timer: null },
+            { emotion: 'sorrow', sequence: [], step: 0, timer: null }
+        ];
+        let currentTrackIdx = 0;
+        let isPlaying = false;
+
+        // Init UI
+        const piano = document.getElementById('piano');
+        Object.keys(frequencies).forEach(note => {
+            const b = document.createElement('button');
+            b.className = 'note-btn btn';
+            b.innerText = note;
+            b.onclick = () => addNote(note);
+            piano.appendChild(b);
+        });
+
         const viz = document.getElementById('visualizer');
-        for(let i=0; i<32; i++) {
+        for(let i=0; i<64; i++) {
             const bar = document.createElement('div');
-            bar.className = 'bar';
-            bar.style.height = '0%';
+            bar.className = 'viz-bar';
             viz.appendChild(bar);
         }
 
+        function switchTrack(idx) {
+            currentTrackIdx = idx;
+            document.querySelectorAll('.track-btn').forEach((b, i) => b.classList.toggle('active', i === idx));
+            setEmotion(tracks[idx].emotion);
+            updateSeqView();
+        }
+
         function setEmotion(e) {
-            currentEmotion = e;
-            document.querySelectorAll('.emotion-btn').forEach(btn => btn.classList.remove('active'));
-            document.getElementById(e).classList.add('active');
-            if (isPlaying) {
-                togglePlayback();
-                togglePlayback();
-            }
+            tracks[currentTrackIdx].emotion = e;
+            document.querySelectorAll('.emotion-grid .btn').forEach(b => b.classList.toggle('active', b.id === e));
         }
 
-        function playNote(note, duration = 0.2) {
+        function addNote(note) {
+            play8bit(note, 0.2);
+            tracks[currentTrackIdx].sequence.push(note);
+            if(tracks[currentTrackIdx].sequence.length > 32) tracks[currentTrackIdx].sequence.shift();
+            updateSeqView();
+        }
+
+        function clearSequence() {
+            tracks[currentTrackIdx].sequence = [];
+            updateSeqView();
+        }
+
+        function updateSeqView() {
+            const view = document.getElementById('seq-view');
+            view.innerHTML = tracks[currentTrackIdx].sequence.map(n => `<span class="note-tag">${n}</span>`).join('');
+        }
+
+        function play8bit(note, dur) {
             const osc = audioCtx.createOscillator();
-            const gain = audioCtx.createGain();
-            
-            osc.type = 'square'; // FAMICOM SOUND
-            osc.frequency.setValueAtTime(frequencies[note], audioCtx.currentTime);
-            
-            gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
-            gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + duration);
-            
-            osc.connect(gain);
-            gain.connect(audioCtx.destination);
-            
+            const g = audioCtx.createGain();
+            osc.type = 'square';
+            osc.frequency.value = frequencies[note];
+            g.gain.setValueAtTime(0.1, audioCtx.currentTime);
+            g.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + dur);
+            osc.connect(g);
+            g.connect(mainGain);
             osc.start();
-            osc.stop(audioCtx.currentTime + duration);
-
-            updateVisualizer();
-            
-            if (isPlaying) {
-                sequence.push(note);
-                if (sequence.length > 16) sequence.shift();
-            }
+            osc.stop(audioCtx.currentTime + dur);
+            animateViz();
         }
 
-        function updateVisualizer() {
-            const bars = document.querySelectorAll('.bar');
-            bars.forEach(bar => {
-                bar.style.height = Math.random() * 100 + "%";
-                setTimeout(() => bar.style.height = "0%", 100);
+        function animateViz() {
+            const bars = document.querySelectorAll('.viz-bar');
+            bars.forEach(b => {
+                if(Math.random() > 0.8) b.style.height = Math.random()*100 + "%";
+                setTimeout(() => b.style.height = "0%", 150);
             });
         }
 
         function togglePlayback() {
-            if (isPlaying) {
+            if(isPlaying) {
                 isPlaying = false;
-                clearTimeout(timer);
-                document.getElementById('play-stop').innerText = "START EMOTION SYNC";
+                tracks.forEach(t => clearTimeout(t.timer));
+                document.getElementById('status').innerText = "STOPPED";
             } else {
                 isPlaying = true;
-                step = 0;
-                playSequence();
-                document.getElementById('play-stop').innerText = "STOP SYNC";
+                tracks.forEach((t, i) => { t.step = 0; playTrack(i); });
+                document.getElementById('status').innerText = "SYNCING...";
             }
         }
 
-        function playSequence() {
-            if (!isPlaying) return;
+        function playTrack(idx) {
+            if(!isPlaying) return;
+            const t = tracks[idx];
+            const emo = emotions[t.emotion];
+            const nextNote = t.sequence[t.step % t.sequence.length];
+            const interval = (60 / emo.tempo) * emo.rhythm[t.step % emo.rhythm.length] * 1000;
 
-            const emo = emotions[currentEmotion];
-            const rhythmIdx = step % emo.rhythm.length;
-            const nextInterval = (60 / emo.tempo) * emo.rhythm[rhythmIdx] * 1000;
-
-            if (sequence.length > 0) {
-                const note = sequence[step % sequence.length];
-                playNote(note, nextInterval / 1000);
-            }
-
-            step++;
-            timer = setTimeout(playSequence, nextInterval);
+            if(nextNote) play8bit(nextNote, interval / 1000);
+            
+            t.step++;
+            t.timer = setTimeout(() => playTrack(idx), interval);
         }
 
-        setEmotion('joy');
+        // --- EXPORT / RECORDING ---
+
+        function startRecording() {
+            if(!isPlaying) { alert("START PLAYBACK FIRST"); return; }
+            chunks = [];
+            mediaRecorder = new MediaRecorder(dest.stream);
+            mediaRecorder.ondataavailable = e => chunks.push(e.data);
+            mediaRecorder.onstop = () => {
+                const blob = new Blob(chunks, { type: 'audio/wav' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `8bit_emotion_archive_${Date.now()}.wav`;
+                a.click();
+            };
+            mediaRecorder.start();
+            document.getElementById('rec-indicator').style.display = 'inline';
+            setTimeout(() => {
+                mediaRecorder.stop();
+                document.getElementById('rec-indicator').style.display = 'none';
+                alert("RECORDING FINISHED");
+            }, 10000); // Auto stop after 10s for now
+        }
+
+        function exportJSON() {
+            const blob = new Blob([JSON.stringify(tracks, null, 2)], { type: 'application/json' });
+            const a = document.createElement('a');
+            a.href = URL.createObjectURL(blob);
+            a.download = `lcp_music_archive.json`;
+            a.click();
+        }
+
+        function importJSON(e) {
+            const file = e.target.files[0];
+            const reader = new FileReader();
+            reader.onload = (event) => {
+                tracks = JSON.parse(event.target.result);
+                switchTrack(0);
+                alert("MUSIC ARCHIVE LOADED");
+            };
+            reader.readAsText(file);
+        }
     </script>
 </body>
 </html>
