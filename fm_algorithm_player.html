@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>UNIT-15: FM ALGORITHM PLAYER</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap');
+        :root { --fm-neon: #00ff41; --bg: #0d0208; --dim: #003b00; }
+        body { background-color: var(--bg); color: var(--fm-neon); font-family: 'Share Tech Mono', monospace; margin: 0; padding: 20px; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; overflow: hidden; }
+        
+        .player-box { border: 2px solid var(--fm-neon); padding: 30px; width: 80%; max-width: 600px; background: rgba(0, 255, 65, 0.02); box-shadow: 0 0 20px var(--dim); position: relative; }
+        .header { border-bottom: 1px solid var(--fm-neon); margin-bottom: 20px; padding-bottom: 10px; display: flex; justify-content: space-between; align-items: center; }
+        
+        .viz-large { width: 100%; height: 100px; background: #000; border: 1px solid var(--dim); margin-bottom: 20px; display: flex; align-items: flex-end; gap: 2px; padding: 5px; box-sizing: border-box; }
+        .v-bar { flex: 1; background: var(--fm-neon); height: 0%; transition: height 0.1s; }
+
+        .info-panel { font-size: 0.9em; margin-bottom: 20px; height: 60px; border-left: 3px solid var(--fm-neon); padding-left: 15px; }
+        .song-title { color: #fff; font-size: 1.2em; display: block; }
+        .status { font-size: 0.7em; color: var(--dim); text-transform: uppercase; }
+
+        .controls { display: flex; gap: 10px; flex-wrap: wrap; }
+        .btn { background: transparent; border: 1px solid var(--fm-neon); color: var(--fm-neon); padding: 10px 20px; cursor: pointer; font-family: 'Share Tech Mono'; flex: 1; transition: all 0.2s; }
+        .btn:hover { background: var(--fm-neon); color: #000; }
+        .btn:disabled { border-color: var(--dim); color: var(--dim); cursor: not-allowed; }
+
+        #drop-zone { border: 1px dashed var(--fm-neon); padding: 10px; text-align: center; font-size: 0.7em; margin-bottom: 15px; cursor: pointer; }
+        #drop-zone.hover { background: rgba(0, 255, 65, 0.1); }
+
+        .footer { position: absolute; bottom: 20px; width: 100%; text-align: center; }
+        .back-link { color: var(--fm-neon); text-decoration: none; border: 1px solid var(--fm-neon); padding: 5px 15px; font-size: 0.8em; }
+    </style>
+</head>
+<body>
+    <div class="player-box">
+        <div class="header">
+            <span style="font-weight:bold;">UNIT-15: ALGORITHM_PLAYER_v1.0</span>
+            <span id="time-display">00:00</span>
+        </div>
+
+        <div id="drop-zone" onclick="document.getElementById('file-input').click()">
+            DROP JSON FILE HERE OR CLICK TO LOAD
+            <input type="file" id="file-input" style="display:none" onchange="handleFile(event)">
+        </div>
+
+        <div class="viz-large" id="viz"></div>
+
+        <div class="info-panel">
+            <span id="current-song" class="song-title">NO DATA LOADED</span>
+            <span id="current-status" class="status">Waiting for algorithm injection...</span>
+        </div>
+
+        <div class="controls">
+            <button id="play-btn" class="btn" onclick="togglePlayback()" disabled>START RESONANCE</button>
+            <button class="btn" onclick="stopPlayback()">STOP</button>
+        </div>
+    </div>
+
+    <div class="footer">
+        <a href="arcade.html" class="back-link">EXIT TO ARCADE</a>
+    </div>
+
+    <script>
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        const mainGain = audioCtx.createGain();
+        mainGain.connect(audioCtx.destination);
+        mainGain.gain.value = 0.4;
+
+        const frequencies = {
+            'C3': 130.81, 'D3': 146.83, 'E3': 164.81, 'F3': 174.61, 'G3': 196.00, 'A3': 220.00, 'B3': 246.94,
+            'C4': 261.63, 'D4': 293.66, 'E4': 329.63, 'F4': 349.23, 'G4': 392.00, 'A4': 440.00, 'B4': 493.88,
+            'C5': 523.25, 'D5': 587.33, 'E5': 659.25, 'F5': 698.46, 'G5': 783.99, 'A5': 880.00, 'B5': 987.77, 'C6': 1046.50
+        };
+
+        let currentData = null;
+        let isPlaying = false;
+        let timers = [];
+        let startTime = 0;
+
+        // Init Viz
+        const viz = document.getElementById('viz');
+        const bars = [];
+        for(let i=0; i<60; i++) {
+            const b = document.createElement('div');
+            b.className = 'v-bar';
+            viz.appendChild(b);
+            bars.push(b);
+        }
+
+        const dropZone = document.getElementById('drop-zone');
+        dropZone.ondragover = (e) => { e.preventDefault(); dropZone.classList.add('hover'); };
+        dropZone.ondragleave = () => dropZone.classList.remove('hover');
+        dropZone.ondrop = (e) => {
+            e.preventDefault();
+            dropZone.classList.remove('hover');
+            const file = e.dataTransfer.files[0];
+            loadData(file);
+        };
+
+        function handleFile(e) { loadData(e.target.files[0]); }
+
+        function loadData(file) {
+            const reader = new FileReader();
+            reader.onload = (event) => {
+                try {
+                    const json = JSON.parse(event.target.result);
+                    // Support both UNIT-13 export formats (array of tracks OR object with tracks/emotions)
+                    if (Array.isArray(json)) {
+                        currentData = {
+                            tracks: json,
+                            emotions: {
+                                joy: { tempo: 140, rhythm: [1, 0.5, 0.5, 1] },
+                                anger: { tempo: 180, rhythm: [0.25, 0.25, 0.25, 0.25] },
+                                sorrow: { tempo: 60, rhythm: [2, 1, 1] },
+                                pleasure: { tempo: 110, rhythm: [1.5, 0.5, 1.5, 0.5] }
+                            }
+                        };
+                    } else {
+                        currentData = json;
+                    }
+                    document.getElementById('current-song').innerText = file.name.toUpperCase();
+                    document.getElementById('current-status').innerText = "Algorithm verified. Ready for playback.";
+                    document.getElementById('play-btn').disabled = false;
+                    stopPlayback();
+                } catch(err) {
+                    alert("INVALID ALGORITHM DATA");
+                }
+            };
+            reader.readAsText(file);
+        }
+
+        function playFM(note, fmParams) {
+            if(!frequencies[note]) return;
+            const freq = frequencies[note];
+            const carrier = audioCtx.createOscillator();
+            const modulator = audioCtx.createOscillator();
+            const modGain = audioCtx.createGain();
+            const env = audioCtx.createGain();
+
+            carrier.type = 'sine'; carrier.frequency.value = freq;
+            modulator.type = 'sine'; modulator.frequency.value = freq * fmParams.ratio;
+            modGain.gain.value = fmParams.depth;
+
+            env.gain.setValueAtTime(0.2, audioCtx.currentTime);
+            env.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + fmParams.rel);
+
+            modulator.connect(modGain); modGain.connect(carrier.frequency);
+            carrier.connect(env); env.connect(mainGain);
+
+            modulator.start(); carrier.start();
+            modulator.stop(audioCtx.currentTime + fmParams.rel);
+            carrier.stop(audioCtx.currentTime + fmParams.rel);
+            animateViz();
+        }
+
+        function animateViz() {
+            bars.forEach(b => {
+                if(Math.random() > 0.6) b.style.height = Math.random()*100 + "%";
+                setTimeout(() => b.style.height = "0%", 150);
+            });
+        }
+
+        function togglePlayback() {
+            if(isPlaying) { stopPlayback(); } 
+            else { startPlayback(); }
+        }
+
+        function startPlayback() {
+            audioCtx.resume();
+            isPlaying = true;
+            startTime = Date.now();
+            document.getElementById('play-btn').innerText = "STOP RESONANCE";
+            document.getElementById('current-status').innerText = "FM RESONANCE ACTIVE...";
+            
+            currentData.tracks.forEach((t, i) => {
+                t.step = 0;
+                playTrack(i);
+            });
+            updateTimer();
+        }
+
+        function playTrack(idx) {
+            if(!isPlaying) return;
+            const t = currentData.tracks[idx];
+            const emo = currentData.emotions[t.emotion];
+            const note = t.sequence[t.step % t.sequence.length];
+            const interval = (60 / emo.tempo) * emo.rhythm[t.step % emo.rhythm.length] * 1000;
+
+            if(note) playFM(note, t.fm);
+            
+            t.step++;
+            const timer = setTimeout(() => playTrack(idx), interval);
+            timers.push(timer);
+        }
+
+        function stopPlayback() {
+            isPlaying = false;
+            timers.forEach(clearTimeout);
+            timers = [];
+            document.getElementById('play-btn').innerText = "START RESONANCE";
+            document.getElementById('current-status').innerText = "Resonance suspended.";
+            document.getElementById('time-display').innerText = "00:00";
+        }
+
+        function updateTimer() {
+            if(!isPlaying) return;
+            const sec = Math.floor((Date.now() - startTime) / 1000);
+            const m = Math.floor(sec / 60).toString().padStart(2, '0');
+            const s = (sec % 60).toString().padStart(2, '0');
+            document.getElementById('time-display').innerText = `${m}:${s}`;
+            setTimeout(updateTimer, 1000);
+        }
+    </script>
+</body>
+</html>
