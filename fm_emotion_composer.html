@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>UNIT-13: FM EMOTION COMPOSER</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap');
+        :root { --fm-neon: #00d2ff; --bg: #0d0208; }
+        body { background-color: var(--bg); color: var(--fm-neon); font-family: 'Share Tech Mono', monospace; margin: 0; padding: 20px; display: flex; flex-direction: column; height: 95vh; overflow: hidden; }
+        .header { border-bottom: 2px solid var(--fm-neon); padding-bottom: 10px; margin-bottom: 15px; display: flex; justify-content: space-between; align-items: flex-end; }
+        
+        .track-panel { display: flex; gap: 10px; margin-bottom: 15px; }
+        .track-btn { background: transparent; border: 1px solid var(--fm-neon); color: var(--fm-neon); padding: 5px 12px; cursor: pointer; font-size: 0.8em; }
+        .track-btn.active { background: var(--fm-neon); color: #000; font-weight: bold; }
+
+        .editor-container { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; flex-grow: 1; overflow-y: auto; }
+        
+        /* Left: FM & Emotion Controls */
+        .controls-left { display: flex; flex-direction: column; gap: 15px; }
+        .panel { border: 1px solid #003b44; padding: 15px; background: rgba(0, 210, 255, 0.03); }
+        .label { display: block; font-size: 0.7em; color: #fff; margin-bottom: 5px; }
+        input[type=range] { width: 100%; cursor: pointer; accent-color: var(--fm-neon); }
+
+        .emotion-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 5px; }
+        .btn { background: transparent; border: 1px solid var(--fm-neon); color: var(--fm-neon); padding: 8px; cursor: pointer; font-family: 'Share Tech Mono'; font-size: 0.8em; }
+        .btn.active { background: var(--fm-neon); color: #000; }
+
+        /* Right: Piano & Sequence */
+        .piano-roll { display: flex; gap: 4px; flex-wrap: wrap; justify-content: center; }
+        .note-btn { width: 45px; height: 45px; }
+        .sequence-view { border: 1px solid #003b44; padding: 10px; min-height: 100px; font-size: 0.7em; display: flex; flex-wrap: wrap; gap: 4px; align-content: flex-start; }
+        .note-tag { background: #003b44; padding: 2px 4px; }
+
+        .viz-container { width: 100%; height: 50px; background: #000; border: 1px solid #003b44; display: flex; align-items: flex-end; gap: 1px; }
+        .viz-bar { background: var(--fm-neon); flex-grow: 1; height: 0%; }
+
+        .footer { border-top: 2px solid var(--fm-neon); padding-top: 10px; display: flex; gap: 10px; flex-wrap: wrap; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div><h1 style="margin:0; font-size: 1.2em;">FM_EMOTION_COMPOSER_v1.0</h1></div>
+        <div id="status" style="font-size: 0.8em;">READY</div>
+    </div>
+
+    <div class="track-panel">
+        <button id="tr-0" class="track-btn active" onclick="switchTrack(0)">TR 1: LEAD</button>
+        <button id="tr-1" class="track-btn" onclick="switchTrack(1)">TR 2: SUB</button>
+        <button id="tr-2" class="track-btn" onclick="switchTrack(2)">TR 3: BASS</button>
+    </div>
+
+    <div class="editor-container">
+        <!-- FM & Emotion Parameters -->
+        <div class="controls-left">
+            <div class="panel">
+                <span class="label">EMOTION RHYTHM BASE</span>
+                <div class="emotion-grid">
+                    <button id="joy" class="btn active" onclick="setEmotion('joy')">喜</button>
+                    <button id="anger" class="btn" onclick="setEmotion('anger')">怒</button>
+                    <button id="sorrow" class="btn" onclick="setEmotion('sorrow')">哀</button>
+                    <button id="pleasure" class="btn" onclick="setEmotion('pleasure')">楽</button>
+                </div>
+            </div>
+
+            <div class="panel" id="fm-panel">
+                <span class="label">FM SYNTHESIS PARAMETERS</span>
+                <span class="label">Modulation Depth: <span id="mod-depth-val">100</span></span>
+                <input type="range" id="mod-depth" min="0" max="2000" step="1" value="100">
+                
+                <span class="label" style="margin-top:10px;">Frequency Ratio: <span id="mod-ratio-val">2.0</span></span>
+                <input type="range" id="mod-ratio" min="0.1" max="8" step="0.1" value="2.0">
+
+                <span class="label" style="margin-top:10px;">Envelope Release: <span id="env-rel-val">0.3</span>s</span>
+                <input type="range" id="env-rel" min="0.05" max="2" step="0.05" value="0.3">
+            </div>
+
+            <div class="viz-container" id="visualizer"></div>
+        </div>
+
+        <!-- Note Injection & Sequence -->
+        <div class="controls-right flex flex-col gap-4">
+            <div class="piano-roll" id="piano"></div>
+            <div>
+                <span class="label">CURRENT TRACK SEQUENCE</span>
+                <div id="seq-view" class="sequence-view"></div>
+                <button class="btn" style="width:100%; margin-top:5px; border-color:#f00; color:#f00;" onclick="clearSequence()">CLEAR TRACK</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="footer">
+        <button class="btn" style="font-weight:bold; border-width:2px;" onclick="togglePlayback()">START/STOP ALL TRACKS</button>
+        <button class="btn" onclick="exportJSON()">EXPORT JSON</button>
+        <label class="btn">IMPORT JSON<input type="file" style="display:none" onchange="importJSON(event)"></label>
+        <a href="arcade.html" class="btn" style="text-decoration:none">EXIT</a>
+    </div>
+
+    <script>
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        const mainGain = audioCtx.createGain();
+        mainGain.connect(audioCtx.destination);
+        mainGain.gain.value = 0.4;
+
+        const emotions = {
+            joy: { tempo: 140, rhythm: [1, 0.5, 0.5, 1], fm: { depth: 400, ratio: 3.5 } },
+            anger: { tempo: 180, rhythm: [0.25, 0.25, 0.25, 0.25], fm: { depth: 1500, ratio: 1.4 } },
+            sorrow: { tempo: 60, rhythm: [2, 1, 1], fm: { depth: 50, ratio: 0.5 } },
+            pleasure: { tempo: 110, rhythm: [1.5, 0.5, 1.5, 0.5], fm: { depth: 200, ratio: 2.0 } }
+        };
+
+        const frequencies = {
+            'C3': 130.81, 'D3': 146.83, 'E3': 164.81, 'F3': 174.61, 'G3': 196.00, 'A3': 220.00, 'B3': 246.94,
+            'C4': 261.63, 'D4': 293.66, 'E4': 329.63, 'F4': 349.23, 'G4': 392.00, 'A4': 440.00, 'B4': 493.88,
+            'C5': 523.25, 'D5': 587.33, 'E5': 659.25, 'F5': 698.46, 'G5': 783.99, 'A5': 880.00, 'B5': 987.77
+        };
+
+        let tracks = [
+            { emotion: 'joy', sequence: [], step: 0, timer: null, fm: { depth: 400, ratio: 3.5, rel: 0.3 } },
+            { emotion: 'pleasure', sequence: [], step: 0, timer: null, fm: { depth: 200, ratio: 2.0, rel: 0.4 } },
+            { emotion: 'sorrow', sequence: [], step: 0, timer: null, fm: { depth: 50, ratio: 0.5, rel: 0.8 } }
+        ];
+        let currentTrackIdx = 0;
+        let isPlaying = false;
+
+        // Init Piano
+        const piano = document.getElementById('piano');
+        Object.keys(frequencies).forEach(note => {
+            const b = document.createElement('button');
+            b.className = 'note-btn btn';
+            b.innerText = note.replace('4','');
+            b.onclick = () => addNote(note);
+            piano.appendChild(b);
+        });
+
+        // Init Viz
+        const viz = document.getElementById('visualizer');
+        for(let i=0; i<40; i++) {
+            const bar = document.createElement('div');
+            bar.className = 'viz-bar';
+            viz.appendChild(bar);
+        }
+
+        function switchTrack(idx) {
+            currentTrackIdx = idx;
+            document.querySelectorAll('.track-btn').forEach((b, i) => b.classList.toggle('active', i === idx));
+            const t = tracks[idx];
+            setEmotion(t.emotion);
+            document.getElementById('mod-depth').value = t.fm.depth;
+            document.getElementById('mod-ratio').value = t.fm.ratio;
+            document.getElementById('env-rel').value = t.fm.rel;
+            updateUI();
+            updateSeqView();
+        }
+
+        function updateUI() {
+            document.getElementById('mod-depth-val').innerText = document.getElementById('mod-depth').value;
+            document.getElementById('mod-ratio-val').innerText = document.getElementById('mod-ratio').value;
+            document.getElementById('env-rel-val').innerText = document.getElementById('env-rel').value;
+            // Update Track FM settings
+            tracks[currentTrackIdx].fm.depth = parseFloat(document.getElementById('mod-depth').value);
+            tracks[currentTrackIdx].fm.ratio = parseFloat(document.getElementById('mod-ratio').value);
+            tracks[currentTrackIdx].fm.rel = parseFloat(document.getElementById('env-rel').value);
+        }
+
+        // Bind sliders
+        ['mod-depth', 'mod-ratio', 'env-rel'].forEach(id => {
+            document.getElementById(id).oninput = updateUI;
+        });
+
+        function setEmotion(e) {
+            tracks[currentTrackIdx].emotion = e;
+            document.querySelectorAll('.emotion-grid .btn').forEach(b => b.classList.toggle('active', b.id === e));
+            // Apply preset FM if needed
+            if(!isPlaying) {
+                document.getElementById('mod-depth').value = emotions[e].fm.depth;
+                document.getElementById('mod-ratio').value = emotions[e].fm.ratio;
+                updateUI();
+            }
+        }
+
+        function addNote(note) {
+            playFM(note, tracks[currentTrackIdx].fm);
+            tracks[currentTrackIdx].sequence.push(note);
+            if(tracks[currentTrackIdx].sequence.length > 24) tracks[currentTrackIdx].sequence.shift();
+            updateSeqView();
+        }
+
+        function clearSequence() { tracks[currentTrackIdx].sequence = []; updateSeqView(); }
+
+        function updateSeqView() {
+            const view = document.getElementById('seq-view');
+            view.innerHTML = tracks[currentTrackIdx].sequence.map(n => `<span class="note-tag">${n}</span>`).join('');
+        }
+
+        function playFM(note, fmParams) {
+            audioCtx.resume();
+            const freq = frequencies[note];
+            const carrier = audioCtx.createOscillator();
+            const modulator = audioCtx.createOscillator();
+            const modGain = audioCtx.createGain();
+            const env = audioCtx.createGain();
+
+            carrier.type = 'sine';
+            carrier.frequency.value = freq;
+            
+            modulator.type = 'sine';
+            modulator.frequency.value = freq * fmParams.ratio;
+            modGain.gain.value = fmParams.depth;
+
+            env.gain.setValueAtTime(0.2, audioCtx.currentTime);
+            env.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + fmParams.rel);
+
+            modulator.connect(modGain);
+            modGain.connect(carrier.frequency);
+            carrier.connect(env);
+            env.connect(mainGain);
+
+            modulator.start();
+            carrier.start();
+            modulator.stop(audioCtx.currentTime + fmParams.rel);
+            carrier.stop(audioCtx.currentTime + fmParams.rel);
+            animateViz();
+        }
+
+        function animateViz() {
+            const bars = document.querySelectorAll('.viz-bar');
+            bars.forEach(b => {
+                if(Math.random() > 0.7) b.style.height = Math.random()*100 + "%";
+                setTimeout(() => b.style.height = "0%", 100);
+            });
+        }
+
+        function togglePlayback() {
+            if(isPlaying) {
+                isPlaying = false;
+                tracks.forEach(t => clearTimeout(t.timer));
+                document.getElementById('status').innerText = "STOPPED";
+            } else {
+                isPlaying = true;
+                tracks.forEach((t, i) => { t.step = 0; playTrack(i); });
+                document.getElementById('status').innerText = "FM SYNC ACTIVE";
+            }
+        }
+
+        function playTrack(idx) {
+            if(!isPlaying) return;
+            const t = tracks[idx];
+            const emo = emotions[t.emotion];
+            const note = t.sequence[t.step % t.sequence.length];
+            const interval = (60 / emo.tempo) * emo.rhythm[t.step % emo.rhythm.length] * 1000;
+
+            if(note) playFM(note, t.fm);
+            
+            t.step++;
+            t.timer = setTimeout(() => playTrack(idx), interval);
+        }
+
+        function exportJSON() {
+            const blob = new Blob([JSON.stringify(tracks, null, 2)], { type: 'application/json' });
+            const a = document.createElement('a');
+            a.href = URL.createObjectURL(blob);
+            a.download = `fm_music_archive.json`;
+            a.click();
+        }
+
+        function importJSON(e) {
+            const file = e.target.files[0];
+            const reader = new FileReader();
+            reader.onload = (event) => {
+                tracks = JSON.parse(event.target.result);
+                switchTrack(0);
+                alert("FM ARCHIVE LOADED");
+            };
+            reader.readAsText(file);
+        }
+
+        switchTrack(0);
+    </script>
+</body>
+</html>
