@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LCP-WEB ARCADE [TERMINAL MODE]</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap');
+
+        :root {
+            --term-green: #00ff41;
+            --term-bg: #0d0208;
+            --term-dim: #003b00;
+        }
+
+        body {
+            background-color: var(--term-bg);
+            color: var(--term-green);
+            font-family: 'Share Tech Mono', monospace;
+            margin: 0;
+            padding: 20px;
+            overflow-x: hidden;
+            line-height: 1.4;
+        }
+
+        /* Scanline Effect */
+        body::before {
+            content: " ";
+            display: block;
+            position: fixed;
+            top: 0; left: 0; bottom: 0; right: 0;
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), 
+                        linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
+            z-index: 2;
+            background-size: 100% 4px, 3px 100%;
+            pointer-events: none;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            border: 1px solid var(--term-green);
+            padding: 20px;
+            box-shadow: 0 0 15px var(--term-dim);
+            position: relative;
+            z-index: 1;
+        }
+
+        header {
+            border-bottom: 2px solid var(--term-green);
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+        }
+
+        .ascii-art {
+            font-size: 10px;
+            white-space: pre;
+            line-height: 1;
+            margin-bottom: 20px;
+            color: var(--term-green);
+            text-shadow: 0 0 5px var(--term-green);
+        }
+
+        .menu-list {
+            list-style: none;
+            padding: 0;
+        }
+
+        .menu-item {
+            margin-bottom: 15px;
+            padding: 10px;
+            border: 1px transparent;
+            transition: all 0.2s;
+            cursor: pointer;
+            display: block;
+            text-decoration: none;
+            color: var(--term-green);
+        }
+
+        .menu-item:hover {
+            background-color: var(--term-dim);
+            border: 1px solid var(--term-green);
+            padding-left: 20px;
+        }
+
+        .menu-item::before {
+            content: "> ";
+        }
+
+        .status-online { color: #00ff41; font-weight: bold; }
+        .status-offline { color: #ff0000; opacity: 0.5; }
+
+        .footer {
+            margin-top: 40px;
+            font-size: 0.8em;
+            text-align: right;
+            border-top: 1px solid var(--term-dim);
+            padding-top: 10px;
+        }
+
+        .cursor {
+            display: inline-block;
+            width: 10px;
+            height: 1.2em;
+            background: var(--term-green);
+            animation: blink 1s step-end infinite;
+            vertical-align: middle;
+            margin-left: 5px;
+        }
+
+        @keyframes blink {
+            from, to { opacity: 1; }
+            50% { opacity: 0; }
+        }
+
+        @media (max-width: 600px) {
+            .ascii-art { font-size: 6px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="ascii-art">
+ _     ____  ____     ____  ____  ____  ____  ____  _____ 
+/ \   /   _\/  __\   /  _ \/  __\/   _\/  _ \/  _ \/  __/ 
+| |   |  /  |  \/|   | / \||  \/||  /  | / \|| | \||  \   
+| |_/\|  \_ |  __/   | |-|||  __/|  \_ | |-||| |_/||  /_  
+\____/\____/\_/      \_/ \|\_/   \____/\_/ \|\____/\____\
+                                                          
+            </div>
+            <div>SYSTEM: LCP-OS v0.4.32 ONLINE</div>
+            <div>OPERATOR: DR. HIROSHI</div>
+        </header>
+
+        <section>
+            <p>Welcome to LCP-WEB Game Center. Select a unit to execute.</p>
+            <nav class="menu-list">
+                <a href="adventure.html" class="menu-item">
+                    [UNIT-01] PILGRIM FATHERS ADVENTURE ... <span class="status-online">ONLINE</span>
+                </a>
+                <a href="vending.html" class="menu-item">
+                    [UNIT-02] HIROSHI-VENDING SIMULATOR ... <span class="status-online">ONLINE</span>
+                </a>
+                <div class="menu-item" style="opacity: 0.5; cursor: default;">
+                    [UNIT-03] H-CODE FLOW [S5:REALIZATION] ... <span class="status-offline">MAINTENANCE</span>
+                </div>
+                <div class="menu-item" style="opacity: 0.5; cursor: default;">
+                    [UNIT-04] NEOTERMINAL CHAT [S1:PHILOSOPHY] ... <span class="status-offline">LOCKED</span>
+                </div>
+            </nav>
+        </section>
+
+        <div style="margin-top: 20px;">
+            Command: arcade_start --all<span class="cursor"></span>
+        </div>
+
+        <footer class="footer">
+            &copy; 2026 LCP-WEB-CONSTRUCTION / HIROSHI THEORY SYSTEM
+        </footer>
+    </div>
+</body>
+</html>
