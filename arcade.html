@@ -11,6 +11,7 @@
             --term-green: #00ff41;
             --term-bg: #0d0208;
             --term-dim: #003b00;
+            --term-gold: #ffd700;
         }
 
         body {
@@ -88,7 +89,7 @@
         }
 
         .status-online { color: #00ff41; font-weight: bold; }
-        .status-new { color: #fff; background: #003b00; padding: 0 5px; }
+        .status-legendary { color: var(--term-gold); font-weight: bold; text-shadow: 0 0 10px var(--term-gold); }
 
         .footer {
             margin-top: 40px;
@@ -158,7 +159,7 @@
                     [UNIT-07] BICYCLE_SAFETY_PROTOCOL ... <span class="status-online">ONLINE</span>
                 </a>
                 <a href="chronicle.html" class="menu-item">
-                    [UNIT-08] LCP_CHRONICLE: DATA REPOSITORY ... <span class="status-new">NEW ARCHIVER</span>
+                    [UNIT-08] LCP_CHRONICLE: DATA REPOSITORY ... <span class="status-legendary">LEGENDARY</span>
                 </a>
             </nav>
         </section>
