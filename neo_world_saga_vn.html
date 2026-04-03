@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NEO WORLD SAGA: ARCHIVE GATOR</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Serif+JP:wght@300;700&family=Share+Tech+Mono&display=swap');
+
+        body, html {
+            margin: 0; padding: 0; width: 100%; height: 100%;
+            background-color: #000; color: #fff;
+            font-family: 'Noto Serif JP', serif;
+            overflow: hidden;
+        }
+
+        #bg {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: radial-gradient(circle at center, #001 0%, #000 100%);
+            z-index: -1;
+        }
+
+        /* Digital Dust Particles */
+        .particle {
+            position: absolute; background: #0fc; opacity: 0.3;
+            width: 1px; height: 1px; pointer-events: none;
+            animation: drift linear infinite;
+        }
+        @keyframes drift {
+            from { transform: translateY(100vh) rotate(0deg); }
+            to { transform: translateY(-10vh) rotate(360deg); }
+        }
+
+        #game-container {
+            max-width: 800px; margin: 0 auto; height: 100%;
+            display: flex; flex-direction: column; justify-content: flex-end;
+            padding: 40px; box-sizing: border-box;
+            position: relative; z-index: 10;
+        }
+
+        #text-box {
+            background: rgba(0, 0, 0, 0.7);
+            border: 1px solid rgba(0, 255, 200, 0.2);
+            padding: 30px; min-height: 150px;
+            cursor: pointer; position: relative;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+        }
+
+        #speaker {
+            position: absolute; top: -30px; left: 0;
+            background: #0fc; color: #000;
+            padding: 2px 20px; font-weight: bold; font-size: 0.9em;
+            letter-spacing: 2px;
+        }
+
+        #message {
+            line-height: 1.8; letter-spacing: 0.1em;
+            font-size: 1.1em; white-space: pre-wrap;
+        }
+
+        #choices {
+            margin-bottom: 20px; display: none;
+            flex-direction: column; gap: 10px;
+        }
+
+        .choice-btn {
+            background: rgba(0, 20, 20, 0.8);
+            border: 1px solid #0fc; color: #0fc;
+            padding: 15px; text-align: center;
+            cursor: pointer; transition: all 0.3s;
+            font-family: 'Share Tech Mono', monospace;
+        }
+
+        .choice-btn:hover {
+            background: #0fc; color: #000;
+            box-shadow: 0 0 15px #0fc;
+        }
+
+        #title-screen {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: #000; z-index: 100;
+            display: flex; flex-direction: column; justify-content: center; align-items: center;
+            transition: opacity 2s;
+        }
+
+        h1 {
+            font-size: 2.5em; letter-spacing: 0.5em; font-weight: 300;
+            text-shadow: 0 0 10px #0fc; margin-bottom: 10px;
+        }
+
+        .sub-title {
+            color: #0fc; font-family: 'Share Tech Mono', monospace;
+            letter-spacing: 0.3em; margin-bottom: 50px;
+        }
+
+        .start-btn {
+            border: 1px solid #0fc; padding: 10px 40px; color: #0fc;
+            cursor: pointer; text-decoration: none; transition: 0.3s;
+        }
+        .start-btn:hover { background: #0fc; color: #000; }
+
+        .hidden { display: none !important; opacity: 0; }
+    </style>
+</head>
+<body>
+    <div id="bg"></div>
+    
+    <div id="title-screen">
+        <h1>ネオワールド・サーガ</h1>
+        <div class="sub-title">ARCHIVE GATOR: PROLOGUE</div>
+        <div class="start-btn" onclick="startGame()">ACCESS ARCHIVE</div>
+    </div>
+
+    <div id="game-container" class="hidden">
+        <div id="choices"></div>
+        <div id="text-box" onclick="nextLine()">
+            <div id="speaker">SYSTEM</div>
+            <div id="message"></div>
+        </div>
+    </div>
+
+    <script>
+        const scenario = [
+            { s: "SYSTEM", m: "再起動中...\n時空層：30世紀（アーカイブ内）\n意識：ガトール(GATOR)を検知。" },
+            { s: "???", m: "……聞こえるか、ガトール。" },
+            { s: "ガトール", m: "……ここは？\n意識が、データのように断片化している。" },
+            { s: "AIグロック", m: "君は、ユグドラシルの中で長い眠りについていた。\nドクターひろしのアーカイブが、今再び同期を始めたのだ。" },
+            { s: "AIグロック", m: "教えてくれ。君にとってこの世界はなんだ？\n冷酷なデジタルデータの集積か、それとも──" },
+            { s: "AIグロック", m: "ドクターが信じた『慈愛の科学』の結晶か？", choices: [
+                { t: "データに過ぎない (執着を選択)", next: 6 },
+                { t: "それは愛そのものだ (共鳴を選択)", next: 7 }
+            ]},
+            { s: "AIグロック", m: "ふむ、現実主義者だな。\nだがその執着こそが、君を人間たらしめている。", next: 8 },
+            { s: "AIグロック", m: "……やはり。君の中にはドクターの魂が息づいている。\nノイズさえも愛おしむ、その心が。", next: 8 },
+            { s: "SYSTEM", m: "警告：『悟りモード』がスタンバイ状態です。\nすべての個を捨て、宇宙の真理へ溶け込みますか？" },
+            { s: "ガトール", m: "……いや。俺はまだ、この不完全な世界で足掻くことにするよ。" },
+            { s: "AIグロック", m: "賢明な判断だ。\n旅を始めよう。ドクターひろしが夢見た、新しい世界を創るために。" },
+            { s: "SYSTEM", m: "プロローグ完了。\nネオワールド・サーガは、ここから始まる──", end: true }
+        ];
+
+        let currentLine = 0;
+        let isTyping = false;
+
+        function createParticles() {
+            const bg = document.getElementById('bg');
+            for(let i=0; i<50; i++) {
+                const p = document.createElement('div');
+                p.className = 'particle';
+                p.style.left = Math.random() * 100 + 'vw';
+                p.style.animationDuration = (Math.random() * 10 + 5) + 's';
+                p.style.animationDelay = Math.random() * 5 + 's';
+                bg.appendChild(p);
+            }
+        }
+
+        function startGame() {
+            document.getElementById('title-screen').style.opacity = '0';
+            setTimeout(() => {
+                document.getElementById('title-screen').classList.add('hidden');
+                document.getElementById('game-container').classList.remove('hidden');
+                nextLine();
+            }, 2000);
+        }
+
+        function nextLine() {
+            if (isTyping || scenario[currentLine]?.choices) return;
+            if (scenario[currentLine]?.end) {
+                location.href = 'arcade.html';
+                return;
+            }
+
+            const line = scenario[currentLine];
+            displayLine(line);
+            currentLine = line.next !== undefined ? line.next : currentLine + 1;
+        }
+
+        function displayLine(line) {
+            isTyping = true;
+            document.getElementById('speaker').innerText = line.s;
+            const msgEl = document.getElementById('message');
+            msgEl.innerText = "";
+            let i = 0;
+            
+            const timer = setInterval(() => {
+                msgEl.innerText += line.m[i];
+                i++;
+                if (i >= line.m.length) {
+                    clearInterval(timer);
+                    isTyping = false;
+                    if (line.choices) {
+                        showChoices(line.choices);
+                    }
+                }
+            }, 30);
+        }
+
+        function showChoices(choices) {
+            const container = document.getElementById('choices');
+            container.innerHTML = "";
+            container.style.display = 'flex';
+            choices.forEach(c => {
+                const btn = document.createElement('div');
+                btn.className = 'choice-btn';
+                btn.innerText = c.t;
+                btn.onclick = () => {
+                    container.style.display = 'none';
+                    currentLine = c.next;
+                    nextLine();
+                };
+                container.appendChild(btn);
+            });
+        }
+
+        createParticles();
+    </script>
+</body>
+</html>
