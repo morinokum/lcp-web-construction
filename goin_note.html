@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GOIN NOTE: MANDATORY CHRONICLE</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap');
+
+        body {
+            background-color: #0d0208;
+            color: #00ff41;
+            font-family: 'Share Tech Mono', monospace;
+            margin: 0; padding: 20px;
+            display: flex; flex-direction: column; height: 95vh;
+            transition: background-color 0.5s;
+        }
+
+        .header {
+            border-bottom: 2px solid #00ff41;
+            margin-bottom: 10px; padding-bottom: 5px;
+            display: flex; justify-content: space-between;
+        }
+
+        #timer-bar {
+            height: 5px; background: #00ff41; width: 100%;
+            margin-bottom: 20px; transition: width 0.1s linear, background-color 0.3s;
+        }
+
+        #note-area {
+            flex-grow: 1;
+            background: transparent;
+            border: 1px solid #003b00;
+            color: #00ff41;
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 1.2em;
+            padding: 20px;
+            resize: none;
+            outline: none;
+            line-height: 1.6;
+        }
+
+        .warning { background-color: #440000 !important; }
+        .critical { background-color: #990000 !important; color: #fff !important; }
+        .critical #note-area { color: #fff; }
+
+        .status-bar {
+            margin-top: 10px; font-size: 0.9em;
+            display: flex; justify-content: space-between;
+        }
+
+        .back-btn {
+            color: #00ff41; text-decoration: none; border: 1px solid #00ff41;
+            padding: 2px 10px; font-size: 0.8em;
+        }
+        .back-btn:hover { background: #00ff41; color: #000; }
+
+        #alert-msg {
+            position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
+            font-size: 5em; font-weight: bold; color: rgba(255,0,0,0.5);
+            pointer-events: none; display: none; z-index: 100;
+            text-shadow: 0 0 20px #f00;
+        }
+    </style>
+</head>
+<body id="body">
+    <div class="header">
+        <div>GOIN_NOTE_v1.0.SYS [MANDATORY_MODE]</div>
+        <a href="arcade.html" class="back-btn">ABORT MISSION</a>
+    </div>
+
+    <div id="timer-bar"></div>
+
+    <textarea id="note-area" placeholder="TYPE OR LOSE EVERYTHING..."></textarea>
+
+    <div id="alert-msg">INPUT REQUIRED</div>
+
+    <div class="status-bar">
+        <div>SYNC LEVEL: <span id="word-count">0</span> chars</div>
+        <div id="status-text">STATUS: MONITORING...</div>
+    </div>
+
+    <script>
+        const noteArea = document.getElementById('note-area');
+        const timerBar = document.getElementById('timer-bar');
+        const body = document.getElementById('body');
+        const alertMsg = document.getElementById('alert-msg');
+        const wordCount = document.getElementById('word-count');
+        const statusText = document.getElementById('status-text');
+
+        let lastInputTime = Date.now();
+        const WARNING_TIME = 5000; // 5 seconds
+        const CRITICAL_TIME = 8000; // 8 seconds
+        const DELETE_INTERVAL = 500; // deletes 1 char every 0.5s when critical
+
+        noteArea.addEventListener('input', () => {
+            lastInputTime = Date.now();
+            updateStats();
+        });
+
+        function updateStats() {
+            wordCount.innerText = noteArea.value.length;
+        }
+
+        function loop() {
+            const elapsed = Date.now() - lastInputTime;
+            const remaining = Math.max(0, CRITICAL_TIME - elapsed);
+            const progress = (remaining / CRITICAL_TIME) * 100;
+
+            // Update Timer Bar
+            timerBar.style.width = progress + "%";
+
+            if (elapsed > CRITICAL_TIME) {
+                // CRITICAL: Start Deleting
+                body.className = "critical";
+                alertMsg.style.display = "block";
+                alertMsg.innerText = "DELETING...";
+                statusText.innerText = "STATUS: ARCHIVE CORRUPTION DETECTED!";
+                timerBar.style.backgroundColor = "#ff0000";
+                
+                if (noteArea.value.length > 0 && frameCount % 30 === 0) {
+                    noteArea.value = noteArea.value.substring(0, noteArea.value.length - 1);
+                    updateStats();
+                }
+            } else if (elapsed > WARNING_TIME) {
+                // WARNING
+                body.className = "warning";
+                alertMsg.style.display = "block";
+                alertMsg.innerText = "INPUT REQUIRED";
+                statusText.innerText = "STATUS: SYSTEM UNSTABLE";
+                timerBar.style.backgroundColor = "#ffaa00";
+            } else {
+                // NORMAL
+                body.className = "";
+                alertMsg.style.display = "none";
+                statusText.innerText = "STATUS: SYNCHRONIZED";
+                timerBar.style.backgroundColor = "#00ff41";
+            }
+
+            frameCount++;
+            requestAnimationFrame(loop);
+        }
+
+        let frameCount = 0;
+        loop();
+
+        // Prevent Unload Warning
+        window.onbeforeunload = function() {
+            return "Archive will be lost. Confirm?";
+        };
+    </script>
+</body>
+</html>
