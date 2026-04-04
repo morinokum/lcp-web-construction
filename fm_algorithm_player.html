@@ -3,56 +3,68 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>UNIT-15: FM ALGORITHM PLAYER</title>
+    <title>UNIT-15: FM ALGORITHM PLAYER [PASTE ENABLED]</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap');
         :root { --fm-neon: #00ff41; --bg: #0d0208; --dim: #003b00; }
-        body { background-color: var(--bg); color: var(--fm-neon); font-family: 'Share Tech Mono', monospace; margin: 0; padding: 20px; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; overflow: hidden; }
+        body { background-color: var(--bg); color: var(--fm-neon); font-family: 'Share Tech Mono', monospace; margin: 0; padding: 20px; display: flex; flex-direction: column; align-items: center; min-height: 100vh; overflow-x: hidden; }
         
-        .player-box { border: 2px solid var(--fm-neon); padding: 30px; width: 80%; max-width: 600px; background: rgba(0, 255, 65, 0.02); box-shadow: 0 0 20px var(--dim); position: relative; }
-        .header { border-bottom: 1px solid var(--fm-neon); margin-bottom: 20px; padding-bottom: 10px; display: flex; justify-content: space-between; align-items: center; }
+        .player-box { border: 2px solid var(--fm-neon); padding: 20px; width: 90%; max-width: 700px; background: rgba(0, 255, 65, 0.02); box-shadow: 0 0 20px var(--dim); position: relative; margin-bottom: 20px; }
+        .header { border-bottom: 1px solid var(--fm-neon); margin-bottom: 15px; padding-bottom: 10px; display: flex; justify-content: space-between; align-items: center; }
         
-        .viz-large { width: 100%; height: 100px; background: #000; border: 1px solid var(--dim); margin-bottom: 20px; display: flex; align-items: flex-end; gap: 2px; padding: 5px; box-sizing: border-box; }
+        .viz-large { width: 100%; height: 80px; background: #000; border: 1px solid var(--dim); margin-bottom: 15px; display: flex; align-items: flex-end; gap: 2px; padding: 5px; box-sizing: border-box; }
         .v-bar { flex: 1; background: var(--fm-neon); height: 0%; transition: height 0.1s; }
 
-        .info-panel { font-size: 0.9em; margin-bottom: 20px; height: 60px; border-left: 3px solid var(--fm-neon); padding-left: 15px; }
-        .song-title { color: #fff; font-size: 1.2em; display: block; }
+        .info-panel { font-size: 0.9em; margin-bottom: 15px; min-height: 50px; border-left: 3px solid var(--fm-neon); padding-left: 15px; }
+        .song-title { color: #fff; font-size: 1.1em; display: block; }
         .status { font-size: 0.7em; color: var(--dim); text-transform: uppercase; }
 
-        .controls { display: flex; gap: 10px; flex-wrap: wrap; }
-        .btn { background: transparent; border: 1px solid var(--fm-neon); color: var(--fm-neon); padding: 10px 20px; cursor: pointer; font-family: 'Share Tech Mono'; flex: 1; transition: all 0.2s; }
+        .paste-section { margin-bottom: 15px; }
+        textarea { width: 100%; height: 80px; background: #000; border: 1px solid var(--dim); color: var(--fm-neon); font-family: 'Share Tech Mono'; font-size: 10px; padding: 5px; box-sizing: border-box; resize: none; }
+        textarea:focus { border-color: var(--fm-neon); outline: none; }
+
+        .controls { display: flex; gap: 8px; flex-wrap: wrap; }
+        .btn { background: transparent; border: 1px solid var(--fm-neon); color: var(--fm-neon); padding: 10px; cursor: pointer; font-family: 'Share Tech Mono'; flex: 1; transition: all 0.2s; font-size: 0.8em; }
         .btn:hover { background: var(--fm-neon); color: #000; }
         .btn:disabled { border-color: var(--dim); color: var(--dim); cursor: not-allowed; }
+        .btn-inject { background: rgba(0, 255, 65, 0.1); border-width: 2px; font-weight: bold; }
 
-        #drop-zone { border: 1px dashed var(--fm-neon); padding: 10px; text-align: center; font-size: 0.7em; margin-bottom: 15px; cursor: pointer; }
-        #drop-zone.hover { background: rgba(0, 255, 65, 0.1); }
+        #drop-zone { border: 1px dashed var(--dim); padding: 5px; text-align: center; font-size: 0.6em; margin-bottom: 10px; cursor: pointer; color: var(--dim); }
+        #drop-zone:hover { border-color: var(--fm-neon); color: var(--fm-neon); }
 
-        .footer { position: absolute; bottom: 20px; width: 100%; text-align: center; }
+        .footer { width: 100%; text-align: center; margin-bottom: 20px; }
         .back-link { color: var(--fm-neon); text-decoration: none; border: 1px solid var(--fm-neon); padding: 5px 15px; font-size: 0.8em; }
     </style>
 </head>
 <body>
     <div class="player-box">
         <div class="header">
-            <span style="font-weight:bold;">UNIT-15: ALGORITHM_PLAYER_v1.0</span>
+            <span style="font-weight:bold;">UNIT-15: ALGORITHM_PLAYER_v1.1</span>
             <span id="time-display">00:00</span>
         </div>
 
+        <div class="paste-section">
+            <span style="font-size:0.7em; color:#fff;">PASTE JSON ALGORITHM HERE:</span>
+            <textarea id="json-input" placeholder='{"tracks": [...], "emotions": {...}}'></textarea>
+            <button class="btn btn-inject" onclick="injectFromText()">INJECT & RESONATE</button>
+        </div>
+
         <div id="drop-zone" onclick="document.getElementById('file-input').click()">
-            DROP JSON FILE HERE OR CLICK TO LOAD
+            OR DROP JSON FILE / CLICK TO LOAD
             <input type="file" id="file-input" style="display:none" onchange="handleFile(event)">
         </div>
 
         <div class="viz-large" id="viz"></div>
 
         <div class="info-panel">
-            <span id="current-song" class="song-title">NO DATA LOADED</span>
+            <span id="current-song" class="song-title">AWAITING INPUT</span>
             <span id="current-status" class="status">Waiting for algorithm injection...</span>
         </div>
 
         <div class="controls">
-            <button id="play-btn" class="btn" onclick="togglePlayback()" disabled>START RESONANCE</button>
+            <button id="play-btn" class="btn" onclick="togglePlayback()" disabled>PLAY / PAUSE</button>
             <button class="btn" onclick="stopPlayback()">STOP</button>
+            <button class="btn" onclick="document.getElementById('json-input').value='';">CLEAR</button>
         </div>
     </div>
 
@@ -76,6 +88,7 @@
         let isPlaying = false;
         let timers = [];
         let startTime = 0;
+        let pauseOffset = 0;
 
         // Init Viz
         const viz = document.getElementById('viz');
@@ -87,46 +100,48 @@
             bars.push(b);
         }
 
-        const dropZone = document.getElementById('drop-zone');
-        dropZone.ondragover = (e) => { e.preventDefault(); dropZone.classList.add('hover'); };
-        dropZone.ondragleave = () => dropZone.classList.remove('hover');
-        dropZone.ondrop = (e) => {
-            e.preventDefault();
-            dropZone.classList.remove('hover');
-            const file = e.dataTransfer.files[0];
-            loadData(file);
-        };
+        function injectFromText() {
+            const text = document.getElementById('json-input').value;
+            if(!text.trim()) return;
+            try {
+                const json = JSON.parse(text);
+                processData(json, "PASTED_ALGORITHM");
+                startPlayback();
+            } catch(e) {
+                alert("JSON PARSE ERROR: Check your algorithm structure.");
+            }
+        }
 
-        function handleFile(e) { loadData(e.target.files[0]); }
-
-        function loadData(file) {
+        function handleFile(e) {
+            const file = e.target.files[0];
             const reader = new FileReader();
             reader.onload = (event) => {
                 try {
                     const json = JSON.parse(event.target.result);
-                    // Support both UNIT-13 export formats (array of tracks OR object with tracks/emotions)
-                    if (Array.isArray(json)) {
-                        currentData = {
-                            tracks: json,
-                            emotions: {
-                                joy: { tempo: 140, rhythm: [1, 0.5, 0.5, 1] },
-                                anger: { tempo: 180, rhythm: [0.25, 0.25, 0.25, 0.25] },
-                                sorrow: { tempo: 60, rhythm: [2, 1, 1] },
-                                pleasure: { tempo: 110, rhythm: [1.5, 0.5, 1.5, 0.5] }
-                            }
-                        };
-                    } else {
-                        currentData = json;
-                    }
-                    document.getElementById('current-song').innerText = file.name.toUpperCase();
-                    document.getElementById('current-status').innerText = "Algorithm verified. Ready for playback.";
-                    document.getElementById('play-btn').disabled = false;
-                    stopPlayback();
-                } catch(err) {
-                    alert("INVALID ALGORITHM DATA");
-                }
+                    processData(json, file.name.toUpperCase());
+                } catch(err) { alert("INVALID FILE DATA"); }
             };
             reader.readAsText(file);
+        }
+
+        function processData(json, name) {
+            if (Array.isArray(json)) {
+                currentData = {
+                    tracks: json,
+                    emotions: {
+                        joy: { tempo: 140, rhythm: [1, 0.5, 0.5, 1] },
+                        anger: { tempo: 180, rhythm: [0.25, 0.25, 0.25, 0.25] },
+                        sorrow: { tempo: 60, rhythm: [2, 1, 1] },
+                        pleasure: { tempo: 110, rhythm: [1.5, 0.5, 1.5, 0.5] }
+                    }
+                };
+            } else {
+                currentData = json;
+            }
+            document.getElementById('current-song').innerText = name;
+            document.getElementById('current-status').innerText = "Algorithm verified. Ready.";
+            document.getElementById('play-btn').disabled = false;
+            stopPlayback();
         }
 
         function playFM(note, fmParams) {
@@ -168,12 +183,12 @@
         function startPlayback() {
             audioCtx.resume();
             isPlaying = true;
-            startTime = Date.now();
-            document.getElementById('play-btn').innerText = "STOP RESONANCE";
+            startTime = Date.now() - pauseOffset;
+            document.getElementById('play-btn').innerText = "PAUSE RESONANCE";
             document.getElementById('current-status').innerText = "FM RESONANCE ACTIVE...";
             
             currentData.tracks.forEach((t, i) => {
-                t.step = 0;
+                if(!t.step) t.step = 0;
                 playTrack(i);
             });
             updateTimer();
@@ -195,8 +210,10 @@
 
         function stopPlayback() {
             isPlaying = false;
+            pauseOffset = 0;
             timers.forEach(clearTimeout);
             timers = [];
+            if(currentData) currentData.tracks.forEach(t => t.step = 0);
             document.getElementById('play-btn').innerText = "START RESONANCE";
             document.getElementById('current-status').innerText = "Resonance suspended.";
             document.getElementById('time-display').innerText = "00:00";
