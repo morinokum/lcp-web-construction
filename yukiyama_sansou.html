@@ -1,0 +1,1977 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>雪山山荘殺人事件</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Shippori+Mincho+B1:wght@400;500;700;800&family=Noto+Serif+JP:wght@300;400;700&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --ink: #e8e0d0;
+    --blood: #8b0000;
+    --frost: #a8c4d4;
+    --shadow: #0a0a12;
+    --wood: #2a1f15;
+    --candle: #f5c842;
+  }
+
+  html, body {
+    width: 100%; height: 100%;
+    background: #000;
+    overflow: hidden;
+    font-family: 'Shippori Mincho B1', 'Noto Serif JP', serif;
+    cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='20'%3E%3Ccircle cx='10' cy='10' r='3' fill='%23a8c4d4' opacity='0.8'/%3E%3C/svg%3E") 10 10, auto;
+  }
+
+  /* ========== TITLE SCREEN ========== */
+  #title-screen {
+    position: fixed; inset: 0; z-index: 200;
+    background: #000;
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    transition: opacity 1.5s ease;
+  }
+  #title-screen.fade-out { opacity: 0; pointer-events: none; }
+
+  .title-blizzard {
+    position: absolute; inset: 0;
+    background:
+      radial-gradient(ellipse 80% 60% at 50% 40%, #0a1628 0%, #000 70%);
+    overflow: hidden;
+  }
+
+  .title-mountain {
+    position: absolute; bottom: 0; left: 0; right: 0;
+    height: 55%;
+  }
+
+  .title-lodge {
+    position: absolute; bottom: 18%; left: 50%;
+    transform: translateX(-50%);
+    width: 120px; height: 90px;
+    opacity: 0.85;
+  }
+
+  .title-content {
+    position: relative; z-index: 10;
+    text-align: center;
+    display: flex; flex-direction: column; align-items: center;
+  }
+
+  .title-eyebrow {
+    font-size: 0.75rem;
+    letter-spacing: 0.6em;
+    color: var(--frost);
+    opacity: 0.7;
+    margin-bottom: 1.5rem;
+    font-weight: 300;
+  }
+
+  .title-jp {
+    font-size: clamp(2.8rem, 8vw, 5rem);
+    font-weight: 800;
+    letter-spacing: 0.35em;
+    line-height: 1.1;
+    color: var(--ink);
+    text-shadow: 0 0 60px rgba(168,196,212,0.3), 0 2px 4px rgba(0,0,0,0.8);
+    animation: titlePulse 4s ease-in-out infinite;
+  }
+
+  @keyframes titlePulse {
+    0%,100% { text-shadow: 0 0 60px rgba(168,196,212,0.3), 0 2px 4px rgba(0,0,0,0.8); }
+    50% { text-shadow: 0 0 80px rgba(168,196,212,0.5), 0 0 20px rgba(168,196,212,0.2), 0 2px 4px rgba(0,0,0,0.8); }
+  }
+
+  .title-divider {
+    width: 180px; height: 1px;
+    background: linear-gradient(90deg, transparent, var(--frost), transparent);
+    margin: 1.5rem auto;
+    opacity: 0.5;
+  }
+
+  .title-sub {
+    font-size: 0.9rem;
+    letter-spacing: 0.4em;
+    color: var(--frost);
+    opacity: 0.6;
+    margin-bottom: 3.5rem;
+    font-weight: 300;
+  }
+
+  #start-btn {
+    position: relative;
+    padding: 1rem 3.5rem;
+    border: 1px solid rgba(168,196,212,0.5);
+    background: transparent;
+    color: var(--ink);
+    font-family: inherit;
+    font-size: 1rem;
+    letter-spacing: 0.5em;
+    cursor: pointer;
+    transition: all 0.4s;
+    overflow: hidden;
+  }
+  #start-btn::before {
+    content: '';
+    position: absolute; inset: 0;
+    background: rgba(168,196,212,0.08);
+    transform: scaleX(0); transform-origin: left;
+    transition: transform 0.4s;
+  }
+  #start-btn:hover { border-color: var(--frost); color: #fff; }
+  #start-btn:hover::before { transform: scaleX(1); }
+
+  .title-warning {
+    margin-top: 2.5rem;
+    font-size: 0.65rem;
+    letter-spacing: 0.2em;
+    color: rgba(139,0,0,0.8);
+    opacity: 0.7;
+  }
+
+  /* ========== GAME SCREEN ========== */
+  #game-screen {
+    position: fixed; inset: 0; z-index: 100;
+    opacity: 0;
+    transition: opacity 1s;
+    display: flex; flex-direction: column;
+  }
+  #game-screen.visible { opacity: 1; }
+
+  /* Scene Area */
+  #scene-area {
+    position: relative;
+    flex: 1;
+    overflow: hidden;
+    background: var(--shadow);
+    transition: background 2s ease;
+  }
+
+  /* Layered BG */
+  #bg-layer {
+    position: absolute; inset: 0;
+    background: #020617;
+    transition: all 2s ease;
+  }
+  #bg-img {
+    position: absolute; inset: 0;
+    opacity: 0;
+    transition: opacity 2s ease;
+    display: flex; align-items: center; justify-content: center;
+  }
+
+  /* Vignette */
+  #scene-area::after {
+    content: '';
+    position: absolute; inset: 0;
+    background: radial-gradient(ellipse 80% 80% at 50% 50%, transparent 40%, rgba(0,0,0,0.75) 100%);
+    pointer-events: none; z-index: 5;
+  }
+
+  /* Snow */
+  #snow-canvas {
+    position: absolute; inset: 0;
+    pointer-events: none; z-index: 6;
+  }
+
+  /* Particles (blood, ash, etc.) */
+  #particle-canvas {
+    position: absolute; inset: 0;
+    pointer-events: none; z-index: 7;
+  }
+
+  /* Speaker name */
+  #speaker-tag {
+    position: absolute;
+    bottom: 0; left: 0;
+    padding: 0.35rem 1.2rem;
+    background: rgba(10,10,18,0.9);
+    border-top: 1px solid rgba(168,196,212,0.3);
+    border-right: 1px solid rgba(168,196,212,0.15);
+    font-size: 0.85rem;
+    letter-spacing: 0.3em;
+    color: var(--frost);
+    z-index: 20;
+    opacity: 0;
+    transition: opacity 0.3s;
+  }
+  #speaker-tag.visible { opacity: 1; }
+
+  /* Chapter tag */
+  #chapter-tag {
+    position: absolute;
+    top: 1rem; left: 50%;
+    transform: translateX(-50%);
+    padding: 0.3rem 1.5rem;
+    border: 1px solid rgba(168,196,212,0.2);
+    font-size: 0.7rem;
+    letter-spacing: 0.5em;
+    color: rgba(168,196,212,0.6);
+    z-index: 20;
+    opacity: 0;
+    transition: opacity 0.5s;
+    white-space: nowrap;
+  }
+
+  /* Choices overlay */
+  #choices-overlay {
+    position: absolute; inset: 0;
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    z-index: 30;
+    background: rgba(0,0,0,0);
+    opacity: 0; pointer-events: none;
+    transition: opacity 0.5s;
+  }
+  #choices-overlay.visible {
+    opacity: 1; pointer-events: auto;
+    background: rgba(0,0,0,0.3);
+  }
+  #choices-wrap {
+    width: 90%; max-width: 500px;
+    display: flex; flex-direction: column; gap: 0.8rem;
+  }
+  .choice-btn {
+    position: relative;
+    padding: 1rem 1.5rem;
+    background: rgba(10,10,18,0.85);
+    border: 1px solid rgba(168,196,212,0.25);
+    color: var(--ink);
+    font-family: inherit;
+    font-size: 1rem;
+    letter-spacing: 0.25em;
+    text-align: left;
+    cursor: pointer;
+    transition: all 0.3s;
+    overflow: hidden;
+    backdrop-filter: blur(8px);
+  }
+  .choice-btn::before {
+    content: '▶';
+    position: absolute; left: 0.8rem;
+    color: var(--frost); opacity: 0;
+    transition: opacity 0.3s;
+    font-size: 0.7rem;
+  }
+  .choice-btn:hover {
+    background: rgba(20,30,60,0.9);
+    border-color: var(--frost);
+    padding-left: 2.2rem;
+    color: #fff;
+  }
+  .choice-btn:hover::before { opacity: 1; }
+  .choice-btn.danger { border-color: rgba(139,0,0,0.4); }
+  .choice-btn.danger:hover { border-color: var(--blood); background: rgba(40,0,0,0.8); }
+
+  /* Flash overlay */
+  #flash {
+    position: absolute; inset: 0;
+    background: #fff; z-index: 50;
+    opacity: 0; pointer-events: none;
+    transition: opacity 0.05s;
+  }
+
+  /* Message Box */
+  #msg-box {
+    position: relative;
+    height: 38%;
+    min-height: 160px;
+    max-height: 260px;
+    background: linear-gradient(to top, rgba(5,5,15,0.98) 0%, rgba(5,5,15,0.93) 100%);
+    border-top: 1px solid rgba(168,196,212,0.2);
+    display: flex; flex-direction: column;
+    z-index: 20;
+  }
+
+  #msg-inner {
+    flex: 1;
+    padding: 1.5rem 2rem 0.5rem;
+    overflow: hidden;
+    display: flex; align-items: flex-start;
+  }
+
+  #main-text {
+    font-size: clamp(0.95rem, 2.2vw, 1.15rem);
+    line-height: 2;
+    letter-spacing: 0.12em;
+    color: var(--ink);
+    flex: 1;
+  }
+
+  #msg-footer {
+    padding: 0.4rem 2rem 0.6rem;
+    display: flex; align-items: center; justify-content: space-between;
+  }
+
+  #click-hint {
+    font-size: 0.7rem;
+    letter-spacing: 0.4em;
+    color: rgba(168,196,212,0.4);
+    animation: blink 1.5s ease-in-out infinite;
+    opacity: 0;
+    transition: opacity 0.5s;
+  }
+  #click-hint.visible { opacity: 1; }
+  @keyframes blink { 0%,100% { opacity: 0.4; } 50% { opacity: 0.8; } }
+
+  #msg-log-btn {
+    font-size: 0.65rem;
+    letter-spacing: 0.3em;
+    color: rgba(168,196,212,0.3);
+    background: none; border: none;
+    font-family: inherit;
+    cursor: pointer;
+    transition: color 0.3s;
+  }
+  #msg-log-btn:hover { color: var(--frost); }
+
+  /* Progress bar */
+  #progress-bar {
+    position: absolute;
+    bottom: 0; left: 0;
+    height: 1px;
+    background: linear-gradient(90deg, var(--frost), rgba(168,196,212,0.2));
+    width: 0%;
+    transition: width 1s ease;
+  }
+
+  /* Scanlines */
+  .scanlines {
+    position: fixed; inset: 0;
+    pointer-events: none; z-index: 999;
+    background: repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 3px,
+      rgba(0,0,0,0.07) 3px,
+      rgba(0,0,0,0.07) 4px
+    );
+  }
+
+  /* Log overlay */
+  #log-overlay {
+    position: fixed; inset: 0; z-index: 150;
+    background: rgba(0,0,0,0.92);
+    backdrop-filter: blur(4px);
+    display: none; flex-direction: column;
+    padding: 2rem;
+  }
+  #log-overlay.open { display: flex; }
+  #log-header {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 1rem;
+    border-bottom: 1px solid rgba(168,196,212,0.2);
+    padding-bottom: 0.8rem;
+  }
+  #log-header h2 { font-size: 0.9rem; letter-spacing: 0.4em; color: var(--frost); }
+  #log-close {
+    background: none; border: 1px solid rgba(168,196,212,0.3);
+    color: var(--frost); padding: 0.3rem 0.8rem;
+    font-family: inherit; font-size: 0.75rem; letter-spacing: 0.2em;
+    cursor: pointer; transition: all 0.3s;
+  }
+  #log-close:hover { background: rgba(168,196,212,0.1); }
+  #log-content { flex: 1; overflow-y: auto; }
+  .log-entry {
+    padding: 0.6rem 0;
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+    font-size: 0.85rem; line-height: 1.8;
+    color: rgba(232,224,208,0.7);
+    letter-spacing: 0.1em;
+  }
+  .log-entry .log-speaker {
+    font-size: 0.72rem; color: var(--frost); margin-bottom: 0.2rem; letter-spacing: 0.3em;
+  }
+
+  /* END screen */
+  #end-screen {
+    position: fixed; inset: 0; z-index: 180;
+    background: #000;
+    display: none; flex-direction: column;
+    align-items: center; justify-content: center;
+    text-align: center;
+  }
+  #end-screen.show { display: flex; }
+  .end-type {
+    font-size: 0.75rem; letter-spacing: 0.6em;
+    margin-bottom: 1rem;
+  }
+  .end-title {
+    font-size: clamp(1.8rem, 5vw, 3rem);
+    font-weight: 800;
+    letter-spacing: 0.3em;
+    margin-bottom: 1rem;
+  }
+  .end-desc {
+    font-size: 0.85rem; line-height: 2;
+    letter-spacing: 0.15em; max-width: 400px;
+    color: rgba(232,224,208,0.6);
+    margin-bottom: 3rem;
+  }
+  #retry-btn {
+    padding: 0.8rem 2.5rem;
+    border: 1px solid rgba(168,196,212,0.4);
+    background: none; color: var(--ink);
+    font-family: inherit; font-size: 0.9rem;
+    letter-spacing: 0.4em; cursor: pointer;
+    transition: all 0.3s;
+  }
+  #retry-btn:hover { border-color: var(--frost); background: rgba(168,196,212,0.08); }
+
+  /* Transitions */
+  #wipe {
+    position: fixed; inset: 0; z-index: 99;
+    background: #000;
+    transform: scaleX(0); transform-origin: left;
+    pointer-events: none;
+  }
+  #wipe.wipe-in { animation: wipeIn 0.4s ease forwards; }
+  #wipe.wipe-out { animation: wipeOut 0.4s ease 0.4s forwards; }
+  @keyframes wipeIn { to { transform: scaleX(1); } }
+  @keyframes wipeOut { from { transform: scaleX(1); } to { transform: scaleX(0); transform-origin: right; } }
+
+  /* Chapter announce */
+  #chapter-announce {
+    position: fixed; inset: 0; z-index: 95;
+    background: rgba(0,0,0,0.92);
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    opacity: 0; pointer-events: none;
+    transition: opacity 0.6s;
+  }
+  #chapter-announce.show { opacity: 1; }
+  .ch-label { font-size: 0.7rem; letter-spacing: 0.8em; color: var(--frost); margin-bottom: 0.8rem; }
+  .ch-title { font-size: clamp(1.5rem, 4vw, 2.5rem); font-weight: 700; letter-spacing: 0.35em; color: var(--ink); }
+  .ch-line {
+    width: 200px; height: 1px;
+    background: linear-gradient(90deg, transparent, var(--frost), transparent);
+    margin: 1rem auto; opacity: 0.4;
+  }
+
+  /* Scrollbar */
+  ::-webkit-scrollbar { width: 4px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: rgba(168,196,212,0.3); border-radius: 2px; }
+</style>
+</head>
+<body>
+
+<div class="scanlines"></div>
+
+<!-- ========== TITLE ========== -->
+<div id="title-screen">
+  <div class="title-blizzard">
+    <canvas id="title-snow" style="position:absolute;inset:0;pointer-events:none;"></canvas>
+    <svg class="title-mountain" viewBox="0 0 1200 600" preserveAspectRatio="xMidYMax meet" fill="none">
+      <!-- Far mountains -->
+      <polygon points="0,600 300,120 500,600" fill="#0d1520" opacity="0.7"/>
+      <polygon points="200,600 550,60 800,600" fill="#111c2d" opacity="0.8"/>
+      <polygon points="600,600 900,90 1200,600" fill="#0a1322" opacity="0.7"/>
+      <polygon points="900,600 1100,180 1300,600" fill="#0d1520" opacity="0.6"/>
+      <!-- Snow caps -->
+      <polygon points="300,120 340,220 260,220" fill="#c8d8e8" opacity="0.3"/>
+      <polygon points="550,60 600,170 490,170" fill="#d0e0ee" opacity="0.35"/>
+      <polygon points="900,90 945,200 855,200" fill="#c8d8e8" opacity="0.3"/>
+      <!-- Mid mountains -->
+      <polygon points="0,600 150,280 350,600" fill="#161e2c"/>
+      <polygon points="300,600 480,250 700,600" fill="#1a2436"/>
+      <polygon points="600,600 780,260 1000,600" fill="#161e2c"/>
+      <polygon points="900,600 1050,290 1200,600" fill="#1a2436"/>
+      <!-- Foreground ridge -->
+      <polygon points="0,600 0,480 200,380 400,430 600,370 800,420 1000,360 1200,410 1200,600" fill="#0d1520"/>
+      <!-- Deep snow ground -->
+      <ellipse cx="600" cy="600" rx="700" ry="80" fill="#16202e" opacity="0.5"/>
+    </svg>
+    <!-- Lodge SVG -->
+    <svg class="title-lodge" viewBox="0 0 120 90" fill="none">
+      <polygon points="10,50 60,10 110,50" fill="#1a1410" stroke="#3a3028" stroke-width="1"/>
+      <polygon points="30,50 60,20 90,50" fill="#eee8d0" opacity="0.1"/>
+      <rect x="20" y="50" width="80" height="35" fill="#1a1410" stroke="#3a3028" stroke-width="1"/>
+      <rect x="50" y="62" width="20" height="23" fill="#0d0d0d" stroke="#3a3028" stroke-width="0.5"/>
+      <rect x="25" y="57" width="14" height="12" fill="#3d2a00" stroke="#2a1f10" stroke-width="0.5"/>
+      <rect x="81" y="57" width="14" height="12" fill="#3d2a00" stroke="#2a1f10" stroke-width="0.5"/>
+      <!-- Candlelight windows -->
+      <rect x="25.5" y="57.5" width="13" height="11" fill="#f5c84240" opacity="0.8"/>
+      <rect x="81.5" y="57.5" width="13" height="11" fill="#f5c84240" opacity="0.8"/>
+      <!-- Chimney smoke -->
+      <path d="M70,10 Q72,2 75,8 Q78,0 80,8" stroke="#888" stroke-width="1.5" fill="none" opacity="0.4"/>
+    </svg>
+  </div>
+  <div class="title-content">
+    <p class="title-eyebrow">MYSTERY VISUAL NOVEL</p>
+    <h1 class="title-jp">雪山山荘<br>殺人事件</h1>
+    <div class="title-divider"></div>
+    <p class="title-sub">吹雪の夜、密室に隠された真実</p>
+    <button id="start-btn">物語を始める</button>
+    <p class="title-warning">※ 本作品は暗い演出・殺人描写を含みます</p>
+  </div>
+</div>
+
+<!-- ========== GAME ========== -->
+<div id="game-screen">
+  <!-- Scene -->
+  <div id="scene-area">
+    <div id="bg-layer"></div>
+    <div id="bg-img">
+      <canvas id="scene-canvas" style="width:100%;height:100%;"></canvas>
+    </div>
+    <canvas id="snow-canvas"></canvas>
+    <canvas id="particle-canvas"></canvas>
+    <div id="flash"></div>
+    <div id="speaker-tag"></div>
+    <div id="chapter-tag"></div>
+    <div id="choices-overlay">
+      <div id="choices-wrap"></div>
+    </div>
+  </div>
+  <!-- Message -->
+  <div id="msg-box">
+    <div id="msg-inner">
+      <p id="main-text"></p>
+    </div>
+    <div id="msg-footer">
+      <div id="click-hint">▼ クリックで続ける</div>
+      <button id="msg-log-btn">LOG</button>
+    </div>
+    <div id="progress-bar"></div>
+  </div>
+</div>
+
+<!-- Chapter Announce -->
+<div id="chapter-announce">
+  <p class="ch-label">CHAPTER</p>
+  <div class="ch-line"></div>
+  <h2 class="ch-title" id="ch-title-text"></h2>
+  <div class="ch-line"></div>
+</div>
+
+<!-- Log -->
+<div id="log-overlay">
+  <div id="log-header">
+    <h2>メッセージ履歴</h2>
+    <button id="log-close">閉じる</button>
+  </div>
+  <div id="log-content"></div>
+</div>
+
+<!-- End Screen -->
+<div id="end-screen">
+  <p class="end-type" id="end-type-text"></p>
+  <h2 class="end-title" id="end-title-text"></h2>
+  <div class="title-divider" style="margin:1rem auto;"></div>
+  <p class="end-desc" id="end-desc-text"></p>
+  <button id="retry-btn" onclick="location.reload()">もう一度プレイする</button>
+</div>
+
+<!-- Wipe -->
+<div id="wipe"></div>
+
+<script>
+/* =============================================
+   AUDIO ENGINE
+   ============================================= */
+class AudioEngine {
+  constructor() {
+    this.ctx = null;
+    this.master = null;
+    this.bgmGain = null;
+    this.sfxGain = null;
+    this.bgmNodes = [];
+    this.bgmStep = 0;
+    this.bgmTimer = null;
+    this.ambTimer = null;
+    this.currentTheme = null;
+  }
+
+  async init() {
+    this.ctx = new (window.AudioContext || window.webkitAudioContext)();
+    this.master = this.ctx.createGain();
+    this.master.gain.value = 0.75;
+    this.master.connect(this.ctx.destination);
+
+    this.bgmGain = this.ctx.createGain();
+    this.bgmGain.gain.value = 0.5;
+    this.bgmGain.connect(this.master);
+
+    this.sfxGain = this.ctx.createGain();
+    this.sfxGain.gain.value = 0.8;
+    this.sfxGain.connect(this.master);
+
+    // Reverb
+    this.reverb = await this.createReverb(3);
+    this.reverbGain = this.ctx.createGain();
+    this.reverbGain.gain.value = 0.25;
+    this.reverb.connect(this.reverbGain);
+    this.reverbGain.connect(this.master);
+  }
+
+  async createReverb(duration) {
+    const rate = this.ctx.sampleRate;
+    const len = rate * duration;
+    const buf = this.ctx.createBuffer(2, len, rate);
+    for (let c = 0; c < 2; c++) {
+      const d = buf.getChannelData(c);
+      for (let i = 0; i < len; i++)
+        d[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / len, 2);
+    }
+    const cv = this.ctx.createConvolver();
+    cv.buffer = buf;
+    return cv;
+  }
+
+  tone(freq, dur, vol = 0.15, type = 'sine', attack = 0.01, decay = 0.1) {
+    if (!this.ctx || this.ctx.state !== 'running') return;
+    const t = this.ctx.currentTime;
+    const osc = this.ctx.createOscillator();
+    const env = this.ctx.createGain();
+    osc.type = type;
+    osc.frequency.value = freq;
+    osc.connect(env);
+    env.connect(this.sfxGain);
+    env.connect(this.reverb);
+    env.gain.setValueAtTime(0, t);
+    env.gain.linearRampToValueAtTime(vol, t + attack);
+    env.gain.exponentialRampToValueAtTime(0.001, t + dur);
+    osc.start(t); osc.stop(t + dur + 0.05);
+  }
+
+  fm(carrier, ratio, idx, dur, vol = 0.15) {
+    if (!this.ctx || this.ctx.state !== 'running') return;
+    const t = this.ctx.currentTime;
+    const mod = this.ctx.createOscillator();
+    const modGain = this.ctx.createGain();
+    const car = this.ctx.createOscillator();
+    const env = this.ctx.createGain();
+    mod.frequency.value = carrier * ratio;
+    modGain.gain.value = carrier * idx;
+    car.frequency.value = carrier;
+    mod.connect(modGain); modGain.connect(car.frequency);
+    car.connect(env); env.connect(this.sfxGain); env.connect(this.reverb);
+    env.gain.setValueAtTime(0, t);
+    env.gain.linearRampToValueAtTime(vol, t + 0.01);
+    env.gain.exponentialRampToValueAtTime(0.001, t + dur);
+    mod.start(t); car.start(t); mod.stop(t + dur); car.stop(t + dur);
+  }
+
+  noise(dur, vol = 0.05, lp = 800) {
+    if (!this.ctx || this.ctx.state !== 'running') return;
+    const t = this.ctx.currentTime;
+    const len = Math.ceil(this.ctx.sampleRate * dur);
+    const buf = this.ctx.createBuffer(1, len, this.ctx.sampleRate);
+    const d = buf.getChannelData(0);
+    for (let i = 0; i < len; i++) d[i] = Math.random() * 2 - 1;
+    const src = this.ctx.createBufferSource();
+    src.buffer = buf;
+    const flt = this.ctx.createBiquadFilter();
+    flt.type = 'lowpass'; flt.frequency.value = lp;
+    const env = this.ctx.createGain();
+    src.connect(flt); flt.connect(env); env.connect(this.sfxGain);
+    env.gain.setValueAtTime(vol, t);
+    env.gain.exponentialRampToValueAtTime(0.001, t + dur);
+    src.start(t); src.stop(t + dur);
+  }
+
+  sfx(name) {
+    switch(name) {
+      case 'click':    this.tone(660, 0.08, 0.2, 'triangle', 0.005, 0.08); break;
+      case 'cursor':   this.tone(220, 0.06, 0.08, 'sine'); break;
+      case 'choice':   this.fm(330, 2, 1, 0.15, 0.2); break;
+      case 'horror':   this.fm(55, 0.5, 8, 2, 0.4); this.noise(2, 0.06, 300); break;
+      case 'door':     this.noise(0.4, 0.15, 200); this.fm(80, 1, 3, 0.4, 0.2); break;
+      case 'scream':   
+        [440,550,330,660].forEach((f,i) => setTimeout(() => this.fm(f, 0.3+Math.random()*0.5, 8+i, 0.4+i*0.1, 0.3), i*80));
+        this.noise(1.5, 0.08, 2000); break;
+      case 'thunder':  this.noise(1.5, 0.25, 150); setTimeout(() => this.noise(0.8, 0.15, 100), 200); break;
+      case 'heartbeat': 
+        this.tone(60, 0.15, 0.3, 'sawtooth');
+        setTimeout(() => this.tone(50, 0.1, 0.25, 'sawtooth'), 200); break;
+      case 'reveal':   [220,277,330,415].forEach((f,i) => setTimeout(() => this.fm(f, 1, 2, 0.8, 0.12), i*100)); break;
+      case 'chapter':  this.tone(440, 2, 0.15, 'sine'); this.tone(550, 1.5, 0.08, 'sine'); break;
+      case 'good_end': [261,329,392,523].forEach((f,i)=>setTimeout(()=>this.fm(f,2,0.5,1.5,0.15),i*200)); break;
+      case 'bad_end':  [220,196,174,155].forEach((f,i)=>setTimeout(()=>this.fm(f,2,3,1.5,0.2),i*300)); break;
+      case 'blizzard': this.noise(3, 0.04, 600); this.noise(2, 0.02, 1200); break;
+      case 'fire':     this.noise(0.8, 0.06, 400); this.noise(0.5, 0.03, 800); break;
+    }
+  }
+
+  startBgm(theme) {
+    if (this.currentTheme === theme) return;
+    this.stopBgm();
+    this.currentTheme = theme;
+    const themes = {
+      blizzard: () => this.bgmBlizzard(),
+      tension: () => this.bgmTension(),
+      horror: () => this.bgmHorror(),
+      investigation: () => this.bgmInvestigation(),
+      revelation: () => this.bgmRevelation(),
+    };
+    if (themes[theme]) themes[theme]();
+  }
+
+  stopBgm() {
+    clearTimeout(this.bgmTimer);
+    clearTimeout(this.ambTimer);
+    this.bgmStep = 0;
+    this.currentTheme = null;
+  }
+
+  bgmBlizzard() {
+    // Drone + occasional melody
+    const bass = [55, 41.2, 43.65, 49];
+    const play = () => {
+      if (this.currentTheme !== 'blizzard') return;
+      const i = this.bgmStep;
+      const b = bass[Math.floor(i/4)%bass.length];
+      if (i%4===0) this.fm(b, 1, 0.3, 2.8, 0.35);
+      if (i%8===0) [b*2, b*2.5, b*3].forEach((f,j)=>setTimeout(()=>this.fm(f,3,0.1,1.5,0.06),j*100));
+      if (Math.random()>0.75) this.fm(440+Math.random()*200, 3, 0.2, 1.2, 0.03);
+      if (i%16===0) this.noise(2.5, 0.025, 500); // wind
+      this.bgmStep++;
+      this.bgmTimer = setTimeout(play, 700);
+    };
+    play();
+  }
+
+  bgmTension() {
+    const notes = [55, 58.27, 61.74, 65.41];
+    const play = () => {
+      if (this.currentTheme !== 'tension') return;
+      const i = this.bgmStep;
+      const n = notes[i%notes.length];
+      this.fm(n, 0.4, 4, 0.6, 0.2);
+      if (i%3===0) this.fm(n*2, 2, 1, 0.4, 0.08);
+      if (i%8===0) this.noise(0.3, 0.04, 300);
+      this.bgmStep++;
+      this.bgmTimer = setTimeout(play, 450);
+    };
+    play();
+  }
+
+  bgmHorror() {
+    const play = () => {
+      if (this.currentTheme !== 'horror') return;
+      const i = this.bgmStep;
+      if (i%2===0) this.fm(40+Math.random()*10, 0.5+Math.random(), 8+Math.random()*5, 1.5, 0.3);
+      if (i%4===0) this.noise(1, 0.04, 200);
+      if (Math.random()>0.8) this.fm(80+Math.random()*40, 3, 12, 0.8, 0.08);
+      this.bgmStep++;
+      this.bgmTimer = setTimeout(play, 800);
+    };
+    play();
+  }
+
+  bgmInvestigation() {
+    const mel = [329.63, 369.99, 329.63, 293.66, 261.63, 293.66, 329.63, 0];
+    const play = () => {
+      if (this.currentTheme !== 'investigation') return;
+      const i = this.bgmStep;
+      const f = mel[i%mel.length];
+      if (f > 0) this.fm(f, 1.2, 0.5, 1.5, 0.1);
+      if (i%4===0) this.fm(110, 2, 0.2, 2, 0.12);
+      this.bgmStep++;
+      this.bgmTimer = setTimeout(play, 600);
+    };
+    play();
+  }
+
+  bgmRevelation() {
+    const ch = [[261,329,392],[294,370,440],[246,311,369],[220,277,330]];
+    const play = () => {
+      if (this.currentTheme !== 'revelation') return;
+      const chord = ch[this.bgmStep%ch.length];
+      chord.forEach((f,i)=>setTimeout(()=>this.fm(f,3,0.3,2.5,0.12),i*50));
+      if (this.bgmStep%2===0) this.fm(chord[0]/2, 4, 0.1, 3, 0.2);
+      this.bgmStep++;
+      this.bgmTimer = setTimeout(play, 2000);
+    };
+    play();
+  }
+}
+
+/* =============================================
+   SNOW SYSTEM
+   ============================================= */
+class SnowSystem {
+  constructor(canvas) {
+    this.canvas = canvas;
+    this.ctx = canvas.getContext('2d');
+    this.flakes = [];
+    this.intensity = 1;
+    this.running = false;
+    this.raf = null;
+  }
+
+  resize() {
+    this.canvas.width = this.canvas.offsetWidth;
+    this.canvas.height = this.canvas.offsetHeight;
+  }
+
+  spawn() {
+    const n = Math.floor(60 * this.intensity);
+    while (this.flakes.length < n) {
+      this.flakes.push({
+        x: Math.random() * this.canvas.width,
+        y: Math.random() * this.canvas.height,
+        r: Math.random() * 2.5 + 0.5,
+        sx: (Math.random() - 0.3) * 1.5,
+        sy: Math.random() * 1.5 + 0.5,
+        o: Math.random() * 0.6 + 0.1,
+        wo: Math.random() * Math.PI * 2,
+        ws: Math.random() * 0.03 + 0.01,
+      });
+    }
+    // trim
+    while (this.flakes.length > n) this.flakes.pop();
+  }
+
+  start(intensity = 1) {
+    this.intensity = intensity;
+    this.running = true;
+    this.spawn();
+    this.loop();
+  }
+
+  setIntensity(v) {
+    this.intensity = v;
+    this.spawn();
+  }
+
+  stop() { this.running = false; cancelAnimationFrame(this.raf); }
+
+  loop() {
+    if (!this.running) return;
+    const w = this.canvas.width, h = this.canvas.height;
+    this.ctx.clearRect(0, 0, w, h);
+    this.ctx.fillStyle = 'rgba(220,235,248,0.9)';
+    for (const f of this.flakes) {
+      f.wo += f.ws;
+      f.x += f.sx + Math.sin(f.wo) * 0.4;
+      f.y += f.sy;
+      if (f.y > h + 5) { f.y = -5; f.x = Math.random() * w; }
+      if (f.x > w + 5) f.x = -5;
+      if (f.x < -5) f.x = w + 5;
+      this.ctx.globalAlpha = f.o;
+      this.ctx.beginPath();
+      this.ctx.arc(f.x, f.y, f.r, 0, Math.PI * 2);
+      this.ctx.fill();
+    }
+    this.ctx.globalAlpha = 1;
+    this.raf = requestAnimationFrame(() => this.loop());
+  }
+}
+
+/* =============================================
+   SCENE PAINTER (canvas-based backgrounds)
+   ============================================= */
+class ScenePainter {
+  constructor(canvas) {
+    this.canvas = canvas;
+    this.ctx = canvas.getContext('2d');
+  }
+
+  resize(w, h) {
+    this.canvas.width = w;
+    this.canvas.height = h;
+  }
+
+  clear() { this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height); }
+
+  paintExterior(timeOfDay = 'night') {
+    const {ctx, canvas: {width: w, height: h}} = this;
+    // Sky
+    const sky = ctx.createLinearGradient(0, 0, 0, h);
+    sky.addColorStop(0, '#040810');
+    sky.addColorStop(0.5, '#0a1525');
+    sky.addColorStop(1, '#1a2540');
+    ctx.fillStyle = sky; ctx.fillRect(0, 0, w, h);
+    // Moon
+    ctx.save();
+    ctx.shadowBlur = 40; ctx.shadowColor = 'rgba(200,220,255,0.8)';
+    ctx.fillStyle = '#d8e8f5';
+    ctx.beginPath(); ctx.arc(w*0.75, h*0.15, 28, 0, Math.PI*2); ctx.fill();
+    ctx.restore();
+    // Stars
+    for (let i=0; i<120; i++) {
+      const sx=Math.random()*w, sy=Math.random()*h*0.5;
+      ctx.fillStyle=`rgba(255,255,255,${Math.random()*0.6+0.1})`;
+      ctx.beginPath(); ctx.arc(sx, sy, Math.random()*1.2, 0, Math.PI*2); ctx.fill();
+    }
+    // Far mountains
+    ctx.fillStyle = '#0d1520';
+    this.mountain(ctx, 0, h, [[0,h],[200,h*0.25],[450,h],[600,h*0.18],[850,h],[1000,h*0.28],[w+50,h]]);
+    // Snow on mountains
+    ctx.fillStyle = 'rgba(200,220,240,0.15)';
+    this.mountain(ctx, 0, h*0.26, [[200,h*0.25],[240,h*0.35],[160,h*0.35]]);
+    this.mountain(ctx, 0, h*0.19, [[600,h*0.18],[650,h*0.28],[540,h*0.28]]);
+    // Mid mountains
+    ctx.fillStyle = '#1a2436';
+    this.mountain(ctx, 0, h, [[0,h],[100,h*0.45],[300,h*0.5],[500,h*0.38],[700,h*0.48],[900,h*0.36],[w+50,h]]);
+    // Snow ground
+    const ground = ctx.createLinearGradient(0, h*0.7, 0, h);
+    ground.addColorStop(0, '#1e2d42');
+    ground.addColorStop(1, '#253347');
+    ctx.fillStyle = ground;
+    ctx.beginPath();
+    ctx.moveTo(0, h*0.72);
+    ctx.bezierCurveTo(w*0.2, h*0.68, w*0.4, h*0.74, w*0.6, h*0.70);
+    ctx.bezierCurveTo(w*0.8, h*0.66, w*0.95, h*0.72, w, h*0.70);
+    ctx.lineTo(w, h); ctx.lineTo(0, h); ctx.closePath(); ctx.fill();
+    // Lodge silhouette
+    this.drawLodge(ctx, w*0.35, h*0.42, 280, 200);
+    // Warm glow from windows
+    for (const [wx, wy] of [[w*0.42, h*0.62],[w*0.55, h*0.62],[w*0.48, h*0.54]]) {
+      const glow = ctx.createRadialGradient(wx, wy, 0, wx, wy, 60);
+      glow.addColorStop(0, 'rgba(245,200,66,0.25)');
+      glow.addColorStop(1, 'transparent');
+      ctx.fillStyle = glow; ctx.fillRect(wx-70, wy-70, 140, 140);
+    }
+    // Path to lodge
+    ctx.strokeStyle = 'rgba(180,200,220,0.15)'; ctx.lineWidth = 3;
+    ctx.beginPath(); ctx.moveTo(w*0.5, h); ctx.quadraticCurveTo(w*0.5, h*0.8, w*0.5, h*0.72); ctx.stroke();
+  }
+
+  drawLodge(ctx, x, y, w, h) {
+    // Main body
+    ctx.fillStyle = '#1a1410';
+    ctx.fillRect(x, y+h*0.35, w, h*0.65);
+    // Roof
+    ctx.fillStyle = '#141010';
+    ctx.beginPath();
+    ctx.moveTo(x-15, y+h*0.37);
+    ctx.lineTo(x+w/2, y);
+    ctx.lineTo(x+w+15, y+h*0.37);
+    ctx.closePath(); ctx.fill();
+    // Snow on roof
+    ctx.fillStyle = 'rgba(200,220,240,0.3)';
+    ctx.beginPath();
+    ctx.moveTo(x+5, y+h*0.37);
+    ctx.lineTo(x+w/2, y+5);
+    ctx.lineTo(x+w-5, y+h*0.37);
+    ctx.lineTo(x+w-5, y+h*0.42);
+    ctx.lineTo(x+5, y+h*0.42);
+    ctx.closePath(); ctx.fill();
+    // Windows with light
+    const wins = [[x+w*0.12,y+h*0.55],[x+w*0.38,y+h*0.55],[x+w*0.62,y+h*0.55],[x+w*0.85,y+h*0.55]];
+    wins.forEach(([wx,wy], i) => {
+      const dim = i===1; // one dark window
+      ctx.fillStyle = dim ? '#0d0a06' : '#3d2a00';
+      ctx.fillRect(wx, wy, w*0.12, h*0.18);
+      if (!dim) {
+        const wg = ctx.createRadialGradient(wx+w*0.06, wy+h*0.09, 0, wx+w*0.06, wy+h*0.09, 40);
+        wg.addColorStop(0, 'rgba(245,200,66,0.4)');
+        wg.addColorStop(1, 'transparent');
+        ctx.fillStyle = wg; ctx.fillRect(wx-30, wy-30, w*0.12+60, h*0.18+60);
+      }
+    });
+    // Door
+    ctx.fillStyle = '#2a1f10';
+    ctx.fillRect(x+w*0.44, y+h*0.72, w*0.12, h*0.28);
+    // Chimney
+    ctx.fillStyle = '#1a1410'; ctx.strokeStyle = '#2a2020'; ctx.lineWidth = 0.5;
+    ctx.fillRect(x+w*0.68, y-h*0.08, w*0.08, h*0.15);
+    // Smoke puffs
+    for (let i=0; i<3; i++) {
+      ctx.fillStyle = `rgba(80,80,80,${0.15-i*0.04})`;
+      ctx.beginPath();
+      ctx.arc(x+w*0.72, y-h*0.08-i*12, 6+i*4, 0, Math.PI*2);
+      ctx.fill();
+    }
+  }
+
+  paintLobby() {
+    const {ctx, canvas: {width: w, height: h}} = this;
+    // Floor (wood)
+    const floor = ctx.createLinearGradient(0, h*0.65, 0, h);
+    floor.addColorStop(0, '#2a1f12'); floor.addColorStop(1, '#1a1208');
+    ctx.fillStyle = floor; ctx.fillRect(0, h*0.65, w, h*0.35);
+    // Wood planks
+    ctx.strokeStyle = 'rgba(0,0,0,0.3)'; ctx.lineWidth = 1;
+    for (let i=0; i<8; i++) {
+      const y2 = h*0.65 + i * h*0.35/8;
+      ctx.beginPath(); ctx.moveTo(0,y2); ctx.lineTo(w,y2); ctx.stroke();
+    }
+    // Walls
+    const wall = ctx.createLinearGradient(0, 0, 0, h*0.65);
+    wall.addColorStop(0, '#1c1510'); wall.addColorStop(1, '#2a1f12');
+    ctx.fillStyle = wall; ctx.fillRect(0, 0, w, h*0.65);
+    // Wainscoting
+    ctx.fillStyle = '#3a2a18';
+    ctx.fillRect(0, h*0.55, w, 8);
+    ctx.fillRect(0, h*0.38, w, 4);
+    // Fireplace
+    this.drawFireplace(ctx, w*0.4, h*0.15, w*0.2, h*0.5);
+    // Armchairs silhouettes
+    ctx.fillStyle = '#1a1008';
+    this.roundRect(ctx, w*0.08, h*0.55, w*0.15, h*0.15, 4); ctx.fill();
+    this.roundRect(ctx, w*0.77, h*0.55, w*0.15, h*0.15, 4); ctx.fill();
+    // Chandelier
+    ctx.strokeStyle = 'rgba(180,160,100,0.4)'; ctx.lineWidth = 1.5;
+    ctx.beginPath(); ctx.moveTo(w/2, 0); ctx.lineTo(w/2, h*0.15); ctx.stroke();
+    const cg = ctx.createRadialGradient(w/2, h*0.12, 0, w/2, h*0.12, h*0.15);
+    cg.addColorStop(0, 'rgba(245,200,66,0.2)');
+    cg.addColorStop(1, 'transparent');
+    ctx.fillStyle = cg; ctx.fillRect(0, 0, w, h*0.3);
+    // Portrait (suspicious)
+    ctx.fillStyle = '#1a1208'; ctx.strokeStyle = '#3a2a10'; ctx.lineWidth = 2;
+    ctx.fillRect(w*0.15, h*0.1, w*0.12, h*0.3); ctx.strokeRect(w*0.15, h*0.1, w*0.12, h*0.3);
+    ctx.fillRect(w*0.73, h*0.1, w*0.12, h*0.3); ctx.strokeRect(w*0.73, h*0.1, w*0.12, h*0.3);
+    // Staircase
+    ctx.fillStyle = '#2a1a08';
+    for (let i=0; i<6; i++) {
+      ctx.fillRect(w*0.78+i*12, h*0.35+i*18, w*0.2, 20);
+    }
+  }
+
+  drawFireplace(ctx, x, y, w, h) {
+    // Mantle
+    ctx.fillStyle = '#2a1f10';
+    ctx.fillRect(x-15, y, w+30, 12);
+    // Surround
+    ctx.fillStyle = '#1a1208';
+    ctx.fillRect(x, y, w, h);
+    // Opening
+    ctx.fillStyle = '#0a0806';
+    this.archRect(ctx, x+w*0.1, y+h*0.15, w*0.8, h*0.75);
+    // Fire
+    const flames = [
+      [x+w*0.3, y+h*0.9, 20, 60, 'rgba(245,130,10,'],
+      [x+w*0.5, y+h*0.9, 18, 70, 'rgba(245,160,20,'],
+      [x+w*0.7, y+h*0.9, 16, 50, 'rgba(220,80,10,'],
+    ];
+    flames.forEach(([fx,fy,fw,fh,col]) => {
+      const fg = ctx.createRadialGradient(fx, fy, 0, fx, fy-fh*0.5, fh);
+      fg.addColorStop(0, col+'0.95)');
+      fg.addColorStop(0.5, col+'0.6)');
+      fg.addColorStop(1, 'transparent');
+      ctx.fillStyle = fg;
+      ctx.beginPath();
+      ctx.ellipse(fx, fy-fh*0.3, fw, fh*0.7, 0, 0, Math.PI*2);
+      ctx.fill();
+    });
+    // Glow
+    const glow = ctx.createRadialGradient(x+w/2, y+h/2, 0, x+w/2, y+h/2, w*2);
+    glow.addColorStop(0, 'rgba(245,160,50,0.15)');
+    glow.addColorStop(1, 'transparent');
+    ctx.fillStyle = glow;
+    ctx.fillRect(x-w, y-h*0.5, w*4, h*2);
+  }
+
+  paintLibrary() {
+    const {ctx, canvas: {width: w, height: h}} = this;
+    // Dark atmosphere
+    const bg = ctx.createLinearGradient(0, 0, 0, h);
+    bg.addColorStop(0, '#0e0a06'); bg.addColorStop(1, '#1a1208');
+    ctx.fillStyle = bg; ctx.fillRect(0, 0, w, h);
+    // Bookshelves
+    ctx.fillStyle = '#1e1208';
+    ctx.fillRect(0, 0, w*0.25, h);
+    ctx.fillRect(w*0.75, 0, w*0.25, h);
+    // Books
+    const colors = ['#8b0000','#1a3a1a','#1a1a5a','#4a3000','#2a0a2a'];
+    for (let shelf=0; shelf<6; shelf++) {
+      const sy = shelf * h/6 + 10;
+      let bx = 8;
+      while (bx < w*0.23) {
+        const bw = Math.random()*12+8;
+        ctx.fillStyle = colors[Math.floor(Math.random()*colors.length)];
+        ctx.fillRect(bx, sy, bw-1, h/6-12);
+        bx += bw;
+      }
+      bx = w*0.77;
+      while (bx < w-8) {
+        const bw = Math.random()*12+8;
+        ctx.fillStyle = colors[Math.floor(Math.random()*colors.length)];
+        ctx.fillRect(bx, sy, bw-1, h/6-12);
+        bx += bw;
+      }
+    }
+    // Desk
+    ctx.fillStyle = '#2a1a08';
+    ctx.fillRect(w*0.3, h*0.55, w*0.4, 10);
+    ctx.fillRect(w*0.32, h*0.55, 8, h*0.45);
+    ctx.fillRect(w*0.66, h*0.55, 8, h*0.45);
+    // Lamp on desk
+    const lamp = ctx.createRadialGradient(w*0.5, h*0.45, 0, w*0.5, h*0.45, h*0.4);
+    lamp.addColorStop(0, 'rgba(245,200,66,0.25)');
+    lamp.addColorStop(1, 'transparent');
+    ctx.fillStyle = lamp; ctx.fillRect(0, 0, w, h);
+    // Papers on desk
+    ctx.fillStyle = '#e8e0c8'; ctx.globalAlpha = 0.7;
+    ctx.fillRect(w*0.38, h*0.47, w*0.12, h*0.07);
+    ctx.fillRect(w*0.44, h*0.46, w*0.1, h*0.08);
+    ctx.globalAlpha = 1;
+    // Suspicious stain
+    ctx.fillStyle = 'rgba(80,0,0,0.4)';
+    ctx.beginPath();
+    ctx.ellipse(w*0.38, h*0.63, 25, 12, 0.3, 0, Math.PI*2);
+    ctx.fill();
+  }
+
+  paintCellar() {
+    const {ctx, canvas: {width: w, height: h}} = this;
+    // Stone walls
+    const bg = ctx.createLinearGradient(0, 0, 0, h);
+    bg.addColorStop(0, '#080808'); bg.addColorStop(1, '#0d0d0d');
+    ctx.fillStyle = bg; ctx.fillRect(0, 0, w, h);
+    // Stone pattern
+    ctx.strokeStyle = 'rgba(40,35,30,0.8)'; ctx.lineWidth = 1.5;
+    for (let row=0; row<10; row++) {
+      const rh = h/10;
+      const off = row%2===0 ? 0 : w*0.1;
+      for (let col=-1; col<12; col++) {
+        const cw = w*0.1;
+        ctx.strokeRect(off+col*cw, row*rh+2, cw-2, rh-4);
+        // Stone texture
+        ctx.fillStyle = `rgba(${20+Math.random()*10},${18+Math.random()*8},${15+Math.random()*8},0.5)`;
+        ctx.fillRect(off+col*cw+2, row*rh+4, cw-6, rh-8);
+      }
+    }
+    // Dripping water
+    for (let i=0; i<5; i++) {
+      ctx.strokeStyle = 'rgba(100,120,140,0.2)'; ctx.lineWidth = 1;
+      ctx.beginPath();
+      ctx.moveTo(w*0.1+i*w*0.2, 0);
+      ctx.lineTo(w*0.1+i*w*0.2+Math.random()*20-10, h*0.4);
+      ctx.stroke();
+    }
+    // Bloody trail
+    ctx.strokeStyle = 'rgba(100,0,0,0.6)'; ctx.lineWidth = 3;
+    ctx.lineCap = 'round';
+    ctx.beginPath();
+    ctx.moveTo(w*0.5, 0);
+    ctx.bezierCurveTo(w*0.52, h*0.2, w*0.48, h*0.4, w*0.5, h*0.5);
+    ctx.stroke();
+    // Blood drops
+    for (let i=0; i<8; i++) {
+      ctx.fillStyle = 'rgba(120,0,0,0.5)';
+      ctx.beginPath();
+      ctx.arc(w*0.5+Math.random()*30-15, h*(0.1+i*0.06), 3+Math.random()*3, 0, Math.PI*2);
+      ctx.fill();
+    }
+    // Dim lantern
+    const ln = ctx.createRadialGradient(w*0.2, h*0.3, 0, w*0.2, h*0.3, h*0.5);
+    ln.addColorStop(0, 'rgba(200,140,40,0.2)');
+    ln.addColorStop(1, 'transparent');
+    ctx.fillStyle = ln; ctx.fillRect(0, 0, w, h);
+    // Barrels
+    ctx.fillStyle = '#2a1a08'; ctx.strokeStyle = '#1a1005'; ctx.lineWidth = 1;
+    [w*0.1, w*0.8].forEach(bx => {
+      ctx.beginPath(); ctx.ellipse(bx, h*0.65, 30, 40, 0, 0, Math.PI*2); ctx.fill(); ctx.stroke();
+    });
+    // Locked door
+    ctx.fillStyle = '#2a1a08'; ctx.strokeStyle = '#1a0f05'; ctx.lineWidth = 2;
+    ctx.fillRect(w*0.38, h*0.1, w*0.24, h*0.5); ctx.strokeRect(w*0.38, h*0.1, w*0.24, h*0.5);
+    ctx.fillStyle = '#3a2a10';
+    ctx.fillRect(w*0.48, h*0.32, w*0.04, w*0.04); // keyhole
+  }
+
+  paintGuestRoom(bloodStain = false) {
+    const {ctx, canvas: {width: w, height: h}} = this;
+    const bg = ctx.createLinearGradient(0, 0, 0, h);
+    bg.addColorStop(0, '#0f0c08'); bg.addColorStop(1, '#18140e');
+    ctx.fillStyle = bg; ctx.fillRect(0, 0, w, h);
+    // Wallpaper (faded pattern)
+    ctx.strokeStyle = 'rgba(60,50,30,0.2)'; ctx.lineWidth = 1;
+    for (let x=0; x<w; x+=30) for (let y=0; y<h; y+=30) {
+      ctx.beginPath(); ctx.arc(x,y,4,0,Math.PI*2); ctx.stroke();
+    }
+    // Bed
+    ctx.fillStyle = '#2a2010';
+    ctx.fillRect(w*0.2, h*0.35, w*0.6, h*0.35);
+    ctx.fillStyle = '#3a3025';
+    ctx.fillRect(w*0.2, h*0.32, w*0.6, h*0.1);
+    // Pillow
+    ctx.fillStyle = '#e0d8c0'; ctx.globalAlpha = 0.6;
+    ctx.fillRect(w*0.27, h*0.34, w*0.18, h*0.07);
+    ctx.fillRect(w*0.55, h*0.34, w*0.18, h*0.07);
+    ctx.globalAlpha = 1;
+    // Blood
+    if (bloodStain) {
+      ctx.fillStyle = 'rgba(120,0,0,0.7)';
+      ctx.beginPath();
+      ctx.ellipse(w*0.38, h*0.42, 50, 30, -0.3, 0, Math.PI*2); ctx.fill();
+      ctx.ellipse(w*0.42, h*0.46, 30, 15, 0.5, 0, Math.PI*2); ctx.fill();
+      // Spatter
+      for (let i=0; i<12; i++) {
+        ctx.beginPath();
+        ctx.arc(w*0.3+Math.random()*w*0.4, h*0.3+Math.random()*h*0.3, Math.random()*4+1, 0, Math.PI*2);
+        ctx.fill();
+      }
+      // Knife
+      ctx.strokeStyle = 'rgba(180,180,200,0.6)'; ctx.lineWidth = 3; ctx.lineCap='round';
+      ctx.beginPath(); ctx.moveTo(w*0.57, h*0.48); ctx.lineTo(w*0.65, h*0.38); ctx.stroke();
+    }
+    // Nightstand
+    ctx.fillStyle = '#2a1a08';
+    ctx.fillRect(w*0.07, h*0.45, w*0.1, h*0.25);
+    // Candle
+    ctx.fillStyle = '#e8d8a0'; ctx.globalAlpha = 0.8;
+    ctx.fillRect(w*0.11, h*0.38, 6, h*0.08);
+    ctx.globalAlpha = 1;
+    const cg = ctx.createRadialGradient(w*0.114, h*0.38, 0, w*0.114, h*0.38, 60);
+    cg.addColorStop(0, 'rgba(245,200,66,0.2)');
+    cg.addColorStop(1, 'transparent');
+    ctx.fillStyle = cg; ctx.fillRect(w*0.08-55, h*0.3-55, 130, 130);
+    // Window
+    ctx.fillStyle = '#0a1525';
+    ctx.fillRect(w*0.78, h*0.08, w*0.14, h*0.3);
+    ctx.strokeStyle = '#3a2a10'; ctx.lineWidth = 3;
+    ctx.strokeRect(w*0.78, h*0.08, w*0.14, h*0.3);
+    // Blizzard outside window
+    const wg2 = ctx.createLinearGradient(w*0.78, h*0.08, w*0.92, h*0.38);
+    wg2.addColorStop(0, 'rgba(168,196,212,0.05)');
+    wg2.addColorStop(1, 'rgba(168,196,212,0.02)');
+    ctx.fillStyle = wg2; ctx.fillRect(w*0.79, h*0.09, w*0.12, h*0.28);
+  }
+
+  mountain(ctx, x, y, points) {
+    ctx.beginPath();
+    ctx.moveTo(points[0][0], points[0][1]);
+    points.slice(1).forEach(([px,py]) => ctx.lineTo(px, py));
+    ctx.closePath(); ctx.fill();
+  }
+
+  archRect(ctx, x, y, w, h) {
+    ctx.beginPath();
+    ctx.moveTo(x, y+h);
+    ctx.lineTo(x, y+h*0.3);
+    ctx.arc(x+w/2, y+h*0.3, w/2, Math.PI, 0);
+    ctx.lineTo(x+w, y+h);
+    ctx.closePath(); ctx.fill();
+  }
+
+  roundRect(ctx, x, y, w, h, r) {
+    ctx.beginPath();
+    ctx.roundRect(x, y, w, h, r);
+  }
+}
+
+/* =============================================
+   PARTICLE SYSTEM
+   ============================================= */
+class ParticleSystem {
+  constructor(canvas) {
+    this.canvas = canvas;
+    this.ctx = canvas.getContext('2d');
+    this.particles = [];
+    this.raf = null;
+    this.running = false;
+  }
+  resize() {
+    this.canvas.width = this.canvas.offsetWidth;
+    this.canvas.height = this.canvas.offsetHeight;
+  }
+  emit(type, x, y, count = 20) {
+    for (let i=0; i<count; i++) {
+      const angle = Math.random() * Math.PI * 2;
+      const speed = Math.random() * 3 + 1;
+      this.particles.push({
+        x: x || this.canvas.width/2,
+        y: y || this.canvas.height/2,
+        vx: Math.cos(angle) * speed,
+        vy: Math.sin(angle) * speed - 2,
+        life: 1,
+        decay: Math.random() * 0.02 + 0.01,
+        size: Math.random() * 4 + 2,
+        color: type === 'blood' ? `rgba(${120+Math.random()*40},0,0,` :
+               type === 'spark' ? `rgba(255,${150+Math.random()*100},0,` :
+               `rgba(200,220,240,`,
+        gravity: type === 'blood' ? 0.15 : type === 'spark' ? -0.05 : 0.05,
+      });
+    }
+    if (!this.running) this.start();
+  }
+  start() {
+    this.running = true;
+    this.loop();
+  }
+  stop() {
+    this.running = false;
+    cancelAnimationFrame(this.raf);
+  }
+  loop() {
+    if (!this.running) return;
+    this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+    this.particles = this.particles.filter(p => p.life > 0);
+    if (this.particles.length === 0) { this.running = false; return; }
+    for (const p of this.particles) {
+      p.x += p.vx; p.y += p.vy; p.vy += p.gravity; p.life -= p.decay;
+      this.ctx.fillStyle = p.color + Math.max(0, p.life) + ')';
+      this.ctx.beginPath();
+      this.ctx.arc(p.x, p.y, p.size * p.life, 0, Math.PI * 2);
+      this.ctx.fill();
+    }
+    this.raf = requestAnimationFrame(() => this.loop());
+  }
+}
+
+/* =============================================
+   SCENARIO DATA
+   ============================================= */
+const SCENARIO = {
+  /* ─── PROLOGUE ─── */
+  intro_1: {
+    chapter: '序章 ── 吹雪の夜',
+    bg: 'exterior', bgColor: '#020a1a', bgm: 'blizzard', snow: 2,
+    speaker: null,
+    text: '一九三八年、十二月。\n満月の夜、北アルプスを縦断する猛吹雪が、世界を白一色に塗り込んでいた。',
+    next: 'intro_2'
+  },
+  intro_2: {
+    bg: 'exterior', bgColor: '#020a1a', bgm: 'blizzard', snow: 2,
+    speaker: '???',
+    text: '「……助かった。まさかこんな山の中に山荘があるとは」',
+    sfx: 'blizzard',
+    next: 'intro_3'
+  },
+  intro_3: {
+    bg: 'exterior', bgColor: '#020a1a', bgm: 'blizzard', snow: 2,
+    speaker: null,
+    text: '凍てつく扉を押し開ける。石造りの洋館が、雪嵐の中で凶兆のように屹立していた。\n扉の向こうから、暖炉の炎と、何か甘ったるい香りが漏れてくる。',
+    sfx: 'door',
+    next: 'lobby_enter'
+  },
+
+  /* ─── 第一章 ─── */
+  lobby_enter: {
+    chapter: '第一章 ── 閉ざされた山荘',
+    bg: 'lobby', bgColor: '#0a0806', bgm: 'blizzard', snow: 0.3,
+    speaker: null,
+    text: 'ロビーは広く、重厚な木の梁が天井を支えている。\n暖炉では橙色の炎が揺れ、その周囲に五人の人影があった。',
+    next: 'lobby_people'
+  },
+  lobby_people: {
+    bg: 'lobby', bgColor: '#0a0806', bgm: 'blizzard',
+    speaker: null,
+    text: '医師の有沢敬一。\n小説家の桐島玲子。\n実業家の神崎道彦と、その令嬢・神崎澄江。\nそして無口な使用人、老いた館の執事・重蔵。',
+    next: 'lobby_kasaki_intro'
+  },
+  lobby_kasaki_intro: {
+    bg: 'lobby', bgColor: '#0a0806', bgm: 'blizzard',
+    speaker: '神崎道彦',
+    text: '「ほう、また迷い込んだ客人か。この吹雪では仕方あるまい。\nどうぞゆっくりしていってくれ──もっとも、この雪が止むまでは\n誰も出られんがね」',
+    next: 'lobby_jyuzo'
+  },
+  lobby_jyuzo: {
+    bg: 'lobby', bgColor: '#0a0806', bgm: 'blizzard',
+    speaker: '重蔵',
+    text: '「……ご主人様。本日のお食事の準備が整いました」\n老人は振り向きもせず、重い足取りで廊下の奥に消えた。',
+    next: 'lobby_choice'
+  },
+  lobby_choice: {
+    bg: 'lobby', bgColor: '#0a0806', bgm: 'blizzard',
+    speaker: null,
+    text: '夕食前、わずかな時間がある。どこへ向かう？',
+    choices: [
+      { text: '桐島玲子と話す（小説家）', next: 'talk_kiriko', label: '' },
+      { text: '図書室で情報を集める', next: 'library_explore', label: '' },
+      { text: '自室に荷物を置く', next: 'guestroom_arrive', label: '' },
+    ]
+  },
+
+  talk_kiriko: {
+    bg: 'lobby', bgColor: '#0a0806', bgm: 'blizzard',
+    speaker: '桐島玲子',
+    text: '「ああ、あなたも閉じ込められた口ですか。\n……実はわたし、この山荘に呼び出されたんです。神崎氏から手紙で。\n内容は──〝遺産相続について、密かに話し合いたい〟と」',
+    next: 'kiriko_2'
+  },
+  kiriko_2: {
+    bg: 'lobby', bgColor: '#0a0806', bgm: 'blizzard',
+    speaker: '桐島玲子',
+    text: '「奇妙でしょう？ わたしは神崎氏とは他人同然なのに。\nそれとも……この山荘には、まだ誰か、わたしの知らない秘密が眠っているのかもしれません」',
+    sfx: 'click',
+    next: 'lobby_choice_back'
+  },
+
+  library_explore: {
+    chapter: null,
+    bg: 'library', bgColor: '#0e0a06', bgm: 'investigation',
+    speaker: null,
+    text: '図書室の棚に、一冊の古い日誌を見つけた。\n筆跡は神崎道彦のものだ。最後のページには──\n「Kが知ってしまった。あれを消さねばならない」',
+    sfx: 'reveal',
+    next: 'library_2'
+  },
+  library_2: {
+    bg: 'library', bgColor: '#0e0a06', bgm: 'investigation',
+    speaker: null,
+    text: 'K──桐島玲子のことか？\nページを捲ると、更に一行。\n\n「もし私が死んでいたなら、それは──」\n\nそこで日誌は破り取られていた。',
+    next: 'lobby_choice_back'
+  },
+
+  guestroom_arrive: {
+    bg: 'guestroom', bgColor: '#0f0c08', bgm: 'blizzard',
+    speaker: null,
+    text: '割り当てられた客室は二階の角部屋だった。\n窓の外は吹雪。内側から鍵を確かめると、しっかり施錠できる。\nだが、床に何かが落ちている。',
+    next: 'guestroom_clue'
+  },
+  guestroom_clue: {
+    bg: 'guestroom', bgColor: '#0f0c08', bgm: 'blizzard',
+    speaker: null,
+    text: '……血痕だ。まだ乾いていない、鮮やかな紅。\n誰かがついさっき、ここにいたのか？',
+    sfx: 'horror',
+    next: 'lobby_choice_back'
+  },
+
+  lobby_choice_back: {
+    bg: 'lobby', bgColor: '#0a0806', bgm: 'blizzard',
+    speaker: '重蔵',
+    text: '「……夕食の用意ができました。皆様、食堂にお集まりください」\n\n静まり返ったロビーに、鐘の音が一度、響いた。',
+    sfx: 'door',
+    next: 'dinner_scene'
+  },
+
+  /* ─── 第二章 ─── */
+  dinner_scene: {
+    chapter: '第二章 ── 宴の終わり',
+    bg: 'library', bgColor: '#0a0806', bgm: 'tension',
+    speaker: null,
+    text: '食堂での夕食は、奇妙な緊張に包まれていた。\n神崎道彦はほとんど食べず、ワインを一人でどんどん空けていく。',
+    next: 'dinner_kasaki_speaks'
+  },
+  dinner_kasaki_speaks: {
+    bg: 'library', bgColor: '#0a0806', bgm: 'tension',
+    speaker: '神崎道彦',
+    text: '「皆さん、今夜は特別な宣言をしようと思っていた。\n遺産についてだ。しかし……どうやら、その必要はなくなりそうだ」',
+    next: 'dinner_silence'
+  },
+  dinner_silence: {
+    bg: 'library', bgColor: '#0a0806', bgm: 'tension',
+    speaker: null,
+    text: '誰もが視線を落とす。重蔵だけが、暗い目でどこかを見つめていた。\n食事が終わり、各自が部屋へ引き上げる。\n\n深夜、轟音のような悲鳴が山荘を揺るがした。',
+    sfx: 'scream',
+    next: 'scream_scene'
+  },
+  scream_scene: {
+    bg: 'guestroom_blood', bgColor: '#0a0202', bgm: 'horror', snow: 0.5,
+    speaker: null,
+    text: '神崎道彦の客室。\n扉を蹴破って飛び込んだ我々が見たのは──\nベッドに倒れた神崎道彦の遺体。\n胸に深々と突き立てられた、一本のナイフ。',
+    sfx: 'horror',
+    next: 'scream_arisawa'
+  },
+  scream_arisawa: {
+    bg: 'guestroom_blood', bgColor: '#0a0202', bgm: 'horror',
+    speaker: '有沢敬一',
+    text: '「……死後三十分以内だ。まだ体温がある。\n凶器は客室にあったペーパーナイフ──いや、待て。\nこれは……館に元からあったものじゃない」',
+    next: 'scream_澄江'
+  },
+  'scream_澄江': {
+    bg: 'guestroom_blood', bgColor: '#0a0202', bgm: 'horror',
+    speaker: '神崎澄江',
+    text: '「お父様……！ お父様、なぜ……っ」\n澄江は泣き崩れた。その手に、白いハンカチが握られている。\n──赤く、染まったハンカチが。',
+    sfx: 'heartbeat',
+    next: 'investigation_choice'
+  },
+
+  /* ─── 第三章 ─── */
+  investigation_choice: {
+    chapter: '第三章 ── 探偵の眼',
+    bg: 'library', bgColor: '#0e0a06', bgm: 'investigation',
+    speaker: null,
+    text: '犯人はこの山荘の誰かだ。吹雪で外部の侵入は不可能。\n捜査する手がかりを選べ。',
+    choices: [
+      { text: '有沢敬一を問い詰める（医師）', next: 'suspect_arisawa', label: '' },
+      { text: '桐島玲子の部屋を調べる', next: 'suspect_kiriko', label: '' },
+      { text: '地下室を調べる', next: 'cellar_scene', label: 'danger' },
+    ]
+  },
+
+  suspect_arisawa: {
+    bg: 'library', bgColor: '#0e0a06', bgm: 'investigation',
+    speaker: '有沢敬一',
+    text: '「私を疑っているのか？ 確かに神崎氏とは十年前に訴訟沙汰になった。\nだが、あれは解決済みだ。\n……ただ、一つ言わせてくれ。凶器に付いていた指紋──私のものじゃない」',
+    next: 'arisawa_2'
+  },
+  arisawa_2: {
+    bg: 'library', bgColor: '#0e0a06', bgm: 'investigation',
+    speaker: '有沢敬一',
+    text: '「あのナイフには、細かい引っかき傷がある。\n長い爪で掴んだような痕だ。\n──君、澄江さんの爪を見てみろ」',
+    sfx: 'reveal',
+    next: 'investigation_choice_2'
+  },
+
+  suspect_kiriko: {
+    bg: 'library', bgColor: '#0e0a06', bgm: 'investigation',
+    speaker: '桐島玲子',
+    text: '「部屋を調べたいなら、どうぞ。隠すものはありません。\n……ただ、一つだけ。\n夕食前、神崎氏から封筒を受け取りました。開けていない」',
+    next: 'kiriko_letter'
+  },
+  kiriko_letter: {
+    bg: 'library', bgColor: '#0e0a06', bgm: 'investigation',
+    speaker: null,
+    text: '封筒の中には、一枚の証書。\n神崎道彦の署名入りの──\n遺産の八割を桐島玲子へ譲渡する、という内容だった。',
+    sfx: 'reveal',
+    next: 'investigation_choice_2'
+  },
+
+  cellar_scene: {
+    bg: 'cellar', bgColor: '#050505', bgm: 'horror', snow: 0,
+    speaker: null,
+    text: '地下への階段を降りると、石造りの廊下が続いていた。\n壁には赤い染みが点々と続き、奥の扉の前で途切れている。',
+    sfx: 'horror',
+    next: 'cellar_2'
+  },
+  cellar_2: {
+    bg: 'cellar', bgColor: '#050505', bgm: 'horror',
+    speaker: null,
+    text: '扉のノブに、重蔵の持ち物と思しき鍵束が下がっていた。\n扉を開けると──冷たい空気と共に、縛られた人影が現れる。\n……重蔵だ。猿轡をされ、床に転がっていた。',
+    sfx: 'door',
+    next: 'cellar_jyuzo'
+  },
+  cellar_jyuzo: {
+    bg: 'cellar', bgColor: '#050505', bgm: 'horror',
+    speaker: '重蔵',
+    text: '「……やっと来てくれた。犯人は……澄江お嬢様だ。\n私は夕食前に気付いてしまった。お嬢様がご主人様の薬に何かを混ぜているのを」',
+    next: 'cellar_jyuzo_2'
+  },
+  cellar_jyuzo_2: {
+    bg: 'cellar', bgColor: '#050505', bgm: 'horror',
+    speaker: '重蔵',
+    text: '「それで口封じに……ここへ閉じ込められた。\nお嬢様は遺産が欲しかった。しかし遺産は桐島様へ渡る──\nそれを知って、激情に駆られたのでしょう」',
+    sfx: 'reveal',
+    next: 'investigation_choice_2'
+  },
+
+  investigation_choice_2: {
+    bg: 'library', bgColor: '#0e0a06', bgm: 'investigation',
+    speaker: null,
+    text: '手がかりが揃いつつある。\nだが、犯人を断定するには、もう一つの証拠が必要だ。',
+    choices: [
+      { text: '澄江を直接問い詰める', next: 'confront_澄江', label: 'danger' },
+      { text: '重蔵の証言を他者に確認する', next: 'confirm_testimony', label: '' },
+      { text: '神崎氏の遺体を再調査する', next: 'reexamine_body', label: '' },
+    ]
+  },
+
+  'confront_澄江': {
+    bg: 'guestroom', bgColor: '#0f0c08', bgm: 'tension',
+    speaker: '神崎澄江',
+    text: '「……何が言いたいの。お父様を失って、わたしは悲しんでいるのよ」\n冷たい目だ。涙は消えていた。',
+    next: 'confront_2'
+  },
+  confront_2: {
+    bg: 'guestroom', bgColor: '#0f0c08', bgm: 'tension',
+    speaker: null,
+    text: '「ハンカチを見せてもらえますか。血が付いていましたね」\n澄江の表情が、わずかに揺らいだ。',
+    next: 'confront_3'
+  },
+  confront_3: {
+    bg: 'guestroom', bgColor: '#0a0202', bgm: 'horror',
+    speaker: '神崎澄江',
+    text: '「……もう、いい。全部、話すわ。\nお父様は遺産を他人に譲ろうとしていた。\n──わたしたちを見捨てて。だから、だから……！」',
+    sfx: 'thunder',
+    next: 'good_end'
+  },
+
+  confirm_testimony: {
+    bg: 'library', bgColor: '#0e0a06', bgm: 'investigation',
+    speaker: '有沢敬一',
+    text: '「重蔵の話は正しい。私も夕食前、廊下で澄江を見かけた。\nあの薬瓶を持っていた。神崎氏の心臓病の薬──しかし量が異常に多かった」',
+    next: 'confirm_2'
+  },
+  confirm_2: {
+    bg: 'library', bgColor: '#0e0a06', bgm: 'investigation',
+    speaker: '有沢敬一',
+    text: '「薬で弱らせてから、ナイフで──という筋書きだ。\n計画的だ。なぜナイフを？ 薬だけでは証拠が残らないのに」',
+    sfx: 'reveal',
+    next: 'confirm_3'
+  },
+  confirm_3: {
+    bg: 'library', bgColor: '#0e0a06', bgm: 'investigation',
+    speaker: null,
+    text: '……そうか。薬だけでは、遺産が桐島玲子へ渡ることを防げない。\n澄江は遺言状を燃やすために、部屋へ入る必要があった。\n──だからナイフで、扉を開ける前に。',
+    next: 'good_end'
+  },
+
+  reexamine_body: {
+    bg: 'guestroom_blood', bgColor: '#0a0202', bgm: 'tension',
+    speaker: '有沢敬一',
+    text: '「……遺体を調べ直したら、奇妙なことが分かった。\nナイフの傷は致命傷ではない。死因は……薬物による心不全だ」',
+    sfx: 'reveal',
+    next: 'reexamine_2'
+  },
+  reexamine_2: {
+    bg: 'guestroom_blood', bgColor: '#0a0202', bgm: 'tension',
+    speaker: null,
+    text: 'つまり──神崎道彦は、ナイフで刺される前に、すでに死んでいた。\nナイフは、死体に突き立てられたものだ。\n計画的な毒殺──そして、偽装工作。',
+    next: 'reexamine_3'
+  },
+  reexamine_3: {
+    bg: 'guestroom_blood', bgColor: '#0a0202', bgm: 'tension',
+    speaker: '有沢敬一',
+    text: '「薬を盛れる立場の人間は限られる。\n食事を用意した重蔵……いや、薬を管理していた澄江だ」',
+    sfx: 'heartbeat',
+    next: 'good_end'
+  },
+
+  /* ─── 第四章：真相 ─── */
+  good_end: {
+    chapter: '第四章 ── 告発',
+    bg: 'lobby', bgColor: '#0a0806', bgm: 'revelation', snow: 0.3,
+    speaker: null,
+    text: '朝が来た。吹雪は、まだ続いている。\nロビーに全員を集め、証拠を突きつけた。\n澄江は長い沈黙の後、静かに頷いた。',
+    sfx: 'chapter',
+    isEnd: true,
+    endType: 'TRUE END',
+    endTitle: '雪解けの告白',
+    endColor: '#a8c4d4',
+    endDesc: '神崎澄江は、遺産相続から排除されることへの憎しみから、父・道彦への毒殺を計画した。重蔵の証言と医学的証拠が決め手となり、翌日、雪が止んだと同時に山岳警察が到着した。\n\n桐島玲子は遺産を相続したが、その全額を慈善団体へ寄付したという。'
+  },
+
+  /* ─── BAD ENDS ─── */
+  bad_end_jyuzo: {
+    bg: 'cellar', bgColor: '#050505', bgm: 'horror',
+    speaker: null,
+    text: '……地下へ向かう途中、背後から鈍い衝撃が走った。\n床に倒れる前、最後に見えたのは──\n澄江の冷たい微笑みだった。',
+    sfx: 'bad_end',
+    isEnd: true,
+    endType: 'BAD END',
+    endTitle: '雪の底',
+    endColor: '#8b0000',
+    endDesc: '地下室の存在に気付きすぎた。\n翌朝、あなたの姿を探す者は誰もいなかった。'
+  },
+};
+
+/* =============================================
+   GAME ENGINE
+   ============================================= */
+const audio = new AudioEngine();
+let snow, particles, painter;
+let currentNode = null;
+let typingActive = false;
+let skipTyping = false;
+let messageLog = [];
+let totalNodes = 0;
+let visitedNodes = new Set();
+let initiated = false;
+
+const $ = id => document.getElementById(id);
+
+function initCanvases() {
+  // Scene canvas
+  const sceneArea = $('scene-area');
+  const sc = $('scene-canvas');
+  sc.width = sceneArea.offsetWidth;
+  sc.height = sceneArea.offsetHeight;
+  painter = new ScenePainter(sc);
+
+  // Snow
+  snow = new SnowSystem($('snow-canvas'));
+  $('snow-canvas').width = sceneArea.offsetWidth;
+  $('snow-canvas').height = sceneArea.offsetHeight;
+  $('snow-canvas').style.width = '100%';
+  $('snow-canvas').style.height = '100%';
+
+  // Particles
+  particles = new ParticleSystem($('particle-canvas'));
+  $('particle-canvas').width = sceneArea.offsetWidth;
+  $('particle-canvas').height = sceneArea.offsetHeight;
+  $('particle-canvas').style.width = '100%';
+  $('particle-canvas').style.height = '100%';
+
+  window.addEventListener('resize', () => {
+    sc.width = sceneArea.offsetWidth;
+    sc.height = sceneArea.offsetHeight;
+    snow.resize(); particles.resize();
+    renderScene(currentNode);
+  });
+}
+
+function renderScene(nodeId) {
+  if (!nodeId || !SCENARIO[nodeId]) return;
+  const data = SCENARIO[nodeId];
+  const sceneArea = $('scene-area');
+  const sc = $('scene-canvas');
+
+  // BG color
+  sceneArea.style.backgroundColor = data.bgColor || '#020617';
+
+  // Paint canvas bg
+  const w = sc.width, h = sc.height;
+  painter.resize(w, h);
+  painter.clear();
+
+  switch(data.bg) {
+    case 'exterior':        painter.paintExterior(); break;
+    case 'lobby':           painter.paintLobby(); break;
+    case 'library':         painter.paintLibrary(); break;
+    case 'cellar':          painter.paintCellar(); break;
+    case 'guestroom':       painter.paintGuestRoom(false); break;
+    case 'guestroom_blood': painter.paintGuestRoom(true); break;
+    default: painter.clear();
+  }
+
+  // Snow
+  const snowInt = data.snow !== undefined ? data.snow : 0.8;
+  if (snowInt > 0) {
+    snow.setIntensity(snowInt);
+    if (!snow.running) snow.start(snowInt);
+  } else {
+    snow.stop();
+    snow.ctx.clearRect(0,0,snow.canvas.width,snow.canvas.height);
+  }
+}
+
+async function showChapterAnnounce(text) {
+  const el = $('chapter-announce');
+  $('ch-title-text').textContent = text;
+  el.classList.add('show');
+  audio.sfx('chapter');
+  await sleep(2800);
+  el.classList.remove('show');
+  await sleep(700);
+}
+
+async function loadNode(nodeId) {
+  if (!SCENARIO[nodeId]) return;
+  currentNode = nodeId;
+  visitedNodes.add(nodeId);
+
+  const data = SCENARIO[nodeId];
+
+  // Wipe transition
+  await wipeTransition(async () => {
+    renderScene(nodeId);
+    // BGM
+    if (data.bgm) audio.startBgm(data.bgm);
+    // SFX
+    if (data.sfx) setTimeout(() => audio.sfx(data.sfx), 500);
+  });
+
+  // Chapter announce
+  if (data.chapter) {
+    await showChapterAnnounce(data.chapter);
+  }
+
+  // Chapter tag (top)
+  if (data.chapter) {
+    $('chapter-tag').textContent = data.chapter;
+    $('chapter-tag').style.opacity = '0.6';
+  }
+
+  // Speaker
+  const speakerEl = $('speaker-tag');
+  if (data.speaker) {
+    speakerEl.textContent = data.speaker;
+    speakerEl.classList.add('visible');
+  } else {
+    speakerEl.classList.remove('visible');
+    speakerEl.textContent = '';
+  }
+
+  // Progress bar
+  totalNodes = Object.keys(SCENARIO).length;
+  $('progress-bar').style.width = (visitedNodes.size / totalNodes * 100) + '%';
+
+  // End screen
+  if (data.isEnd) {
+    await typeText(data.text);
+    await sleep(1000);
+    audio.sfx(data.endType === 'TRUE END' ? 'good_end' : 'bad_end');
+    await sleep(1500);
+    showEndScreen(data);
+    return;
+  }
+
+  // Choices
+  if (data.choices) {
+    $('choices-overlay').classList.remove('visible');
+    await typeText(data.text);
+    showChoices(data.choices);
+    return;
+  }
+
+  // Normal
+  await typeText(data.text);
+  $('click-hint').classList.add('visible');
+
+  // Click / keypress to advance
+  await waitForAdvance();
+  $('click-hint').classList.remove('visible');
+  if (data.next) loadNode(data.next);
+}
+
+function showChoices(choices) {
+  const wrap = $('choices-wrap');
+  wrap.innerHTML = '';
+  choices.forEach(c => {
+    const btn = document.createElement('button');
+    btn.className = 'choice-btn' + (c.label === 'danger' ? ' danger' : '');
+    btn.textContent = c.text;
+    btn.onclick = () => {
+      audio.sfx('choice');
+      $('choices-overlay').classList.remove('visible');
+      loadNode(c.next);
+    };
+    wrap.appendChild(btn);
+  });
+  setTimeout(() => $('choices-overlay').classList.add('visible'), 300);
+}
+
+async function typeText(text) {
+  typingActive = true;
+  skipTyping = false;
+  const el = $('main-text');
+  el.innerHTML = '';
+
+  // Add to log
+  const speaker = $('speaker-tag').textContent;
+  messageLog.push({ speaker, text });
+
+  for (const char of text) {
+    if (skipTyping) {
+      el.innerHTML = text.replace(/\n/g, '<br>');
+      break;
+    }
+    if (char === '\n') { el.innerHTML += '<br>'; await sleep(80); }
+    else {
+      el.innerHTML += char;
+      if (!'　 '.includes(char)) audio.sfx('cursor');
+    }
+    await sleep(45);
+  }
+  typingActive = false;
+}
+
+function waitForAdvance() {
+  return new Promise(resolve => {
+    const handler = () => {
+      document.removeEventListener('click', handler);
+      document.removeEventListener('keydown', handler);
+      resolve();
+    };
+    document.addEventListener('click', clickGuard(handler), { once: true });
+    document.addEventListener('keydown', e => {
+      if (['Enter','Space','ArrowRight'].includes(e.code)) { e.preventDefault(); handler(); }
+    }, { once: true });
+  });
+}
+
+// prevent choice buttons from triggering advance
+function clickGuard(fn) {
+  return (e) => {
+    if (e.target.closest('#choices-overlay') || e.target.closest('#log-overlay')) return;
+    fn(e);
+  };
+}
+
+// click during typing = skip
+document.addEventListener('click', (e) => {
+  if (e.target.closest('#choices-overlay') || e.target.closest('#log-overlay')) return;
+  if (typingActive) { skipTyping = true; }
+});
+document.addEventListener('keydown', (e) => {
+  if (['Enter','Space'].includes(e.code) && typingActive) { skipTyping = true; }
+});
+
+async function wipeTransition(callback) {
+  const wipe = $('wipe');
+  wipe.style.transform = 'scaleX(0)';
+  wipe.style.transformOrigin = 'left';
+  wipe.style.transition = 'transform 0.3s ease';
+  wipe.style.transform = 'scaleX(1)';
+  await sleep(320);
+  await callback();
+  await sleep(100);
+  wipe.style.transformOrigin = 'right';
+  wipe.style.transform = 'scaleX(0)';
+  await sleep(350);
+}
+
+function showEndScreen(data) {
+  const es = $('end-screen');
+  const et = $('end-type-text');
+  const etl = $('end-title-text');
+  const ed = $('end-desc-text');
+
+  et.textContent = data.endType;
+  et.style.color = data.endColor;
+  etl.textContent = data.endTitle;
+  etl.style.color = data.endColor;
+  ed.textContent = data.endDesc;
+
+  es.classList.add('show');
+  es.style.display = 'flex';
+
+  // Slow reveal
+  es.style.opacity = '0';
+  es.style.transition = 'opacity 2s ease';
+  setTimeout(() => es.style.opacity = '1', 100);
+}
+
+// Log
+$('msg-log-btn').onclick = () => {
+  const content = $('log-content');
+  content.innerHTML = messageLog.slice().reverse().map(m =>
+    `<div class="log-entry">
+      ${m.speaker ? `<div class="log-speaker">${m.speaker}</div>` : ''}
+      ${m.text.replace(/\n/g,'<br>')}
+    </div>`
+  ).join('');
+  $('log-overlay').classList.add('open');
+};
+$('log-close').onclick = () => $('log-overlay').classList.remove('open');
+
+function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
+
+/* =============================================
+   TITLE SNOW
+   ============================================= */
+function initTitleSnow() {
+  const tc = $('title-snow');
+  const setSize = () => { tc.width = tc.offsetWidth; tc.height = tc.offsetHeight; };
+  setSize();
+  const ctx = tc.getContext('2d');
+  const flakes = Array.from({length:150}, () => ({
+    x: Math.random() * tc.width, y: Math.random() * tc.height,
+    r: Math.random()*2+0.5, s: Math.random()*1.5+0.3,
+    sx: (Math.random()-0.3)*0.8, o: Math.random()*0.5+0.1,
+  }));
+  function loop() {
+    ctx.clearRect(0,0,tc.width,tc.height);
+    ctx.fillStyle='rgba(210,225,240,0.9)';
+    flakes.forEach(f => {
+      f.y += f.s; f.x += f.sx;
+      if (f.y > tc.height) { f.y = -4; f.x = Math.random()*tc.width; }
+      ctx.globalAlpha = f.o;
+      ctx.beginPath(); ctx.arc(f.x, f.y, f.r, 0, Math.PI*2); ctx.fill();
+    });
+    ctx.globalAlpha = 1;
+    requestAnimationFrame(loop);
+  }
+  loop();
+  window.addEventListener('resize', setSize);
+}
+initTitleSnow();
+
+/* =============================================
+   START
+   ============================================= */
+$('start-btn').onclick = async () => {
+  if (initiated) return;
+  initiated = true;
+
+  await audio.init();
+  audio.ctx.resume();
+
+  $('title-screen').classList.add('fade-out');
+  await sleep(1600);
+  $('title-screen').style.display = 'none';
+
+  initCanvases();
+  snow.start(0.8);
+
+  $('game-screen').style.opacity = '0';
+  $('game-screen').style.display = 'flex';
+  await sleep(100);
+  $('game-screen').style.transition = 'opacity 1s';
+  $('game-screen').style.opacity = '1';
+  await sleep(1000);
+
+  $('game-screen').classList.add('visible');
+  loadNode('intro_1');
+};
+</script>
+</body>
+</html>
