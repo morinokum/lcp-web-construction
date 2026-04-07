@@ -120,6 +120,9 @@
             .ascii-art { font-size: 6px; }
         }
     </style>
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#00ff41">
+    <link rel="apple-touch-icon" href="warehouse/images/f100.png">
 </head>
 <body>
     <div class="container">
@@ -198,5 +201,16 @@
             &copy; 2026 LCP-WEB-CONSTRUCTION / HIROSHI THEORY SYSTEM
         </footer>
     </div>
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('sw.js').then(reg => {
+                    console.log('LCP-ARCADE PWA Registered', reg);
+                }).catch(err => {
+                    console.log('PWA Registration failed', err);
+                });
+            });
+        }
+    </script>
 </body>
 </html>

@@ -1,0 +1,21 @@
+{
+  "name": "LCP-WEB ARCADE",
+  "short_name": "LCP-ARCADE",
+  "description": "LCP-WEB-CONSTRUCTION Game Center & FM Resonance Lab",
+  "start_url": "arcade.html",
+  "display": "standalone",
+  "background_color": "#0d0208",
+  "theme_color": "#00ff41",
+  "icons": [
+    {
+      "src": "warehouse/icon_192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "warehouse/icon_512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
