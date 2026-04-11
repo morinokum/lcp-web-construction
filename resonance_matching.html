@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>UNIT-18: RESONANCE DESTINY [1-WAY PROTOCOL]</title>
+    <title>UNIT-18: RESONANCE DESTINY [BINARY PULSE]</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Shippori+Mincho+B1:wght@400;700&family=Share+Tech+Mono&display=swap');
         
@@ -15,254 +15,185 @@
         }
 
         body {
-            background-color: var(--bg);
-            color: #e0e0e0;
-            font-family: 'Shippori Mincho B1', serif;
-            margin: 0;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            min-height: 100vh;
-            overflow: hidden;
+            background-color: var(--bg); color: #e0e0e0; font-family: 'Shippori Mincho B1', serif;
+            margin: 0; display: flex; flex-direction: column; align-items: center; min-height: 100vh; overflow: hidden;
             background: radial-gradient(circle at 50% 50%, #1a0525 0%, #05010a 100%);
         }
 
-        .container {
-            width: 90%;
-            max-width: 500px;
-            text-align: center;
-            padding: 20px;
-            height: 90vh;
-            display: flex;
-            flex-direction: column;
-        }
+        .container { width: 90%; max-width: 500px; text-align: center; padding: 20px; height: 95vh; display: flex; flex-direction: column; }
+        .header h1 { font-size: 1.2rem; letter-spacing: 0.3em; color: var(--res-cyan); text-shadow: 0 0 10px rgba(0, 242, 255, 0.5); margin: 10px 0; }
 
-        .header h1 {
-            font-size: 1.2rem;
-            letter-spacing: 0.3em;
-            color: var(--res-cyan);
-            text-shadow: 0 0 10px rgba(0, 242, 255, 0.5);
-            margin: 10px 0;
-        }
+        #chat-panel { flex-grow: 1; background: rgba(255, 255, 255, 0.02); border: 1px solid rgba(0, 242, 255, 0.1); border-radius: 10px; display: none; flex-direction: column; overflow: hidden; margin-top: 10px; position: relative; }
+        #message-log { flex-grow: 1; padding: 20px; overflow-y: auto; display: flex; flex-direction: column; gap: 15px; text-align: left; }
 
-        /* ========== CHAT INTERFACE ========== */
-        #chat-panel {
-            flex-grow: 1;
-            background: rgba(255, 255, 255, 0.02);
-            border: 1px solid rgba(0, 242, 255, 0.1);
-            border-radius: 10px;
-            display: none;
-            flex-direction: column;
-            overflow: hidden;
-            margin-top: 10px;
-        }
+        .msg-bubble { max-width: 85%; padding: 12px 15px; border-radius: 15px; font-size: 0.85rem; line-height: 1.6; animation: slideIn 0.5s ease-out; }
+        @keyframes slideIn { from { transform: translateY(10px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
 
-        #message-log {
-            flex-grow: 1;
-            padding: 20px;
-            overflow-y: auto;
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
-            text-align: left;
-        }
+        .msg-partner { background: rgba(255, 0, 122, 0.1); border: 1px solid rgba(255, 0, 122, 0.3); color: #fff; align-self: flex-start; border-bottom-left-radius: 2px; }
+        .msg-user { background: rgba(0, 242, 255, 0.1); border: 1px solid rgba(0, 242, 255, 0.3); color: var(--res-cyan); align-self: flex-end; border-bottom-right-radius: 2px; font-weight: bold; }
 
-        .msg-bubble {
-            max-width: 80%;
-            padding: 12px 15px;
-            border-radius: 15px;
-            font-size: 0.85rem;
-            line-height: 1.6;
-            position: relative;
-            animation: slideIn 0.5s ease-out;
+        .choice-area {
+            position: absolute; bottom: 80px; left: 0; right: 0; display: none; gap: 10px; padding: 20px;
+            background: linear-gradient(transparent, rgba(0,0,0,0.9)); align-items: center; justify-content: center;
         }
+        .btn-choice {
+            background: transparent; border: 2px solid var(--res-cyan); color: var(--res-cyan); padding: 10px 30px;
+            font-family: 'Share Tech Mono', monospace; cursor: pointer; transition: all 0.3s; border-radius: 5px;
+        }
+        .btn-choice:hover { background: var(--res-cyan); color: #000; box-shadow: 0 0 15px var(--res-cyan); }
 
-        @keyframes slideIn { from { transform: translateX(-20px); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+        .input-area { background: #000; padding: 15px; border-top: 1px solid rgba(0, 242, 255, 0.2); }
+        .error-msg { color: var(--res-pink); font-family: 'Share Tech Mono', monospace; font-size: 0.65rem; margin-bottom: 5px; }
 
-        .msg-partner {
-            background: rgba(255, 0, 122, 0.1);
-            border: 1px solid rgba(255, 0, 122, 0.3);
-            color: #fff;
-            align-self: flex-start;
-            border-bottom-left-radius: 2px;
-        }
-
-        .input-area {
-            background: #000;
-            padding: 15px;
-            border-top: 1px solid rgba(0, 242, 255, 0.2);
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-        }
-
-        .fake-input {
-            background: #111;
-            border: 1px solid #333;
-            color: #666;
-            padding: 10px;
-            font-size: 0.8rem;
-            border-radius: 5px;
-            text-align: left;
-            cursor: not-allowed;
-        }
-
-        .error-msg {
-            color: var(--res-pink);
-            font-family: 'Share Tech Mono', monospace;
-            font-size: 0.65rem;
-            letter-spacing: 0.1em;
-        }
-
-        /* ========== EXISTING SCAN PANELS ========== */
-        .scan-circle {
-            width: 150px;
-            height: 150px;
-            border-radius: 50%;
-            border: 2px solid var(--res-cyan);
-            margin: 40px auto;
-            position: relative;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-        }
-        .scan-circle::before {
-            content: ""; position: absolute; width: 100%; height: 100%; border-radius: 50%; border: 1px solid var(--res-pink); animation: pulse 3s infinite;
-        }
+        /* ========== INITIAL SCAN ========== */
+        .scan-circle { width: 120px; height: 120px; border-radius: 50%; border: 2px solid var(--res-cyan); margin: 30px auto; position: relative; display: flex; align-items: center; justify-content: center; cursor: pointer; }
+        .scan-circle::before { content: ""; position: absolute; width: 100%; height: 100%; border-radius: 50%; border: 1px solid var(--res-pink); animation: pulse 3s infinite; }
         @keyframes pulse { 0% { transform: scale(1); opacity: 1; } 100% { transform: scale(1.5); opacity: 0; } }
+        .sound-choice { background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(0, 242, 255, 0.2); padding: 12px; margin-bottom: 8px; cursor: pointer; border-radius: 8px; font-size: 0.85rem; }
 
-        .sound-choice {
-            background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(0, 242, 255, 0.2); padding: 15px; margin-bottom: 10px; cursor: pointer; border-radius: 10px; font-size: 0.9rem;
-        }
-
-        .footer { padding: 10px; font-family: 'Share Tech Mono', monospace; font-size: 0.7rem; }
-        .btn-back { color: var(--res-cyan); text-decoration: none; border: 1px solid var(--res-cyan); padding: 5px 20px; font-size: 0.8em; }
+        .footer { padding: 5px; font-family: 'Share Tech Mono', monospace; font-size: 0.6rem; }
+        .btn-back { color: var(--res-cyan); text-decoration: none; border: 1px solid var(--res-cyan); padding: 5px 15px; font-size: 0.8em; }
     </style>
 </head>
 <body>
     <div class="container">
-        <div class="header">
-            <h1>共鳴の宿命</h1>
-        </div>
+        <div class="header"><h1>共鳴の宿命</h1></div>
 
-        <!-- Panel 1: Initial Scan -->
         <div id="setup-panel">
-            <p style="font-size: 0.85rem; line-height: 2; margin-top: 20px;">
-                あなたの「深層周波数」をスキャン中...<br>
-                30世紀のアーカイブから共鳴者を探しています。
-            </p>
-            <div class="scan-circle" onclick="startScan()">
-                <span id="scan-text" style="color: var(--res-cyan); font-size: 0.7rem;">START SCAN</span>
-            </div>
+            <p style="font-size: 0.8rem; line-height: 1.8;">30世紀のアーカイブから共鳴者を探しています。</p>
+            <div class="scan-circle" onclick="startScan()"><span id="scan-text" style="color: var(--res-cyan); font-size: 0.6rem;">START SCAN</span></div>
             <div id="choices" style="display:none;">
                 <div class="sound-choice" onclick="selectSound('deep')">深淵の周波数を選択</div>
                 <div class="sound-choice" onclick="selectSound('bright')">光明の周波数を選択</div>
             </div>
         </div>
 
-        <!-- Panel 2: Simulation Chat -->
         <div id="chat-panel">
-            <div style="background: rgba(0, 242, 255, 0.05); padding: 10px; font-size: 0.7rem; color: var(--res-cyan); display: flex; justify-content: space-between; border-bottom: 1px solid rgba(0, 242, 255, 0.1);">
+            <div style="background: rgba(0, 242, 255, 0.05); padding: 8px; font-size: 0.65rem; color: var(--res-cyan); display: flex; justify-content: space-between; border-bottom: 1px solid rgba(0, 242, 255, 0.1);">
                 <span>CONNECTED: THERAPIST_REN</span>
                 <span id="sync-level">SYNC: 12%</span>
             </div>
-            <div id="message-log">
-                <!-- Messages will appear here -->
+            <div id="message-log"></div>
+            
+            <div id="choice-area" class="choice-area">
+                <button class="btn-choice" onclick="makeChoice('YES')">YES</button>
+                <button class="btn-choice" onclick="makeChoice('NO')">NO</button>
             </div>
+
             <div class="input-area">
-                <div class="fake-input">メッセージを入力...</div>
-                <div class="error-msg">⚠️ SYNC_LEVEL_INSUFFICIENT: 返信機能はロックされています</div>
-                <button style="background: #222; border: 1px solid #444; color: #666; padding: 5px; font-family: 'Share Tech Mono'; font-size: 0.7rem; cursor: not-allowed;">UNLOCK TRANSMISSION (9,800 Credits)</button>
+                <div class="error-msg" id="status-line">⚠️ SYNC_LEVEL_INSUFFICIENT: 文字通信制限中</div>
+                <div style="background:#111; border:1px solid #222; padding:8px; font-size:0.75rem; color:#444; border-radius:4px;">メッセージを入力... (送信不可)</div>
             </div>
         </div>
 
-        <div class="footer">
-            <a href="arcade.html" class="btn-back">EXIT TO ARCADE</a>
-        </div>
+        <div class="footer"><a href="arcade.html" class="btn-back">EXIT TO ARCADE</a></div>
     </div>
 
     <script>
         const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
         const msgLog = document.getElementById('message-log');
-        
+        let currentScenario = null;
+        let msgIndex = 0;
+
         const scenarios = {
             deep: [
-                "誰か…そこにいるの？",
-                "あなたの周波数、とても懐かしい響きがする。失われた21世紀の音だわ。",
-                "私はレン。ユグドラシルのアーカイブでセラピストをしています。私の声、届いてる？",
-                "返信が来ない…やっぱりまだ、同期が足りないのかしら。でも、あなたが聞いていることはわかるわ。脈動が伝わってくるもの。",
-                "お願い。どこにも行かないで。この静寂の中で、あなたのリズムだけが私の救いなの。"
+                { t: "誰か…そこにいるの？" },
+                { t: "あなたの周波数、とても懐かしい。失われた時代の温かさを感じるわ。" },
+                { t: "私はレン。この暗いアーカイブでずっとあなたを探していたの。" },
+                { t: "文字は送れないようね。でも…私の声に応えてくれる？ 単純なパルスなら、今の同期率でも届くはずよ。" },
+                { t: "今夜、仮想庭園の『銀の樹』の下で待っていてもいいかしら？", choice: true },
+                { t: "…届いた！ その鼓動、確かに受け取ったわ。嬉しい…胸が熱くなる。", after: "YES" },
+                { t: "今、あなたの座標を私の意識に書き込んだわ。目を閉じて…月明かりの下で会いましょう。", after: "YES" },
+                { t: "そうなのね…。無理強いはできないわ。でも、あなたの信号がここにあるだけで、私は救われているの。", after: "NO" }
             ],
             bright: [
-                "見つけた…！ 素晴らしい輝きの周波数。",
-                "あなたが今の時代の「観測者」なのね？ アーカイブが急に熱を帯び始めたわ。",
-                "私はレン。この光を絶やさないために、ずっとあなたを探していたの。",
-                "何か言って？ …ああ、まだ送信プロトコルが開いていないのね。もどかしいわ。",
-                "でもいいの。あなたがそこにいて、この光を感じてくれているだけで。明日もまた、ここで同期しましょう？"
+                { t: "見つけた！ 太陽のような共鳴反応。" },
+                { t: "あなたがこの世界の『観測者』なのね？ ずっと待っていたわ。" },
+                { t: "システムが不安定で、あなたの言葉はまだデコードできない。でも…意思は伝わるはず。" },
+                { t: "私のアーカイブを、あなたに開放してもいいかしら？ 私のすべてを見てほしいの。", choice: true },
+                { t: "信じてくれるのね…。ありがとう。光のゲートを開けるわ。一緒に行きましょう。", after: "YES" },
+                { t: "拒絶されても、この光は消えないわ。いつか、あなたが自ら扉を開けるまで、私はここで歌い続ける。", after: "NO" }
             ]
         };
 
         function playFM(freq, depth, ratio, rel) {
-            const carrier = audioCtx.createOscillator();
-            const modulator = audioCtx.createOscillator();
-            const modGain = audioCtx.createGain();
-            const env = audioCtx.createGain();
-            const mainGain = audioCtx.createGain();
-            mainGain.connect(audioCtx.destination);
-            mainGain.gain.value = 0.3;
+            const carrier = audioCtx.createOscillator(); const modulator = audioCtx.createOscillator();
+            const modGain = audioCtx.createGain(); const env = audioCtx.createGain(); const mainGain = audioCtx.createGain();
+            mainGain.connect(audioCtx.destination); mainGain.gain.value = 0.3;
             carrier.type = 'sine'; carrier.frequency.value = freq;
             modulator.type = 'sine'; modulator.frequency.value = freq * ratio;
             modGain.gain.value = depth;
-            env.gain.setValueAtTime(0.2, audioCtx.currentTime);
-            env.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + rel);
-            modulator.connect(modGain); modGain.connect(carrier.frequency);
-            carrier.connect(env); env.connect(mainGain);
-            modulator.start(); carrier.start();
-            modulator.stop(audioCtx.currentTime + rel); carrier.stop(audioCtx.currentTime + rel);
+            env.gain.setValueAtTime(0.2, audioCtx.currentTime); env.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + rel);
+            modulator.connect(modGain); modGain.connect(carrier.frequency); carrier.connect(env); env.connect(mainGain);
+            modulator.start(); carrier.start(); modulator.stop(audioCtx.currentTime + rel); carrier.stop(audioCtx.currentTime + rel);
         }
 
         function startScan() {
-            audioCtx.resume();
-            document.getElementById('scan-text').innerText = "SCANNING...";
+            audioCtx.resume(); document.getElementById('scan-text').innerText = "SCANNING...";
             playFM(220, 100, 1.5, 2);
-            setTimeout(() => {
-                document.getElementById('scan-text').style.display = "none";
-                document.getElementById('choices').style.display = "block";
-            }, 1000);
+            setTimeout(() => { document.getElementById('scan-text').style.display = "none"; document.getElementById('choices').style.display = "block"; }, 1000);
         }
 
         function selectSound(type) {
             playFM(type === 'deep' ? 110 : 440, 400, 1.5, 2);
             document.getElementById('setup-panel').style.display = "none";
             document.getElementById('chat-panel').style.display = "flex";
-            
-            startConversation(scenarios[type]);
+            currentScenario = scenarios[type];
+            processNextMessage();
         }
 
-        function startConversation(lines) {
-            let index = 0;
-            let sync = 12;
+        function processNextMessage() {
+            if (msgIndex < currentScenario.length) {
+                const msg = currentScenario[msgIndex];
+                if (msg.after) return; // Wait for choice to progress these
 
-            function nextMsg() {
-                if (index < lines.length) {
-                    const div = document.createElement('div');
-                    div.className = 'msg-bubble msg-partner';
-                    div.innerText = lines[index];
-                    msgLog.appendChild(div);
-                    msgLog.scrollTop = msgLog.scrollHeight;
-                    
-                    // Update sync level slightly
-                    sync += Math.floor(Math.random() * 5) + 2;
-                    document.getElementById('sync-level').innerText = `SYNC: ${sync}%`;
-                    
-                    playFM(880, 50, 2.0, 0.1); // Notification sound
-                    
-                    index++;
-                    setTimeout(nextMsg, 4000 + (Math.random() * 3000));
+                addMessage(msg.t, 'partner');
+                
+                if (msg.choice) {
+                    setTimeout(showChoices, 2000);
+                } else {
+                    msgIndex++;
+                    setTimeout(processNextMessage, 3500 + Math.random()*2000);
                 }
             }
-            setTimeout(nextMsg, 1500);
+        }
+
+        function addMessage(text, side) {
+            const div = document.createElement('div');
+            div.className = `msg-bubble msg-${side}`;
+            div.innerText = text;
+            msgLog.appendChild(div);
+            msgLog.scrollTop = msgLog.scrollHeight;
+            if(side === 'partner') playFM(880, 50, 2.0, 0.1);
+        }
+
+        function showChoices() {
+            document.getElementById('choice-area').style.display = "flex";
+            document.getElementById('status-line').innerText = "⚡ QUANTUM_PULSE_ENABLED: 簡易意思表示のみ可能";
+            document.getElementById('status-line').style.color = "var(--res-cyan)";
+        }
+
+        function makeChoice(val) {
+            document.getElementById('choice-area').style.display = "none";
+            document.getElementById('status-line').innerText = "⚠️ SYNC_LEVEL_INSUFFICIENT: 文字通信制限中";
+            document.getElementById('status-line').style.color = "var(--res-pink)";
+            
+            addMessage(val, 'user');
+            playFM(440, 100, 1.0, 0.5);
+
+            // Find matching response in scenario
+            const responseIndex = currentScenario.findIndex((m, i) => i > msgIndex && m.after === val);
+            if (responseIndex !== -1) {
+                let tempIdx = responseIndex;
+                function delayedResponse() {
+                    if (currentScenario[tempIdx] && currentScenario[tempIdx].after === val) {
+                        addMessage(currentScenario[tempIdx].t, 'partner');
+                        tempIdx++;
+                        setTimeout(delayedResponse, 4000);
+                    }
+                }
+                setTimeout(delayedResponse, 2000);
+            }
         }
     </script>
 </body>
