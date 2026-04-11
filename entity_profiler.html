@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>UNIT-19: ENTITY PROFILER</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Shippori+Mincho+B1:wght@400;700&display=swap');
+        
+        :root {
+            --neon-gold: #ffd700;
+            --neon-blue: #00f2ff;
+            --bg-dark: #0d0208;
+            --panel-bg: rgba(255, 215, 0, 0.05);
+        }
+
+        body {
+            background-color: var(--bg-dark);
+            color: #e0e0e0;
+            font-family: 'Share Tech Mono', monospace;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .header {
+            width: 100%;
+            max-width: 1000px;
+            border-bottom: 2px solid var(--neon-gold);
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+        }
+
+        .main-layout {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            width: 100%;
+            max-width: 1000px;
+        }
+
+        /* Left: Viewer */
+        .viewer-panel {
+            background: var(--panel-bg);
+            border: 1px solid var(--neon-gold);
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            position: relative;
+        }
+
+        .img-container {
+            width: 100%;
+            height: 450px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #000;
+            border: 1px solid #333;
+            margin-bottom: 20px;
+            overflow: hidden;
+        }
+
+        #entity-img {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+            filter: drop-shadow(0 0 10px var(--neon-blue));
+        }
+
+        .nav-controls {
+            display: flex;
+            gap: 20px;
+            align-items: center;
+        }
+
+        .btn {
+            background: transparent;
+            border: 1px solid var(--neon-blue);
+            color: var(--neon-blue);
+            padding: 10px 20px;
+            cursor: pointer;
+            font-family: 'Share Tech Mono';
+            transition: all 0.2s;
+        }
+
+        .btn:hover {
+            background: var(--neon-blue);
+            color: #000;
+        }
+
+        /* Right: Editor */
+        .editor-panel {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .input-group {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        label {
+            font-size: 0.7rem;
+            color: var(--neon-gold);
+        }
+
+        input, textarea {
+            background: #000;
+            border: 1px solid #444;
+            color: #fff;
+            padding: 10px;
+            font-family: 'Shippori Mincho B1', serif;
+            font-size: 0.9rem;
+        }
+
+        input:focus, textarea:focus {
+            border-color: var(--neon-blue);
+            outline: none;
+        }
+
+        .json-output {
+            background: #000;
+            border: 1px solid var(--neon-blue);
+            padding: 15px;
+            font-size: 0.75rem;
+            color: var(--neon-blue);
+            height: 150px;
+            overflow-y: auto;
+            white-space: pre-wrap;
+            margin-top: 10px;
+        }
+
+        .footer {
+            margin-top: 40px;
+            width: 100%;
+            max-width: 1000px;
+            text-align: center;
+        }
+
+        .back-link {
+            color: var(--neon-blue);
+            text-decoration: none;
+            border: 1px solid var(--neon-blue);
+            padding: 10px 30px;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div>
+            <h1 style="margin:0; font-size: 1.5rem; color: var(--neon-gold);">UNIT-19: ENTITY_PROFILER v1.0</h1>
+            <span style="font-size: 0.7rem;">Character Design & Synchronization Lab</span>
+        </div>
+        <div id="file-id" style="font-size: 1.2rem; color: var(--neon-blue);">f120.png</div>
+    </div>
+
+    <div class="main-layout">
+        <!-- Image Viewer -->
+        <div class="viewer-panel">
+            <div class="img-container">
+                <img id="entity-img" src="warehouse/images/f120.png" alt="Entity Viewer">
+            </div>
+            <div class="nav-controls">
+                <button class="btn" onclick="changeImage(-1)">PREV</button>
+                <input type="number" id="img-num" value="120" min="100" max="200" style="width: 60px; text-align: center;" onchange="syncImage()">
+                <button class="btn" onclick="changeImage(1)">NEXT</button>
+            </div>
+        </div>
+
+        <!-- Profiler Form -->
+        <div class="editor-panel">
+            <div class="input-group">
+                <label>NAME (名前)</label>
+                <input type="text" id="name" placeholder="義体の個体名を入力..." oninput="updateJson()">
+            </div>
+            <div class="input-group">
+                <label>DESCRIPTION (外見・特徴)</label>
+                <textarea id="desc" rows="3" placeholder="銀髪、青い瞳、セラピストの服、など..." oninput="updateJson()"></textarea>
+            </div>
+            <div class="input-group">
+                <label>PERSONALITY (性格・設定)</label>
+                <textarea id="personality" rows="3" placeholder="冷静沈着だが慈愛に満ちている、など..." oninput="updateJson()"></textarea>
+            </div>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                <div class="input-group">
+                    <label>H-CODE (同期指数)</label>
+                    <input type="text" id="hcode" value="9.0" oninput="updateJson()">
+                </div>
+                <div class="input-group">
+                    <label>ROLE (役割)</label>
+                    <input type="text" id="role" placeholder="Therapist, Sentinel, etc." oninput="updateJson()">
+                </div>
+            </div>
+
+            <div class="input-group">
+                <label>GENERATED AI-SYNC JSON (貼り付け用)</label>
+                <div id="json-preview" class="json-output"></div>
+                <button class="btn" style="margin-top:10px; width:100%; font-weight:bold; border-color:var(--neon-gold); color:var(--neon-gold);" onclick="copyJson()">COPY SYNC-JSON</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="footer">
+        <a href="arcade.html" class="back-link">EXIT TO ARCADE</a>
+    </div>
+
+    <script>
+        function changeImage(delta) {
+            const input = document.getElementById('img-num');
+            let val = parseInt(input.value) + delta;
+            if (val < 100) val = 200;
+            if (val > 200) val = 100;
+            input.value = val;
+            syncImage();
+        }
+
+        function syncImage() {
+            const num = document.getElementById('img-num').value;
+            const id = `f${num}`;
+            document.getElementById('file-id').innerText = `${id}.png`;
+            document.getElementById('entity-img').src = `warehouse/images/${id}.png`;
+            updateJson();
+        }
+
+        function updateJson() {
+            const profile = {
+                sync_protocol: "LCP-ENTITY-SYNC",
+                entity_id: `f${document.getElementById('img-num').value}`,
+                metadata: {
+                    name: document.getElementById('name').value || "UNKNOWN",
+                    role: document.getElementById('role').value || "N/A",
+                    h_code: document.getElementById('hcode').value || "0.0",
+                    description: document.getElementById('desc').value || "No description provided.",
+                    personality: document.getElementById('personality').value || "Undetermined personality."
+                },
+                timestamp: new Date().toISOString()
+            };
+            document.getElementById('json-preview').innerText = JSON.stringify(profile, null, 2);
+        }
+
+        function copyJson() {
+            const text = document.getElementById('json-preview').innerText;
+            navigator.clipboard.writeText(text).then(() => {
+                alert("AI SYNC-JSON COPIED!");
+            });
+        }
+
+        // Initial Load
+        updateJson();
+    </script>
+</body>
+</html>
