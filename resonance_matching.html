@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>UNIT-18: RESONANCE DESTINY</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Shippori+Mincho+B1:wght@400;700&family=Share+Tech+Mono&display=swap');
+        
+        :root {
+            --res-pink: #ff007a;
+            --res-cyan: #00f2ff;
+            --res-gold: #ffd700;
+            --bg: #05010a;
+        }
+
+        body {
+            background-color: var(--bg);
+            color: #e0e0e0;
+            font-family: 'Shippori Mincho B1', serif;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            overflow-x: hidden;
+            background: radial-gradient(circle at 50% 50%, #1a0525 0%, #05010a 100%);
+        }
+
+        .container {
+            width: 90%;
+            max-width: 500px;
+            text-align: center;
+            padding: 40px 20px;
+        }
+
+        .header h1 {
+            font-size: 1.8rem;
+            letter-spacing: 0.3em;
+            color: var(--res-cyan);
+            text-shadow: 0 0 20px rgba(0, 242, 255, 0.5);
+            margin-bottom: 10px;
+        }
+
+        .sub-title {
+            font-size: 0.8rem;
+            color: var(--res-pink);
+            letter-spacing: 0.5em;
+            margin-bottom: 40px;
+            font-family: 'Share Tech Mono', monospace;
+        }
+
+        .scan-circle {
+            width: 200px;
+            height: 200px;
+            border-radius: 50%;
+            border: 2px solid var(--res-cyan);
+            margin: 0 auto 40px;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 0 30px rgba(0, 242, 255, 0.2);
+            cursor: pointer;
+            transition: all 0.5s;
+        }
+
+        .scan-circle::before {
+            content: "";
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            border: 1px solid var(--res-pink);
+            animation: pulse 3s infinite;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); opacity: 1; }
+            100% { transform: scale(1.5); opacity: 0; }
+        }
+
+        .sound-choice {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(0, 242, 255, 0.2);
+            padding: 20px;
+            margin-bottom: 15px;
+            cursor: pointer;
+            transition: all 0.3s;
+            border-radius: 15px;
+        }
+
+        .sound-choice:hover {
+            background: rgba(0, 242, 255, 0.1);
+            border-color: var(--res-cyan);
+            transform: translateY(-3px);
+        }
+
+        .label {
+            font-size: 0.7rem;
+            color: var(--res-gold);
+            margin-bottom: 10px;
+            display: block;
+        }
+
+        #result-panel {
+            display: none;
+            animation: fadeIn 1.5s forwards;
+        }
+
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+        .gidai-img {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            border: 3px solid var(--res-gold);
+            margin-bottom: 20px;
+            object-fit: cover;
+        }
+
+        .match-score {
+            font-size: 2.5rem;
+            font-family: 'Share Tech Mono', monospace;
+            color: var(--res-pink);
+            margin: 10px 0;
+        }
+
+        .footer {
+            margin-top: 50px;
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 0.7rem;
+        }
+
+        .btn-back {
+            color: var(--res-cyan);
+            text-decoration: none;
+            border: 1px solid var(--res-cyan);
+            padding: 10px 30px;
+            margin-top: 30px;
+            display: inline-block;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>共鳴の宿命</h1>
+            <div class="sub-title">RESONANCE DESTINY</div>
+        </div>
+
+        <div id="setup-panel">
+            <p style="font-size: 0.9rem; line-height: 2;">
+                スペックではなく、音で繋がる。<br>
+                あなたの「深層周波数」をスキャンし、<br>
+                この世界にただ一人の共鳴者を見つけ出します。
+            </p>
+            <div class="scan-circle" onclick="startScan()">
+                <span id="scan-text" style="color: var(--res-cyan); font-size: 0.8rem;">START SCAN</span>
+            </div>
+            
+            <div id="choices" style="display:none;">
+                <span class="label">LISTEN & SELECT YOUR RESONANCE</span>
+                <div class="sound-choice" onclick="selectSound('deep')">
+                    深淵のささやき (Deep Resonance)
+                </div>
+                <div class="sound-choice" onclick="selectSound('bright')">
+                    暁の光 (Bright Ascension)
+                </div>
+                <div class="sound-choice" onclick="selectSound('neon')">
+                    夜の鼓動 (Neon Pulse)
+                </div>
+            </div>
+        </div>
+
+        <div id="result-panel">
+            <span class="label">SCAN COMPLETED: H-CODE 9.92</span>
+            <img src="warehouse/images/f101.png" class="gidai-img" alt="Destiny Partner">
+            <p style="font-size: 0.8rem; letter-spacing: 0.1em;">あなたの宿命の共鳴者：</p>
+            <h2 style="color: var(--res-gold); margin: 5px 0;">セラピスト・レン</h2>
+            <div class="match-score">RESONANCE: 98%</div>
+            <p style="font-size: 0.75rem; color: #aaa; line-height: 1.8;">
+                あなたの音は、失われたアーカイブの深淵と同期しています。<br>
+                孤独を慈しむその周波数は、レンの持つ「静謐な慈愛」と<br>
+                完璧なハーモニーを奏でるでしょう。
+            </p>
+            <button class="btn-back" style="background:transparent; cursor:pointer;" onclick="location.reload()">RE-SCAN</button>
+        </div>
+
+        <div class="footer">
+            <a href="arcade.html" class="btn-back">EXIT TO ARCADE</a>
+        </div>
+    </div>
+
+    <script>
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        
+        function playFM(freq, depth, ratio, rel) {
+            const carrier = audioCtx.createOscillator();
+            const modulator = audioCtx.createOscillator();
+            const modGain = audioCtx.createGain();
+            const env = audioCtx.createGain();
+            const mainGain = audioCtx.createGain();
+            mainGain.connect(audioCtx.destination);
+            mainGain.gain.value = 0.3;
+
+            carrier.type = 'sine'; carrier.frequency.value = freq;
+            modulator.type = 'sine'; modulator.frequency.value = freq * ratio;
+            modGain.gain.value = depth;
+            env.gain.setValueAtTime(0.2, audioCtx.currentTime);
+            env.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + rel);
+
+            modulator.connect(modGain); modGain.connect(carrier.frequency);
+            carrier.connect(env); env.connect(mainGain);
+            modulator.start(); carrier.start();
+            modulator.stop(audioCtx.currentTime + rel); carrier.stop(audioCtx.currentTime + rel);
+        }
+
+        function startScan() {
+            audioCtx.resume();
+            document.getElementById('scan-text').innerText = "SCANNING...";
+            playFM(220, 100, 1.5, 2);
+            setTimeout(() => {
+                document.getElementById('scan-text').style.display = "none";
+                document.getElementById('choices').style.display = "block";
+            }, 1000);
+        }
+
+        function selectSound(type) {
+            if(type === 'deep') playFM(110, 500, 0.5, 2.5);
+            if(type === 'bright') playFM(440, 200, 3.5, 1.5);
+            if(type === 'neon') playFM(220, 800, 1.4, 0.5);
+
+            document.getElementById('setup-panel').style.display = "none";
+            document.getElementById('result-panel').style.display = "block";
+        }
+    </script>
+</body>
+</html>
