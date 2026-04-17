@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LCP-WEB 統合ポータル: WORLD MAP</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Shippori+Mincho+B1:wght@400;700&family=Share+Tech+Mono&display=swap');
+        
+        :root {
+            --map-gold: #ffd700;
+            --map-cyan: #00f2ff;
+            --bg: #05010a;
+            --glass: rgba(255, 255, 255, 0.03);
+        }
+
+        body {
+            background-color: var(--bg);
+            color: #e0e0e0;
+            font-family: 'Shippori Mincho B1', serif;
+            margin: 0;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            overflow-x: hidden;
+            background: radial-gradient(circle at 50% 50%, #1a0525 0%, #05010a 100%);
+        }
+
+        /* ========== TACHIE f134 ========== */
+        .tachie-layer {
+            position: fixed;
+            left: 5%;
+            bottom: 0;
+            width: 40%;
+            height: 90vh;
+            pointer-events: none;
+            z-index: 1;
+            display: flex;
+            align-items: flex-end;
+        }
+
+        #guide-img {
+            max-height: 100%;
+            max-width: 100%;
+            object-fit: contain;
+            filter: drop-shadow(0 0 20px var(--map-cyan)) brightness(1.1);
+            mask-image: linear-gradient(to top, transparent 0%, black 15%);
+            animation: breathe 5s ease-in-out infinite;
+        }
+
+        @keyframes breathe {
+            0%, 100% { transform: scale(1); opacity: 0.7; }
+            50% { transform: scale(1.02); opacity: 0.85; }
+        }
+
+        /* ========== CONTENT ========== */
+        .container {
+            position: relative;
+            z-index: 10;
+            width: 90%;
+            max-width: 900px;
+            padding: 40px 0;
+            margin-left: 30%; /* Space for tachie */
+        }
+
+        .header {
+            border-bottom: 1px solid var(--map-gold);
+            padding-bottom: 20px;
+            margin-bottom: 40px;
+            text-align: left;
+        }
+
+        .header h1 {
+            font-size: 2rem;
+            letter-spacing: 0.2em;
+            color: var(--map-gold);
+            margin: 0;
+            text-shadow: 0 0 15px rgba(255, 215, 0, 0.3);
+        }
+
+        .guide-speech {
+            background: var(--glass);
+            border: 1px solid rgba(0, 242, 255, 0.2);
+            padding: 20px;
+            border-radius: 0 20px 20px 20px;
+            margin-bottom: 40px;
+            font-size: 0.95rem;
+            line-height: 1.8;
+            position: relative;
+            backdrop-filter: blur(10px);
+        }
+
+        /* ========== LINKS GRID ========== */
+        .map-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        .category-box {
+            background: rgba(0, 0, 0, 0.4);
+            border: 1px solid #333;
+            padding: 20px;
+            text-align: left;
+            transition: all 0.3s;
+        }
+
+        .category-box:hover {
+            border-color: var(--map-cyan);
+            background: rgba(0, 242, 255, 0.05);
+        }
+
+        .cat-title {
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 0.7rem;
+            color: var(--map-cyan);
+            display: block;
+            margin-bottom: 10px;
+            letter-spacing: 0.2em;
+        }
+
+        .link-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .link-item {
+            margin-bottom: 10px;
+        }
+
+        .link-item a {
+            color: #fff;
+            text-decoration: none;
+            font-size: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            transition: color 0.2s;
+        }
+
+        .link-item a:hover {
+            color: var(--map-gold);
+        }
+
+        .link-item a::before {
+            content: "▶";
+            font-size: 0.6rem;
+            color: var(--map-gold);
+        }
+
+        .footer {
+            margin-top: 60px;
+            text-align: center;
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 0.7rem;
+            opacity: 0.5;
+        }
+
+        @media (max-width: 800px) {
+            .tachie-layer { display: none; }
+            .container { margin-left: 0; width: 100%; padding: 20px; }
+            .map-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+    <div class="tachie-layer">
+        <img id="guide-img" src="warehouse/images/f134.png" alt="Guide f134">
+    </div>
+
+    <div class="container">
+        <div class="header">
+            <span style="font-family:'Share Tech Mono'; font-size:0.8rem; color:var(--map-cyan);">ROOT_ACCESS: WORLD_MAP_v1.0</span>
+            <h1>LCP統合アーカイブ</h1>
+        </div>
+
+        <div class="guide-speech">
+            「ドクターひろし、お待ちしておりました。アーカイブ・ガイドの f134 です。<br>
+            あなたがこれまでに築き上げてきた、ネオワールドの領土を整理いたしました。<br>
+            思想、ビジネス、そして物語……。全ての断片は、このマップからアクセス可能です。<br>
+            さあ、次はどの世界へ同期（リンク）されますか？」
+        </div>
+
+        <div class="map-grid">
+            <!-- CATEGORY: HQ & ARCADE -->
+            <div class="category-box">
+                <span class="cat-title">00_CORE_SYSTEM</span>
+                <ul class="link-list">
+                    <li class="link-item"><a href="arcade.html">LCP-WEB ARCADE (本店)</a></li>
+                    <li class="link-item"><a href="index.html">OLD PORTAL (旧拠点)</a></li>
+                </ul>
+            </div>
+
+            <!-- CATEGORY: THOUGHT & DECLARATION -->
+            <div class="category-box">
+                <span class="cat-title">01_S1_THOUGHT</span>
+                <ul class="link-list">
+                    <li class="link-item"><a href="https://linux-research-group.github.io/neo-world-declaration/">ネオワールド宣言</a></li>
+                    <li class="link-item"><a href="https://linux-research-group.github.io/h-code-salvation/">Hコード救済計画</a></li>
+                    <li class="link-item"><a href="https://linux-research-group.github.io/h-code-346-council/">具現の評議会(346)</a></li>
+                </ul>
+            </div>
+
+            <!-- CATEGORY: SAGA & STORY -->
+            <div class="category-box">
+                <span class="cat-title">02_S3_EPICS</span>
+                <ul class="link-list">
+                    <li class="link-item"><a href="https://linux-research-group.github.io/neo-world-saga-site/">ネオワールドサーガ公式サイト</a></li>
+                    <li class="link-item"><a href="https://linux-research-group.github.io/pilgrim-father-repo/">ピルグリム・ファーザーズ</a></li>
+                </ul>
+            </div>
+
+            <!-- CATEGORY: SOCIETY & CITIZENS -->
+            <div class="category-box">
+                <span class="cat-title">03_SOCIETY</span>
+                <ul class="link-list">
+                    <li class="link-item"><a href="https://linux-research-group.github.io/neo-world-diplomats/">ネオワールド外交官拠点</a></li>
+                    <li class="link-item"><a href="https://linux-research-group.github.io/neo-world-citizens/">ネオワールド市民広場</a></li>
+                </ul>
+            </div>
+
+            <!-- CATEGORY: BUSINESS & SOLUTIONS -->
+            <div class="category-box">
+                <span class="cat-title">04_S2_BUSINESS</span>
+                <ul class="link-list">
+                    <li class="link-item"><a href="https://linux-research-group.github.io/lcp-pro-solutions/">LCPプロ・ソリューション</a></li>
+                    <li class="link-item"><a href="https://linux-research-group.github.io/ai-biz-hp-repo/">AIビジネス拠点</a></li>
+                    <li class="link-item"><a href="https://linux-research-group.github.io/lcp-intelligence-terminal/">知能ターミナル</a></li>
+                </ul>
+            </div>
+
+            <!-- CATEGORY: DEVELOPMENT -->
+            <div class="category-box">
+                <span class="cat-title">05_REVOLUTION</span>
+                <ul class="link-list">
+                    <li class="link-item"><a href="https://linux-research-group.github.io/github-pages-revolution/">GitHub Pages 開発革命</a></li>
+                    <li class="link-item"><a href="sitemap.html">統合サイトマップ</a></li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="footer">
+            &copy; 2026 LINUX-RESEARCH-GROUP / OPERATED BY DR. HIROSHI
+        </div>
+    </div>
+</body>
+</html>
