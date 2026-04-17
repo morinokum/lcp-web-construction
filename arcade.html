@@ -23,6 +23,8 @@
             padding: 20px;
             overflow-x: hidden;
             line-height: 1.4;
+            display: flex;
+            justify-content: center;
         }
 
         /* Scanline Effect */
@@ -33,32 +35,37 @@
             top: 0; left: 0; bottom: 0; right: 0;
             background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), 
                         linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
-            z-index: 2;
+            z-index: 100;
             background-size: 100% 4px, 3px 100%;
             pointer-events: none;
         }
 
         .container {
-            max-width: 800px;
-            margin: 0 auto;
+            max-width: 1000px;
+            width: 100%;
+            display: grid;
+            grid-template-columns: 1fr 300px;
+            gap: 20px;
             border: 1px solid var(--term-green);
             padding: 20px;
             box-shadow: 0 0 15px var(--term-dim);
             position: relative;
             z-index: 1;
+            background: rgba(0,0,0,0.8);
         }
 
         header {
+            grid-column: span 2;
             border-bottom: 2px solid var(--term-green);
             margin-bottom: 20px;
             padding-bottom: 10px;
         }
 
         .ascii-art {
-            font-size: 10px;
+            font-size: 8px;
             white-space: pre;
             line-height: 1;
-            margin-bottom: 20px;
+            margin-bottom: 15px;
             color: var(--term-green);
             text-shadow: 0 0 5px var(--term-green);
         }
@@ -69,24 +76,73 @@
         }
 
         .menu-item {
-            margin-bottom: 15px;
-            padding: 10px;
-            border: 1px transparent;
+            margin-bottom: 8px;
+            padding: 8px;
+            border: 1px solid transparent;
             transition: all 0.2s;
             cursor: pointer;
             display: block;
             text-decoration: none;
             color: var(--term-green);
+            font-size: 0.9em;
         }
 
         .menu-item:hover {
             background-color: var(--term-dim);
             border: 1px solid var(--term-green);
-            padding-left: 20px;
+            padding-left: 15px;
         }
 
         .menu-item::before {
             content: "> ";
+        }
+
+        /* ========== GIDAI HOLOGRAM ========== */
+        .hologram-panel {
+            border-left: 1px solid var(--term-dim);
+            padding-left: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+        }
+
+        .gidai-frame {
+            width: 100%;
+            height: 400px;
+            position: relative;
+            overflow: hidden;
+            border: 1px solid var(--term-dim);
+            background: #000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        #gidai-avatar {
+            max-width: 110%;
+            height: auto;
+            filter: grayscale(1) sepia(1) hue-rotate(90deg) brightness(1.2) contrast(1.2);
+            opacity: 0.7;
+            animation: flicker 4s infinite;
+        }
+
+        @keyframes flicker {
+            0%, 100% { opacity: 0.7; transform: scale(1); }
+            50% { opacity: 0.8; transform: scale(1.02); }
+            95% { opacity: 0.7; transform: translateX(0); }
+            96% { opacity: 0.9; transform: translateX(2px); }
+            97% { opacity: 0.7; transform: translateX(-2px); }
+        }
+
+        .gidai-info {
+            margin-top: 15px;
+            font-size: 0.7rem;
+            color: var(--term-gold);
+            text-align: center;
+            width: 100%;
+            border-top: 1px solid var(--term-dim);
+            padding-top: 10px;
         }
 
         .status-online { color: #00ff41; font-weight: bold; }
@@ -94,8 +150,9 @@
         .status-fm { color: var(--term-fm); font-weight: bold; text-shadow: 0 0 10px var(--term-fm); }
 
         .footer {
-            margin-top: 40px;
-            font-size: 0.8em;
+            grid-column: span 2;
+            margin-top: 20px;
+            font-size: 0.7em;
             text-align: right;
             border-top: 1px solid var(--term-dim);
             padding-top: 10px;
@@ -103,7 +160,7 @@
 
         .cursor {
             display: inline-block;
-            width: 10px;
+            width: 8px;
             height: 1.2em;
             background: var(--term-green);
             animation: blink 1s step-end infinite;
@@ -111,13 +168,11 @@
             margin-left: 5px;
         }
 
-        @keyframes blink {
-            from, to { opacity: 1; }
-            50% { opacity: 0; }
-        }
+        @keyframes blink { from, to { opacity: 1; } 50% { opacity: 0; } }
 
-        @media (max-width: 600px) {
-            .ascii-art { font-size: 6px; }
+        @media (max-width: 800px) {
+            .container { grid-template-columns: 1fr; }
+            .hologram-panel { display: none; }
         }
     </style>
     <link rel="manifest" href="manifest.json">
@@ -135,79 +190,51 @@
 \____/\____/\_/      \_/ \|\_/   \____/\_/ \|\____/\____\
                                                           
             </div>
-            <div>SYSTEM: LCP-OS v0.4.32 ONLINE</div>
-            <div>OPERATOR: DR. HIROSHI</div>
+            <div style="display: flex; justify-content: space-between;">
+                <span>SYSTEM: LCP-OS v0.4.35 ONLINE</span>
+                <span>OPERATOR: DR. HIROSHI</span>
+            </div>
         </header>
 
         <section>
-            <p>Welcome to LCP-WEB Game Center. Select a unit to execute.</p>
+            <p style="font-size: 0.8em; margin-bottom: 15px;">Welcome to LCP-WEB Game Center. Select a unit to execute.</p>
             <nav class="menu-list">
-                <a href="adventure.html" class="menu-item">
-                    [UNIT-01] PILGRIM FATHERS ADVENTURE ... <span class="status-online">ONLINE</span>
-                </a>
-                <a href="vending.html" class="menu-item">
-                    [UNIT-02] HIROSHI-VENDING SIMULATOR ... <span class="status-online">ONLINE</span>
-                </a>
-                <a href="shooter.html" class="menu-item">
-                    [UNIT-03] PRECISION SHOOTER [S5:REALIZATION] ... <span class="status-online">ONLINE</span>
-                </a>
-                <a href="nova_cresta.html" class="menu-item">
-                    [UNIT-04] NOVA CRESTA - GENESIS PROTOCOL ... <span class="status-online">ONLINE</span>
-                </a>
-                <a href="neo_world_saga_vn.html" class="menu-item">
-                    [UNIT-05] NEO WORLD SAGA: ARCHIVE GATOR ... <span class="status-online">ONLINE</span>
-                </a>
-                <a href="goin_note.html" class="menu-item">
-                    [UNIT-06] GOIN NOTE: DEADLINE CHRONICLE ... <span class="status-online">ONLINE</span>
-                </a>
-                <a href="bicycle_rules.html" class="menu-item">
-                    [UNIT-07] BICYCLE_SAFETY_PROTOCOL ... <span class="status-online">ONLINE</span>
-                </a>
-                <a href="chronicle.html" class="menu-item">
-                    [UNIT-08] LCP_CHRONICLE: DATA REPOSITORY ... <span class="status-legendary">LEGENDARY</span>
-                </a>
-                <a href="pixel_to_svg.html" class="menu-item">
-                    [UNIT-09] PIXEL_TO_SVG: GENESIS DESIGN ... <span class="status-online">ONLINE</span>
-                </a>
-                <a href="okino_battle.html" class="menu-item">
-                    [UNIT-10] WITCH BATTLE: VS OKINO ... <span class="status-online">ONLINE</span>
-                </a>
-                <a href="8bit_composer.html" class="menu-item">
-                    [UNIT-11] 8-BIT EMOTION COMPOSER ... <span class="status-online">ONLINE</span>
-                </a>
-                <a href="fm_synth.html" class="menu-item">
-                    [UNIT-12] FM_NEOSOUND_LAB: RESONANCE ... <span class="status-online">ONLINE</span>
-                </a>
-                <a href="fm_emotion_composer.html" class="menu-item">
-                    [UNIT-13] FM_EMOTION_COMPOSER ... <span class="status-fm">ULTIMATE SOUND</span>
-                </a>
-                <a href="gemini_music_lib.html" class="menu-item">
-                    [UNIT-14] GEMINI_FM_LIBRARY ... <span class="status-online">GEMINI COMPOSITIONS</span>
-                </a>
-                <a href="fm_algorithm_player.html" class="menu-item">
-                    [UNIT-15] FM_ALGORITHM_PLAYER ... <span class="status-online">READY FOR INJECTION</span>
-                </a>
-                <a href="yukiyama_sansou.html" class="menu-item">
-                    [UNIT-16] SNOW_LODGE_CASE: YUKIYAMA ... <span class="status-online">MYSTERY_ARCHIVE</span>
-                </a>
-                <a href="resonance_matching.html" class="menu-item">
-                    [UNIT-18] RESONANCE_DESTINY ... <span class="status-legendary">SOUL MATCHING</span>
-                </a>
-                <a href="entity_profiler.html" class="menu-item">
-                    [UNIT-19] ENTITY_PROFILER ... <span class="status-online">AI_SYNC_LAB</span>
-                </a>
-                <a href="archive_reclaimer.html" class="menu-item">
-                    [UNIT-20] ARCHIVE_RECLAIMER ... <span class="status-online">IDLE_RPG_PROTOCOL</span>
-                </a>
-                <a href="portal.html" class="menu-item">
-                    [UNIT-21] LCP_WORLD_MAP ... <span class="status-legendary">INTEGRATED_PORTAL</span>
-                </a>
+                <a href="adventure.html" class="menu-item">[UNIT-01] PILGRIM FATHERS ADVENTURE</a>
+                <a href="vending.html" class="menu-item">[UNIT-02] HIROSHI-VENDING SIMULATOR</a>
+                <a href="shooter.html" class="menu-item">[UNIT-03] PRECISION SHOOTER</a>
+                <a href="nova_cresta.html" class="menu-item">[UNIT-04] NOVA CRESTA</a>
+                <a href="neo_world_saga_vn.html" class="menu-item">[UNIT-05] NEO WORLD SAGA: ARCHIVE</a>
+                <a href="goin_note.html" class="menu-item">[UNIT-06] GOIN NOTE: DEADLINE</a>
+                <a href="bicycle_rules.html" class="menu-item">[UNIT-07] BICYCLE_SAFETY_PROTOCOL</a>
+                <a href="chronicle.html" class="menu-item">[UNIT-08] LCP_CHRONICLE ... <span class="status-legendary">LEGENDARY</span></a>
+                <a href="pixel_to_svg.html" class="menu-item">[UNIT-09] PIXEL_TO_SVG: DESIGN</a>
+                <a href="okino_battle.html" class="menu-item">[UNIT-10] WITCH BATTLE: VS OKINO ... <span class="status-online">DUAL_BGM</span></a>
+                <a href="8bit_composer.html" class="menu-item">[UNIT-11] 8-BIT EMOTION COMPOSER</a>
+                <a href="fm_synth.html" class="menu-item">[UNIT-12] FM_NEOSOUND_LAB</a>
+                <a href="fm_emotion_composer.html" class="menu-item">[UNIT-13] FM_EMOTION_COMPOSER ... <span class="status-fm">ULTIMATE</span></a>
+                <a href="gemini_music_lib.html" class="menu-item">[UNIT-14] GEMINI_FM_LIBRARY</a>
+                <a href="fm_algorithm_player.html" class="menu-item">[UNIT-15] FM_ALGORITHM_PLAYER</a>
+                <a href="yukiyama_sansou.html" class="menu-item">[UNIT-16] SNOW_LODGE: YUKIYAMA</a>
+                <a href="resonance_matching.html" class="menu-item">[UNIT-18] RESONANCE_DESTINY ... <span class="status-legendary">SOUL_SYNC</span></a>
+                <a href="entity_profiler.html" class="menu-item">[UNIT-19] ENTITY_PROFILER</a>
+                <a href="archive_reclaimer.html" class="menu-item">[UNIT-20] ARCHIVE_RECLAIMER ... <span class="status-online">IDLE_RPG</span></a>
+                <a href="portal.html" class="menu-item">[UNIT-21] LCP_WORLD_MAP</a>
             </nav>
+            <div style="margin-top: 20px; font-size: 0.8em;">
+                Command: arcade_start --all<span class="cursor"></span>
+            </div>
         </section>
 
-        <div style="margin-top: 20px;">
-            Command: arcade_start --all<span class="cursor"></span>
-        </div>
+        <aside class="hologram-panel">
+            <div class="gidai-frame">
+                <img id="gidai-avatar" src="warehouse/images/f125.png" alt="System Gidai">
+            </div>
+            <div class="gidai-info">
+                <div>ENTITY_ID: f125</div>
+                <div>ROLE: SYSTEM_INTERFACE</div>
+                <div style="margin-top:5px; color:var(--term-green);">"ドクター、準備は整いました。"</div>
+            </div>
+        </aside>
 
         <footer class="footer">
             &copy; 2026 LCP-WEB-CONSTRUCTION / HIROSHI THEORY SYSTEM
