@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>UNIT-20: ARCHIVE RECLAIMER [IDLE_RPG]</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap');
+        :root { --neon-green: #00ff41; --neon-gold: #ffd700; --neon-cyan: #00f2ff; --bg: #0d0208; }
+        body { background: var(--bg); color: var(--neon-green); font-family: 'Share Tech Mono', monospace; margin: 0; padding: 10px; display: flex; flex-direction: column; height: 100vh; overflow: hidden; }
+        
+        .header { border-bottom: 2px solid var(--neon-green); padding: 10px; display: flex; justify-content: space-between; align-items: flex-end; }
+        .stats-bar { display: flex; gap: 20px; background: rgba(0,255,65,0.05); padding: 10px; border-bottom: 1px solid #003b00; font-size: 0.9em; }
+        
+        .game-layout { display: grid; grid-template-columns: 300px 1fr; gap: 10px; flex-grow: 1; overflow: hidden; padding: 10px 0; }
+        
+        /* Left: Upgrades */
+        .upgrade-panel { overflow-y: auto; display: flex; flex-direction: column; gap: 8px; padding-right: 5px; }
+        .card { border: 1px solid #003b00; padding: 12px; background: rgba(255,255,255,0.02); transition: all 0.2s; cursor: pointer; position: relative; }
+        .card:hover { border-color: var(--neon-green); background: rgba(0,255,65,0.05); }
+        .card.disabled { opacity: 0.5; cursor: not-allowed; border-color: #300; }
+        .card .title { font-weight: bold; font-size: 0.8em; color: var(--neon-cyan); }
+        .card .cost { font-size: 0.7em; color: var(--neon-gold); }
+        .card .level { position: absolute; top: 5px; right: 5px; font-size: 0.6em; color: var(--neon-green); }
+
+        /* Right: Combat & Log */
+        .main-display { display: flex; flex-direction: column; gap: 10px; border-left: 1px solid #003b00; padding-left: 10px; overflow: hidden; }
+        .visual-area { height: 150px; border: 1px solid #003b00; background: #000; position: relative; display: flex; align-items: center; justify-content: center; overflow: hidden; }
+        .enemy-box { text-align: center; }
+        .hp-bar { width: 200px; height: 10px; border: 1px solid var(--neon-green); margin-top: 5px; }
+        .hp-inner { height: 100%; background: var(--neon-green); width: 100%; transition: width 0.3s; }
+        
+        #log { flex-grow: 1; background: rgba(0,0,0,0.5); border: 1px solid #003b00; padding: 10px; font-size: 0.75rem; overflow-y: auto; color: #aaa; }
+        .log-entry { margin-bottom: 4px; border-left: 2px solid #003b00; padding-left: 8px; }
+        .log-gain { color: var(--neon-cyan); }
+        .log-kill { color: var(--neon-gold); }
+
+        .footer { border-top: 2px solid var(--neon-green); padding: 10px; text-align: center; }
+        .btn-back { color: var(--neon-green); text-decoration: none; border: 1px solid var(--neon-green); padding: 5px 15px; font-size: 0.8em; }
+
+        ::-webkit-scrollbar { width: 4px; }
+        ::-webkit-scrollbar-thumb { background: var(--neon-green); }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div>
+            <h1 style="margin:0; font-size: 1.2rem;">ARCHIVE_RECLAIMER_v1.0</h1>
+            <span style="font-size: 0.6rem; color: var(--neon-cyan);">YGGDRASIL DATA RECOVERY PROTOCOL</span>
+        </div>
+        <div style="text-align:right;">
+            <button class="btn-back" style="background:transparent; cursor:pointer;" onclick="resetGame()">WIPE DATA</button>
+        </div>
+    </div>
+
+    <div class="stats-bar">
+        <span>CREDITS: <span id="credits" style="color:white;">0</span></span>
+        <span>RESONANCE: <span id="hcode" style="color:var(--neon-gold);">1.00</span></span>
+        <span>DPS: <span id="dps">0</span></span>
+    </div>
+
+    <div class="game-layout">
+        <div class="upgrade-panel" id="upgrades">
+            <!-- Upgrades dynamically added here -->
+        </div>
+
+        <div class="main-display">
+            <div class="visual-area">
+                <div class="enemy-box" id="enemy-ui">
+                    <div id="enemy-name" style="font-size: 0.8em; color: var(--neon-gold);">CONNECTING...</div>
+                    <div class="hp-bar"><div id="enemy-hp" class="hp-inner"></div></div>
+                </div>
+                <!-- Simple Scanline Effect -->
+                <div style="position:absolute; inset:0; background: linear-gradient(transparent 50%, rgba(0,255,0,0.02) 50%); background-size: 100% 4px; pointer-events:none;"></div>
+            </div>
+            <div id="log"></div>
+        </div>
+    </div>
+
+    <div class="footer">
+        <a href="arcade.html" class="btn-back">EXIT TO ARCADE</a>
+    </div>
+
+    <script>
+        let state = {
+            credits: 0,
+            hcode: 1.0,
+            totalCredits: 0,
+            lastTick: Date.now(),
+            upgrades: {
+                processor: { l: 1, baseCost: 15, basePower: 1, type: 'prod' },
+                active_armor: { l: 0, baseCost: 100, basePower: 5, type: 'atk' },
+                sentinel: { l: 0, baseCost: 500, basePower: 25, type: 'atk' },
+                quantum_node: { l: 0, baseCost: 2000, basePower: 50, type: 'prod' },
+                gidai_army: { l: 0, baseCost: 10000, basePower: 200, type: 'atk' }
+            }
+        };
+
+        const enemyList = [
+            { name: "Corrupted Bit", hp: 20, reward: 5 },
+            { name: "Logic Ghost", hp: 100, reward: 25 },
+            { name: "Archive Parasite", hp: 500, reward: 120 },
+            { name: "Sentinel Guard", hp: 2500, reward: 600 },
+            { name: "Memory Eater", hp: 12000, reward: 3000 }
+        ];
+
+        let currentEnemy = { ...enemyList[0], curHp: enemyList[0].hp };
+        let enemyIdx = 0;
+
+        function save() { localStorage.setItem('lcp_reclaimer_state', JSON.stringify(state)); }
+        function load() {
+            const saved = localStorage.getItem('lcp_reclaimer_state');
+            if (saved) state = JSON.parse(saved);
+        }
+
+        function getCost(id) {
+            const u = state.upgrades[id];
+            return Math.floor(u.baseCost * Math.pow(1.15, u.l));
+        }
+
+        function buy(id) {
+            const cost = getCost(id);
+            if (state.credits >= cost) {
+                state.credits -= cost;
+                state.upgrades[id].l++;
+                updateUI();
+                save();
+                log(`Upgraded ${id.replace('_',' ')} to level ${state.upgrades[id].l}`);
+            }
+        }
+
+        function log(msg, cls='') {
+            const div = document.createElement('div');
+            div.className = 'log-entry ' + cls;
+            div.innerText = `[${new Date().toLocaleTimeString()}] ${msg}`;
+            const logBox = document.getElementById('log');
+            logBox.prepend(div);
+            if (logBox.childNodes.length > 50) logBox.lastChild.remove();
+        }
+
+        function updateUI() {
+            document.getElementById('credits').innerText = Math.floor(state.credits).toLocaleString();
+            document.getElementById('hcode').innerText = state.hcode.toFixed(2);
+            
+            let dps = 0;
+            let pps = 0;
+            const upContainer = document.getElementById('upgrades');
+            upContainer.innerHTML = '';
+
+            for (const [id, u] of Object.entries(state.upgrades)) {
+                const cost = getCost(id);
+                const power = u.l * u.basePower;
+                if (u.type === 'atk') dps += power; else pps += power;
+
+                const card = document.createElement('div');
+                card.className = `card ${state.credits < cost ? 'disabled' : ''}`;
+                card.onclick = () => buy(id);
+                card.innerHTML = `
+                    <div class="title">${id.toUpperCase()}</div>
+                    <div class="cost">COST: ${cost.toLocaleString()} CR</div>
+                    <div class="level">LV.${u.l}</div>
+                    <div style="font-size:0.6em; color:#666;">POWER: +${u.basePower} ${u.type==='atk'?'DPS':'PPS'}</div>
+                `;
+                upContainer.appendChild(card);
+            }
+            document.getElementById('dps').innerText = dps;
+            document.getElementById('enemy-name').innerText = currentEnemy.name;
+            document.getElementById('enemy-hp').style.width = (currentEnemy.curHp / currentEnemy.hp * 100) + '%';
+        }
+
+        function loop() {
+            const now = Date.now();
+            const dt = (now - state.lastTick) / 1000;
+            state.lastTick = now;
+
+            // Production
+            let pps = 0;
+            let dps = 0;
+            for (const u of Object.values(state.upgrades)) {
+                if (u.type === 'prod') pps += u.l * u.basePower;
+                if (u.type === 'atk') dps += u.l * u.basePower;
+            }
+            
+            const gain = pps * dt * state.hcode;
+            state.credits += gain;
+            state.totalCredits += gain;
+
+            // Combat
+            if (dps > 0) {
+                currentEnemy.curHp -= dps * dt;
+                if (currentEnemy.curHp <= 0) {
+                    const reward = currentEnemy.reward * state.hcode;
+                    state.credits += reward;
+                    state.hcode += 0.01; // Every kill increases resonance
+                    log(`Defeated ${currentEnemy.name}. Recovered ${Math.floor(reward)} credits.`, 'log-kill');
+                    
+                    // Progress enemy
+                    enemyIdx = (enemyIdx + 1) % enemyList.length;
+                    // Scale up enemy HP as resonance grows
+                    const baseEnemy = enemyList[enemyIdx];
+                    const scale = Math.floor(state.hcode);
+                    currentEnemy = { 
+                        name: baseEnemy.name + (scale > 1 ? ` +${scale-1}` : ''), 
+                        hp: baseEnemy.hp * scale, 
+                        reward: baseEnemy.reward * scale,
+                        curHp: baseEnemy.hp * scale
+                    };
+                }
+            }
+
+            updateUI();
+            if (Math.random() < 0.01) save();
+            requestAnimationFrame(loop);
+        }
+
+        function resetGame() {
+            if (confirm("ARCHIVE WIPE: Are you sure?")) {
+                localStorage.removeItem('lcp_reclaimer_state');
+                location.reload();
+            }
+        }
+
+        load();
+        log("System initialized. Archive connection established.");
+        requestAnimationFrame(loop);
+    </script>
+</body>
+</html>
