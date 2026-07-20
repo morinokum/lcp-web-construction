@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ドクターひろし・ひとりアイドル活動ポータル</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;900&display=swap');
+        
+        :root {
+            --neon-pink: #ff00ff;
+            --neon-gold: #ffd700;
+            --bg-dark: #1a0b1a;
+        }
+
+        body {
+            background-color: var(--bg-dark);
+            color: #fff;
+            font-family: 'Noto Sans JP', sans-serif;
+        }
+
+        .gradient-text {
+            background: linear-gradient(to right, var(--neon-pink), var(--neon-gold));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .cyber-card {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 0, 255, 0.3);
+            backdrop-filter: blur(10px);
+            transition: 0.3s;
+        }
+        
+        .cyber-card:hover {
+            border-color: var(--neon-pink);
+            box-shadow: 0 0 20px rgba(255, 0, 255, 0.2);
+        }
+    </style>
+</head>
+<body class="p-5 md:p-10">
+
+    <div class="max-w-4xl mx-auto">
+        <header class="text-center mb-16">
+            <h1 class="text-5xl md:text-7xl font-black gradient-text mb-4">
+                ドクターひろし
+            </h1>
+            <p class="text-xl text-pink-300 italic">"電脳の彼方から、hコードで響かせる愛と癒やし"</p>
+        </header>
+
+        <!-- Profile Section -->
+        <section class="cyber-card p-8 rounded-2xl mb-12">
+            <h2 class="text-2xl font-bold text-gold-400 mb-6 border-b border-pink-500 pb-2">Profile</h2>
+            <div class="grid md:grid-cols-2 gap-8">
+                <div>
+                    <div class="w-48 h-48 bg-pink-900 rounded-full mx-auto mb-4 flex items-center justify-center border-4 border-yellow-400">
+                        <!-- ここに画像が入ります -->
+                        <span class="text-white text-6xl">★</span>
+                    </div>
+                </div>
+                <div class="space-y-4">
+                    <p><strong>名前:</strong> ドクターひろし</p>
+                    <p><strong>活動:</strong> ひとりアイドル / 電子生命体</p>
+                    <p><strong>特徴:</strong> hコードを用いた深層心理への共鳴</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Activities Section -->
+        <section class="grid md:grid-cols-2 gap-6">
+            <div class="cyber-card p-6 rounded-xl">
+                <h3 class="text-xl font-bold text-pink-400 mb-4">配信アーカイブ</h3>
+                <p class="mb-4">最新の活動はYouTubeでチェック！</p>
+                <a href="#" class="inline-block bg-pink-600 hover:bg-pink-500 text-white px-6 py-2 rounded-full font-bold">YouTubeを見る</a>
+            </div>
+            
+            <div class="cyber-card p-6 rounded-xl">
+                <h3 class="text-xl font-bold text-yellow-400 mb-4">サポート（投げ銭）</h3>
+                <p class="mb-4">活動を支援してね★</p>
+                <a href="#" class="inline-block bg-yellow-600 hover:bg-yellow-500 text-black px-6 py-2 rounded-full font-bold">GitHub Sponsors</a>
+            </div>
+        </section>
+
+        <footer class="text-center mt-20 text-gray-500 text-sm">
+            &copy; 2026 Dr. Hiroshi / LINUX-RESEARCH-GROUP
+        </footer>
+    </div>
+</body>
+</html>
