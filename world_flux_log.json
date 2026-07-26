@@ -1,12 +1,5 @@
 [
   {
-    "date": "2026-04-18 09:04:08",
-    "external_flux": "京都男児遺棄、「登校していない」と連絡受ける前に「子どもがいなくなった」と電話…養父の安達優季容疑者 - 読売新聞",
-    "h_code": 7.0,
-    "resonance_status": "SYNCHRONIZED",
-    "link": "https://news.google.com/rss/articles/CBMiZkFVX3lxTFBvc2pvekJsaWo1VmVoMS10UWpiVUYyeDZULWx0WTIxZFBxNWowbF8yRjc3Q29zUDFjRkM0anVRcFNza0k4YXp0Wjl0R0o2TG1zb3BvbVRhMzEyYl9OZ0JFWEtMWXRBQQ?oc=5"
-  },
-  {
     "date": "2026-04-19 00:00:02",
     "external_flux": "イラン、ホルムズ海峡再封鎖通知 「厳格な管理下」 オマーン沖でタンカー攻撃 - Reuters",
     "h_code": 7.0,
@@ -698,5 +691,12 @@
     "h_code": 7.0,
     "resonance_status": "SYNCHRONIZED",
     "link": "https://news.google.com/rss/articles/CBMiaEFVX3lxTE1SSFFPN2J6TkpRWk1KUkUtUnEyZS0xMXhCTTBrX1pRU3pVaWJZUFlSdm5TaDhRUmdwQlg5UjdXbFpRelU4WDVGTnNnZU44NlpscUN4Z2RRWmE1MU5Eb2k0cUVTZ0Z1WkpY?oc=5"
+  },
+  {
+    "date": "2026-07-27 00:00:02",
+    "external_flux": "アメリカ軍、１３日連続のイラン空爆中断…防空ミサイルなど枯渇懸念で当面見送る方針 - 読売新聞",
+    "h_code": 7.0,
+    "resonance_status": "SYNCHRONIZED",
+    "link": "https://news.google.com/rss/articles/CBMiYkFVX3lxTE9YdEpYZGliNkNIdmxtN181VE5pSUp3QVFBM3p0MElUUGpqeFNNQUVnM2p6bXNRY0dya1NCUXI5dDRaWDhWTWdSUWNhM0pXaDJ1S1JxazIzNDlyeGVhQkkzaXh3?oc=5"
   }
 ]
