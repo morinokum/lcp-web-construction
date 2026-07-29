@@ -1,12 +1,5 @@
 [
   {
-    "date": "2026-04-21 00:00:01",
-    "external_flux": "北海道、青森、岩手に一時津波警報 久慈市で８０センチ観測、青森で震度５強―「後発地震注意情報」発表 - 時事ドットコム",
-    "h_code": 7.0,
-    "resonance_status": "SYNCHRONIZED",
-    "link": "https://news.google.com/rss/articles/CBMiY0FVX3lxTFBQa2lDYVd4b1k0WDVqX2h0TWtYYW50cVhaUHpzUk5tdkR2VzJwM3UtZHc1QURUc3JwV0Rac0pIMlZncGp6U2JXY1ZUSktNeWNMUWFWRzdnaWo4cXRBZXdVZ1NRZw?oc=5"
-  },
-  {
     "date": "2026-04-22 00:00:02",
     "external_flux": "トランプ氏、イラン停戦延長に否定的 「合意なければ攻撃再開」 - Reuters",
     "h_code": 6.8,
@@ -698,5 +691,12 @@
     "h_code": 7.0,
     "resonance_status": "SYNCHRONIZED",
     "link": "https://news.google.com/rss/articles/CBMiYkFVX3lxTFBXdkpHZUFJdERZdFhuUi1Nb1l0ZTZKZ2lGT2hyODYtYk1tR29LVVpITkVid21kSTZTWXQ1bFJaU1ZmMlRtWWZiT2JaZXY2SDZtS3NrTHJqODlET1pqQ0dfb0Zn?oc=5"
+  },
+  {
+    "date": "2026-07-30 00:00:02",
+    "external_flux": "最大震度７ 2026年熊本地震 最新の状況は - 毎日新聞",
+    "h_code": 7.0,
+    "resonance_status": "SYNCHRONIZED",
+    "link": "https://news.google.com/rss/articles/CBMiaEFVX3lxTE9mQzZKeWhpSExuV3JlM3pTVS0zRmJRZE1hOGJ2RTRkNFBxSm02emhUVUZ0aTVwcmNHaWRhNnptb2twa3RZTFByTWxwZ0NfN0I0MDV2bVJxS0dReFFMYkFVUDAwQ2RUMlpL?oc=5"
   }
 ]
