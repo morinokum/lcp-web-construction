@@ -1,12 +1,5 @@
 [
   {
-    "date": "2026-04-26 00:00:02",
-    "external_flux": "大槌町山林火災、懸命の消火続く 消防庁は12都道県への緊急消防援助隊出動要請を指示に切り替え - 岩手日報",
-    "h_code": 7.0,
-    "resonance_status": "SYNCHRONIZED",
-    "link": "https://news.google.com/rss/articles/CBMiYEFVX3lxTE5YMjRnMC1GX0cydnZFRmFwekllc3dYUGJjRUVwRmp4eGY3Mlk4aWFocmVWVnBfOEFOVDVKX2JrWm03OGcyR2pYWUcyT1dyQjlzQnIxLXVjQmlnSXpJVkNyWQ?oc=5"
-  },
-  {
     "date": "2026-04-27 00:00:01",
     "external_flux": "警備に疑問の声 トランプ大統領出席の夕食会場はレーガンが1981年に銃撃されたホテル - 産経ニュース",
     "h_code": 7.0,
@@ -698,5 +691,12 @@
     "h_code": 5.9,
     "resonance_status": "SYNCHRONIZED",
     "link": "https://news.google.com/rss/articles/CBMibEFVX3lxTE5CeWNjR3pQVUZfa2cwaDhDeUc4bjVYOGJXQm52RjU1WkJhZFFoTjlBUkVRVGh6ZUJKN1N4UEg4VXNHbnYtcVB2bVRRaVE4dGhaMUQtQThNazRiS0hvM29NUkd6SDFvVTNPZlBuVA?oc=5"
+  },
+  {
+    "date": "2026-08-04 00:00:01",
+    "external_flux": "避難後、戻るように指示 イオン爆発で従業員２人死亡―所属会社が謝罪・熊本地震 - 時事ドットコム",
+    "h_code": 5.9,
+    "resonance_status": "SYNCHRONIZED",
+    "link": "https://news.google.com/rss/articles/CBMiY0FVX3lxTE9iYnFvLUJGeHB5cVFBeWZidEdCLTIyU3BVdS15Vk0zekF5cFlwSmtXVGRqbnZZSThUVXNqSFUtNkFNcW80RlowdVlZWHdIVzFJQ3Uycjc5MzZuRktOSnQ4Z0NaVQ?oc=5"
   }
 ]
