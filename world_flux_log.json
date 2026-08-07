@@ -1,12 +1,5 @@
 [
   {
-    "date": "2026-04-30 00:00:01",
-    "external_flux": "東京・福生市で殺人未遂事件 40代男が逃走中 ハンマーで男子高校生2人を殴るなどして自宅に逃げ込み…警視庁が突入も姿なし 裏口から逃走か - TBS NEWS DIG",
-    "h_code": 7.0,
-    "resonance_status": "SYNCHRONIZED",
-    "link": "https://news.google.com/rss/articles/CBMiV0FVX3lxTE9lT3pweEdMbjVWZ25GUTdkRktmcUVFOENYZjgzZlB1dVFsaXZ5ZlpJVTlYQ2ZPRHZoNnZEOUVQRHJ4OXROdk9nbEk0bkFLQkhENjVmUEFBdw?oc=5"
-  },
-  {
     "date": "2026-05-01 00:00:01",
     "external_flux": "高市首相がイラン大統領と電話会談 出光タンカー海峡通過「邦人保護で前向きな動き」 - 産経ニュース",
     "h_code": 7.0,
@@ -698,5 +691,12 @@
     "h_code": 7.0,
     "resonance_status": "SYNCHRONIZED",
     "link": "https://news.google.com/rss/articles/CBMiaEFVX3lxTE1vZlNuM0tHMGpPc3JOalFsUHlmZ2dsY2dpei1rbnBTeFE2VGJMQkc1N0Q0TzV2YjhNZkJzcHRDdTVTT3BDV0tKZ2YyRmp5eno5cXdtSzNhREpYTmJINGozanpEaTR5cFNk?oc=5"
+  },
+  {
+    "date": "2026-08-08 00:00:01",
+    "external_flux": "タイの中高一貫校で銃乱射 教職員5人死亡20人以上けが 容疑者の14歳男子中学生は自ら銃で撃ち死亡 登校前に祖父母も殺害か - FNNプライムオンライン",
+    "h_code": 7.0,
+    "resonance_status": "SYNCHRONIZED",
+    "link": "https://news.google.com/rss/articles/CBMiTkFVX3lxTE42QXIzcW0wTDFhS3o3eUxIUGpFak5KdXozQ0J3ZUZ2STVfaldtTkpWSjZLd1FiWUh2b0JrY0tDY0R6OGxuZTFwemVfTnZpUQ?oc=5"
   }
 ]
