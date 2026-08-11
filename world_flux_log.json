@@ -1,12 +1,5 @@
 [
   {
-    "date": "2026-05-04 00:00:03",
-    "external_flux": "イランが戦闘終結へ14項目提案 ホルムズ海峡の新枠組みや封鎖解除 - 日本経済新聞",
-    "h_code": 7.0,
-    "resonance_status": "SYNCHRONIZED",
-    "link": "https://news.google.com/rss/articles/CBMibEFVX3lxTFBrWXhXdXY0cW50MFFQZjdEWnM0V3J5bFZjMmVyUmU3WHlESTBMYTlWc2MzdWw4cnNnZ290aFQ1aUR0VmFKcjZvNjY4UUN2dTVlRUx1cUgzLTJ1MW5RUmFYQ0pYT1pkMGlsUU5XXw?oc=5"
-  },
-  {
     "date": "2026-05-05 00:00:01",
     "external_flux": "ホルムズ海峡で米軍艦にミサイル攻撃、イラン報道 米中央軍は否定 - 日本経済新聞",
     "h_code": 7.0,
@@ -698,5 +691,12 @@
     "h_code": 1.1,
     "resonance_status": "UNSTABLE",
     "link": "https://news.google.com/rss/articles/CBMiZkFVX3lxTE1tQzdJcW9nUFVaRFMwNlZ0ZGtya1BleUVSazh5U0Y1MDA5NzJKbXNsODdyNlBDSG1uYUNQYVJRQ0sxa0Vsb0VnQ0NtMHdMYmhQMDh0end3Q21pVTFvZWhhSUZLYnAxQQ?oc=5"
+  },
+  {
+    "date": "2026-08-12 00:00:01",
+    "external_flux": "従業員7人死亡のイオンモール熊本、避難後の「一時入館認めた」…貴重品回収やレジ締め要望で現場担当者が許可 - 新潟日報",
+    "h_code": 7.0,
+    "resonance_status": "SYNCHRONIZED",
+    "link": "https://news.google.com/rss/articles/CBMiXkFVX3lxTE52MG93dVFXcE02dGhMYmtxaGFGNG0tTjRiU0UtREdib3RINlJPR29pd1VsM19fZ1RLY1oyS1dIRG9tSEZmNUhZR2ZJSDY4TnVVRnljWUJpd1lvMF9ROVE?oc=5"
   }
 ]
