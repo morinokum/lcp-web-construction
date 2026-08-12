@@ -1,12 +1,5 @@
 [
   {
-    "date": "2026-05-05 00:00:01",
-    "external_flux": "ホルムズ海峡で米軍艦にミサイル攻撃、イラン報道 米中央軍は否定 - 日本経済新聞",
-    "h_code": 7.0,
-    "resonance_status": "SYNCHRONIZED",
-    "link": "https://news.google.com/rss/articles/CBMibEFVX3lxTE5fSzFPVm9JS00yZGRHMlpoS0loZVV5bG9sbnpfdHVZcE5nMGlHR05VYkZPWk9UWnVOM0RmZkR1RHVYSXZ1ZHZyY0hOcVJOYThRMnlfY19oQkRSTkpMbUIwQ05wNlpocFZQb3dXWg?oc=5"
-  },
-  {
     "date": "2026-05-06 00:00:02",
     "external_flux": "米イランが攻撃の応酬…トランプ氏「米艦船を標的にすれば、イランは地球上から吹き飛ばされる」 - 読売新聞",
     "h_code": 7.0,
@@ -698,5 +691,12 @@
     "h_code": 7.0,
     "resonance_status": "SYNCHRONIZED",
     "link": "https://news.google.com/rss/articles/CBMiXkFVX3lxTE52MG93dVFXcE02dGhMYmtxaGFGNG0tTjRiU0UtREdib3RINlJPR29pd1VsM19fZ1RLY1oyS1dIRG9tSEZmNUhZR2ZJSDY4TnVVRnljWUJpd1lvMF9ROVE?oc=5"
+  },
+  {
+    "date": "2026-08-13 00:00:01",
+    "external_flux": "京都府北部、高潮で冠水「海になってる」 13日にかけ警報級大雨の可能性 台風15号は熱低に - kyoto-np.co.jp",
+    "h_code": 7.0,
+    "resonance_status": "SYNCHRONIZED",
+    "link": "https://news.google.com/rss/articles/CBMiWEFVX3lxTE1wV3JFaHJJTEtfMGN0NHJFYVE5bzNzRDNjRHRBZkhoc1o2T29qUWx4WDY3LVEwS2FNRWpZOTIwX3QxMXdURmJHZUhyUFh0MjlMaDM2eURNR2c?oc=5"
   }
 ]
