@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>仮面ライダーユニオン：生活の代償</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=M+PLUS+1p:wght@300;700&family=Orbitron:wght@400;700&display=swap');
+
+        body, html {
+            margin: 0; padding: 0; width: 100%; height: 100%;
+            background-color: #0a0a0a; color: #e0e0e0;
+            font-family: 'M PLUS 1p', sans-serif;
+            overflow: hidden;
+        }
+
+        #bg {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: linear-gradient(180deg, #1a1a1a 0%, #000 100%);
+            z-index: -1;
+        }
+
+        /* Rain effect */
+        .rain {
+            position: absolute; background: rgba(255, 255, 255, 0.1);
+            width: 1px; height: 50px; pointer-events: none;
+            animation: fall linear infinite;
+        }
+        @keyframes fall {
+            to { transform: translateY(110vh); }
+        }
+
+        #game-container {
+            max-width: 900px; margin: 0 auto; height: 100%;
+            display: flex; flex-direction: column; justify-content: flex-end;
+            padding: 40px; box-sizing: border-box;
+            position: relative; z-index: 10;
+        }
+
+        #text-box {
+            background: rgba(15, 15, 15, 0.9);
+            border: 2px solid #555;
+            padding: 30px; min-height: 120px;
+            cursor: pointer; position: relative;
+            box-shadow: 0 0 30px rgba(0, 0, 0, 0.8);
+        }
+
+        #speaker {
+            position: absolute; top: -30px; left: 0;
+            background: #d4a017; color: #000;
+            padding: 5px 25px; font-weight: bold; font-size: 0.9em;
+            letter-spacing: 2px; font-family: 'Orbitron', sans-serif;
+            border: 1px solid #000;
+        }
+
+        #message {
+            line-height: 1.8; letter-spacing: 0.05em;
+            font-size: 1.1em; white-space: pre-wrap;
+        }
+
+        #choices {
+            margin-bottom: 20px; display: none;
+            flex-direction: column; gap: 12px;
+        }
+
+        .choice-btn {
+            background: rgba(30, 30, 30, 0.9);
+            border: 1px solid #d4a017; color: #d4a017;
+            padding: 18px; text-align: center;
+            cursor: pointer; transition: all 0.2s;
+            font-weight: bold;
+        }
+
+        .choice-btn:hover {
+            background: #d4a017; color: #000;
+            box-shadow: 0 0 20px rgba(212, 160, 23, 0.4);
+        }
+
+        #title-screen {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: #000; z-index: 100;
+            display: flex; flex-direction: column; justify-content: center; align-items: center;
+            transition: opacity 2s;
+        }
+
+        h1 {
+            font-size: 3em; letter-spacing: 0.2em; font-weight: 700;
+            color: #d4a017; margin-bottom: 5px; font-family: 'Orbitron', sans-serif;
+            text-align: center;
+        }
+
+        .sub-title {
+            color: #888; letter-spacing: 0.4em; margin-bottom: 60px;
+            font-size: 0.9em; font-family: 'Orbitron', sans-serif;
+        }
+
+        .start-btn {
+            border: 1px solid #d4a017; padding: 15px 50px; color: #d4a017;
+            cursor: pointer; text-decoration: none; transition: 0.3s;
+            font-weight: bold; letter-spacing: 5px;
+        }
+        .start-btn:hover { background: #d4a017; color: #000; }
+
+        .status-bar {
+            position: fixed; top: 20px; right: 20px;
+            display: flex; gap: 20px; font-family: 'Orbitron', sans-serif;
+            font-size: 0.8em; color: #888;
+        }
+
+        .hidden { display: none !important; opacity: 0; }
+    </style>
+</head>
+<body>
+    <div id="bg"></div>
+    
+    <div id="title-screen">
+        <h1>KAMEN RIDER UNION</h1>
+        <div class="sub-title">COST OF LIVING / 生活の代償</div>
+        <div class="start-btn" onclick="startGame()">START MISSION</div>
+    </div>
+
+    <div class="status-bar hidden" id="status-bar">
+        <div>CODE: A07 (TANAKA)</div>
+        <div>CREDIT: ¥1,240,000</div>
+    </div>
+
+    <div id="game-container" class="hidden">
+        <div id="choices"></div>
+        <div id="text-box" onclick="nextLine()">
+            <div id="speaker">SYSTEM</div>
+            <div id="message"></div>
+        </div>
+    </div>
+
+    <script>
+        const scenario = [
+            { s: "田中太郎", m: "「……ええ、はい。明日の会議の資料はまとめておきます。失礼します」" },
+            { s: "田中太郎", m: "スマートフォンの画面を消す。時刻は午後11時。\nリビングでは、娘のミサキがテスト勉強をしている。" },
+            { s: "ミサキ", m: "「お父さん、また仕事？ 大変だね」" },
+            { s: "田中太郎", m: "「ああ、まあな。ちょっと外の空気を吸ってくるよ」" },
+            { s: "田中太郎", m: "嘘だ。\n俺が向かうのは、会議室ではなく、戦場だ。" },
+            { s: "SYSTEM", m: "──公安局『仮面ライダーユニオン』部署より入電。\nターゲット：旧政府残党テロリスト。場所：新宿廃墟区。報酬：20万クレジット。" },
+            { s: "田中太郎", m: "20万か……今月の住宅ローンと、ミサキの夏期講習代で消えるな。" },
+            { s: "田中太郎", m: "俺は古びたライドアーマーのヘルメットを被る。顔を隠す『仮面』は、俺の生活を守るための境界線だ。" },
+            { s: "SYSTEM", m: "戦域に到着。敵影を確認。\n重武装の歩兵10名。正規軍のドローンが撃ち漏らした『ゴミ』だ。" },
+            { s: "田中太郎", m: "高価なオプション兵器はない。あるのは、このアーマーの頑丈さと、重力だけだ。" },
+            { s: "田中太郎", m: "どう攻める？", choices: [
+                { t: "高所からの『落下撃』を選択", next: 11 },
+                { t: "泥臭く地上戦を選択", next: 12 }
+            ]},
+            { s: "田中太郎", m: "「……やるしかないか」\n俺はビルの屋上から、敵の集団目掛けて身を投げた。", next: 13 },
+            { s: "田中太郎", m: "「弾丸がもったいない。拳で十分だ」\n俺は瓦礫の影から飛び出し、鉄の拳を叩きつけた。", next: 13 },
+            { s: "SYSTEM", m: "ドゴォォォォォォン！！\n金属がひし曲がり、生身の人間が押し潰される鈍い音が響く。" },
+            { s: "田中太郎", m: "（……足の裏に伝わる、この感覚。慣れることはないな）" },
+            { s: "SYSTEM", m: "ミッション完了。ターゲット排除。\n報酬が振り込まれました。" },
+            { s: "田中太郎", m: "俺は泥にまみれたアーマーを脱ぎ、深夜のコンビニで缶コーヒーを買う。\n指が少し震えているのは、疲労のせいだと思いたい。" },
+            { s: "田中太郎", m: "「……ただいま」\n家に入ると、ミサキは机で寝落ちしていた。" },
+            { s: "田中太郎", m: "俺はコンサルタントの顔に戻り、娘に毛布をかける。\n明日も、また『仕事』が始まる。" },
+            { s: "SYSTEM", m: "仮面ライダーユニオン：第1話「生活の代償」 完\n戦いは、続く──", end: true }
+        ];
+
+        let currentLine = 0;
+        let isTyping = false;
+
+        function createRain() {
+            const bg = document.getElementById('bg');
+            for(let i=0; i<30; i++) {
+                const r = document.createElement('div');
+                r.className = 'rain';
+                r.style.left = Math.random() * 100 + 'vw';
+                r.style.top = Math.random() * -100 + 'vh';
+                r.style.animationDuration = (Math.random() * 0.5 + 0.5) + 's';
+                r.style.animationDelay = Math.random() * 2 + 's';
+                bg.appendChild(r);
+            }
+        }
+
+        function startGame() {
+            document.getElementById('title-screen').style.opacity = '0';
+            setTimeout(() => {
+                document.getElementById('title-screen').classList.add('hidden');
+                document.getElementById('game-container').classList.remove('hidden');
+                document.getElementById('status-bar').classList.remove('hidden');
+                nextLine();
+            }, 2000);
+        }
+
+        function nextLine() {
+            if (isTyping || scenario[currentLine]?.choices) return;
+            if (scenario[currentLine]?.end) {
+                location.reload(); // またはトップへ戻る
+                return;
+            }
+
+            const line = scenario[currentLine];
+            displayLine(line);
+            currentLine = line.next !== undefined ? line.next : currentLine + 1;
+        }
+
+        function displayLine(line) {
+            isTyping = true;
+            document.getElementById('speaker').innerText = line.s;
+            const msgEl = document.getElementById('message');
+            msgEl.innerText = "";
+            let i = 0;
+            
+            const timer = setInterval(() => {
+                msgEl.innerText += line.m[i];
+                i++;
+                if (i >= line.m.length) {
+                    clearInterval(timer);
+                    isTyping = false;
+                    if (line.choices) {
+                        showChoices(line.choices);
+                    }
+                }
+            }, 40);
+        }
+
+        function showChoices(choices) {
+            const container = document.getElementById('choices');
+            container.innerHTML = "";
+            container.style.display = 'flex';
+            choices.forEach(c => {
+                const btn = document.createElement('div');
+                btn.className = 'choice-btn';
+                btn.innerText = c.t;
+                btn.onclick = () => {
+                    container.style.display = 'none';
+                    currentLine = c.next;
+                    nextLine();
+                };
+                container.appendChild(btn);
+            });
+        }
+
+        createRain();
+    </script>
+</body>
+</html>
