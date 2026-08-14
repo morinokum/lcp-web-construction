@@ -1,12 +1,5 @@
 [
   {
-    "date": "2026-05-07 00:00:02",
-    "external_flux": "京都男児遺体、殺人容疑で父親を再逮捕「言葉に腹が立って殺した」 [京都府] - 朝日新聞",
-    "h_code": 7.0,
-    "resonance_status": "SYNCHRONIZED",
-    "link": "https://news.google.com/rss/articles/CBMiZ0FVX3lxTE95N1NrMU11cWpXNHZVSGl4cnphbGgxTURGcW8za1Q2TmItXzAybERKMkdfbkQxS3JFajVTX2Y5NFRqd1R4Y2hFU0RYYnV1Y0Q4RVkyakx3dE5ZaURydFgyOVYtamRYbnc?oc=5"
-  },
-  {
     "date": "2026-05-08 00:00:02",
     "external_flux": "【速報】「速度の見極めが甘かった」磐越道・高校生死亡マイクロバス事故 68歳の運転手を逮捕・福島 - 日テレNEWS NNN",
     "h_code": 7.0,
@@ -698,5 +691,12 @@
     "h_code": 7.0,
     "resonance_status": "SYNCHRONIZED",
     "link": "https://news.google.com/rss/articles/CBMiX0FVX3lxTE5jU1NZRmQ5eW9ManBUbGNFdHlNOGRLMVM1MlV3RmxHQVFkUDNUTXM5VjQtTFUxRTR1MTlqOW9PcU02QVdodmhZdlAtUXVlYzE0Ny10elZHN1NjaDVHNkdN?oc=5"
+  },
+  {
+    "date": "2026-08-15 00:00:02",
+    "external_flux": "千葉 中央区のアンダーパス 排水ポンプ作動せず 原因を調査 - NHKニュース",
+    "h_code": 7.0,
+    "resonance_status": "SYNCHRONIZED",
+    "link": "https://news.google.com/rss/articles/CBMiX0FVX3lxTE5yTjlHWnVlT2FWeVREOEJ5aENqWXJJRTF3Z0tFazZHZW45a2xON2hrb3haY0ZSdXZnSDZwTHpQSWRBRnBrT19tdUZkMDNoeHJDc0dETUNacWwzcFF0T1Q4?oc=5"
   }
 ]
