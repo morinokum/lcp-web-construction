@@ -1,12 +1,5 @@
 [
   {
-    "date": "2026-05-13 00:00:01",
-    "external_flux": "磐越道バス運転手は５日前にも高速で追突事故、警察には「直近の事故歴ない」…生徒「今日死ぬかも」と送信 - 読売新聞",
-    "h_code": 7.0,
-    "resonance_status": "SYNCHRONIZED",
-    "link": "https://news.google.com/rss/articles/CBMiZkFVX3lxTE1LQ3dueTF4WEZEcUl0RGlvWDMtSGVkak82NUdrWXo5YWVqNFVnMHg4STNUaWw5c3Rxc2stOHZ3RHRoWmdTbDUyS3FVV3lzRGY2RkpTZFA2Q1U1NFRZRm91YllnY0FpQQ?oc=5"
-  },
-  {
     "date": "2026-05-14 00:00:01",
     "external_flux": "裁判Plus 司法のリアル：なぜ沈静化?再審法案「烈火の怒り」 自民・法務省水面下の攻防 - 毎日新聞",
     "h_code": 7.0,
@@ -698,5 +691,12 @@
     "h_code": 7.0,
     "resonance_status": "SYNCHRONIZED",
     "link": "https://news.google.com/rss/articles/CBMiY0FVX3lxTE1RUnV1VlBoUFBXdXFmV3lKMmVlSzk5RE5WRlVCSk9iUTQ2OGFiWFJvLUZSMWVXYWNDSHJkSGVneHpPOTA2T2tHTEtjeXlWT0FjMjJnYmRybzNLRTRlRmFacVJjRQ?oc=5"
+  },
+  {
+    "date": "2026-08-21 00:00:02",
+    "external_flux": "千葉豪雨 夜の消防通報2200件超 緊迫の音声記録も - NHKニュース",
+    "h_code": 7.0,
+    "resonance_status": "SYNCHRONIZED",
+    "link": "https://news.google.com/rss/articles/CBMiX0FVX3lxTFBRQy1kTXZjYUUwT3N5MUlxOHNjaXQ1bFR5cE8weEphSTJQR180SG53UFdlcTZ5aEFFUXNXSU1RT20xNm1OS3pEbThydFNYNkpsQ1Fybm9lY2ZpS1U2azlz?oc=5"
   }
 ]
