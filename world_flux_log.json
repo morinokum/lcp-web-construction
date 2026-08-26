@@ -1,12 +1,5 @@
 [
   {
-    "date": "2026-05-19 00:00:02",
-    "external_flux": "栃木強盗殺人、高校生１人が知人２人を実行役に勧誘か…高級外車は第三者から夫婦に提供された可能性 - 読売新聞",
-    "h_code": 7.0,
-    "resonance_status": "SYNCHRONIZED",
-    "link": "https://news.google.com/rss/articles/CBMiZkFVX3lxTE5lZmdLTU5kR3FobHVHUlRSaGdoMmVrZEYtd0RYY3BpWDYwT1ZyUi1YTGdOeVFkdENzd1ZqQXU4Z2d1bEV0NzVGTW1VQkpxWU9jU1dOVklMZVNzUU1UcEdwXzBiRkFIQQ?oc=5"
-  },
-  {
     "date": "2026-05-20 00:00:02",
     "external_flux": "栃木強盗殺人、事件前に高速ＳＡで指示役夫婦と実行役の高校生が合流・最終確認か…夫婦と初対面だった少年も - 読売新聞",
     "h_code": 7.0,
@@ -698,5 +691,12 @@
     "h_code": 7.0,
     "resonance_status": "SYNCHRONIZED",
     "link": "https://news.google.com/rss/articles/CBMiVkFVX3lxTE43M3pqeUROQXk4N1B5U1RsU3FjaUdNUklXOXl0MDFIVXhyTjExZFQwUGpQUkw2ZzVVVVVTck5Zd2FoTnU0YXBKb0t6d3NndGdYSjhTcm93?oc=5"
+  },
+  {
+    "date": "2026-08-27 00:00:01",
+    "external_flux": "米国が制裁対象追加のＩＣＣ・赤根智子所長「決して負けない」「法の支配の危機」…オンラインで記者会見 - 読売新聞",
+    "h_code": 5.0,
+    "resonance_status": "UNSTABLE",
+    "link": "https://news.google.com/rss/articles/CBMiYkFVX3lxTE5FYl9zdGt0N2pSMS00NERJbjZoVXRENTF5MFN6bVE5dDVmdkQ4bThreDV0NUZ3T3BuYWFNanotME5USFhGZGtPU1EzRnp0UXJTaWw0dkJuRzEyUFptdGdTWlRB?oc=5"
   }
 ]
