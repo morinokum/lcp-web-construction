@@ -1,12 +1,5 @@
 [
   {
-    "date": "2026-06-03 00:00:01",
-    "external_flux": "ネタニヤフ氏に「お前はクレイジーだ」、トランプ氏がレバノンでの戦線拡大批判…イランとの交渉進まずいらだち - 読売新聞",
-    "h_code": 7.0,
-    "resonance_status": "SYNCHRONIZED",
-    "link": "https://news.google.com/rss/articles/CBMiYkFVX3lxTE9DbWlSY2FyY3duMi1pWnFUTndIS0dzNUFQdXlhdVRLMWVZOFlYLTByUWZZcXVGMUZUdXEwWS1zMmdxanQ4YjV2N3Y0RWZmRDM4RWUxMFlyR1plV2RFVEs2cnd3?oc=5"
-  },
-  {
     "date": "2026-06-04 00:00:14",
     "external_flux": "Communication Error: <urlopen error [Errno -3] Temporary failure in name resolution>",
     "h_code": 7.0,
@@ -698,5 +691,12 @@
     "h_code": 7.0,
     "resonance_status": "SYNCHRONIZED",
     "link": "https://news.google.com/rss/articles/CBMiZkFVX3lxTE5SSUdqQmZ2UHBxZzAwR05ad2IxT2FyYnZYSjlTejlWRVMwVVZMcVFHRHBuS3Q5QkFTeUFjME1zM3VuMFhXV2tJdUx0aVV6TFhvSjFwSnNTdkZmRlJqdkpxV3FRYk5Cdw?oc=5"
+  },
+  {
+    "date": "2026-09-11 00:00:02",
+    "external_flux": "トランプ大統領、米国民成人に１人７７万円「配当」支給を約束…共和党党大会が開幕し演説 - 読売新聞",
+    "h_code": 7.0,
+    "resonance_status": "SYNCHRONIZED",
+    "link": "https://news.google.com/rss/articles/CBMiYkFVX3lxTE02MWdFa2N6NFNjR3M0Vm94by14SlB4aXlpZlg1Qk5ScGlhVVBGbmJubDJ5SGpLWDA0UWRhQ0ZWb3B5SEVqYmtkZDJ1ZEx6NUV5d0Jpbl9MMGIyX3d5V1BIYU93?oc=5"
   }
 ]
