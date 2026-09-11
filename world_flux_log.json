@@ -1,12 +1,5 @@
 [
   {
-    "date": "2026-06-04 00:00:14",
-    "external_flux": "Communication Error: <urlopen error [Errno -3] Temporary failure in name resolution>",
-    "h_code": 7.0,
-    "resonance_status": "SYNCHRONIZED",
-    "link": ""
-  },
-  {
     "date": "2026-06-05 00:00:01",
     "external_flux": "留萌１７歳殺害、内田梨瑚被告「非常識な言動で人生を奪い申し訳ございません」…遺族に手紙拒まれ公判で初めて謝罪 - 読売新聞",
     "h_code": 7.0,
@@ -698,5 +691,12 @@
     "h_code": 7.0,
     "resonance_status": "SYNCHRONIZED",
     "link": "https://news.google.com/rss/articles/CBMiYkFVX3lxTE02MWdFa2N6NFNjR3M0Vm94by14SlB4aXlpZlg1Qk5ScGlhVVBGbmJubDJ5SGpLWDA0UWRhQ0ZWb3B5SEVqYmtkZDJ1ZEx6NUV5d0Jpbl9MMGIyX3d5V1BIYU93?oc=5"
+  },
+  {
+    "date": "2026-09-12 00:00:01",
+    "external_flux": "トランプ氏、フーシ派への攻撃拒否 サウジ皇太子の要請退ける＝報道 - Reuters",
+    "h_code": 7.0,
+    "resonance_status": "SYNCHRONIZED",
+    "link": "https://news.google.com/rss/articles/CBMifkFVX3lxTE9PLUdncU94eDBUcE5TWDVOQWdNSVN4bjZLQkFQOFY2cWN4ZksxSU96aTBwaGJuOGFONTRBTklYeDROZUZLTjk0dy1hTFFNZEE0YXdQZDBJUGE2ZndySWdicFZteXYyZHl0TW9aeldTc2xqQVgxQmFOOTFmOGZxZw?oc=5"
   }
 ]
