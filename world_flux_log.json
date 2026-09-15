@@ -1,12 +1,5 @@
 [
   {
-    "date": "2026-06-08 00:00:04",
-    "external_flux": "宇都宮市の中心部に相次ぎクマ…県庁付近や東武宇都宮駅近くのオリオン通り商店街など - 読売新聞",
-    "h_code": 7.0,
-    "resonance_status": "SYNCHRONIZED",
-    "link": "https://news.google.com/rss/articles/CBMiZkFVX3lxTE9NZTV6Ym5QTVlhbTdRSTlqQkVHX1RBWTJSWHJyYXNfVUU5V29oM2g2VVlRTGdDQmlReldvOXFkNVhGZEh4NHl6MkwyR0pZOXdtQmhPcnVGV095S3dNcHlGOXlxZ25wQQ?oc=5"
-  },
-  {
     "date": "2026-06-09 00:00:04",
     "external_flux": "ほんこん 高市陣営への“中傷動画疑惑”追及に「国会でやらなアカンことなんですか？」疑問呈すも「重大事案」とユーザー反発 - Yahoo!ニュース",
     "h_code": 7.0,
@@ -698,5 +691,12 @@
     "h_code": 7.0,
     "resonance_status": "SYNCHRONIZED",
     "link": "https://news.google.com/rss/articles/CBMiZkFVX3lxTE04aFVuREw2NGxjamtJTnYxR1B4TlZaazN4RWp0aVI0eFpYSXdneGtSQUlzWnc2LXl4OFAxNnhDVElicFIwNThDamIyek03WENiQllsT3B3cjZYam54Rk85MTNmS1Nfdw?oc=5"
+  },
+  {
+    "date": "2026-09-16 00:00:01",
+    "external_flux": "空自の大型無人偵察機「グローバルホーク」１機が鳥取北の公海上で通信途絶、周辺海域で浮遊物発見 - 読売新聞",
+    "h_code": 3.3,
+    "resonance_status": "UNSTABLE",
+    "link": "https://news.google.com/rss/articles/CBMiZkFVX3lxTE1ZYUloTlBWcDBpMC1aYmxwVUNRWmZ2ZmY5dTRVZE0xUVZBbmZpOUpvSjJQNUhoOWNXYm90ZVFSTUxMckZFc3p4MXB0SU1US0NWMHFGbWlEV2dTdlBocFFIV0YwUFp2UQ?oc=5"
   }
 ]
