@@ -1,12 +1,5 @@
 [
   {
-    "date": "2026-06-17 00:00:02",
-    "external_flux": "群馬南部・埼玉北部で震度5弱の地震を観測 震源は茨城南部 津波の心配なし - 産経ニュース",
-    "h_code": 7.0,
-    "resonance_status": "SYNCHRONIZED",
-    "link": "https://news.google.com/rss/articles/CBMidkFVX3lxTE1NRGxFRURPT0ZkLWRTcTRxTzRtNDNhUDBrYmNya0FOWDZBQTdlMjBkTXFZY0p5WjRJWG1KUUdYbmN4QmVKNmd1ejdKR2lLMGI4QUlMSnJrWTQtMUlsSnNLb29FMnNITUhwYTM5bGcyWGdmcVFNUnc?oc=5"
-  },
-  {
     "date": "2026-06-18 00:00:14",
     "external_flux": "Communication Error: <urlopen error [Errno -3] Temporary failure in name resolution>",
     "h_code": 7.0,
@@ -698,5 +691,12 @@
     "h_code": 7.0,
     "resonance_status": "SYNCHRONIZED",
     "link": "https://news.google.com/rss/articles/CBMiZkFVX3lxTE1fZ0ZNQnhKVld1eDhOWDAyWk9XbkVDakxLd29tX0oyQWJqQW9sZzBVTWJ6SERoZ1hSemNaYlFiRDk0dHN3SWdZRXJyQU52dS1xUDlQUEtJQm82V190NF85dENHNzdHdw?oc=5"
+  },
+  {
+    "date": "2026-09-25 00:00:01",
+    "external_flux": "米主要テレビ、トランプ氏の習氏歓迎を中継せず 政権と対立 - 日本経済新聞",
+    "h_code": 2.2,
+    "resonance_status": "UNSTABLE",
+    "link": "https://news.google.com/rss/articles/CBMibEFVX3lxTFA0ZV9XOWpKZTBsenpXNEpfMTU1QWpNYWswTlFCWVdudndWTTRIVUhyeGdCYjktWTFQUGVUNDNoMTFnYzZ2aW5EYmFxZ3podG55MTZ3MzdYRUVtOF9Vb0RGRXIyZEJHSjJiMDRKWg?oc=5"
   }
 ]
