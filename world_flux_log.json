@@ -1,12 +1,5 @@
 [
   {
-    "date": "2026-06-18 00:00:14",
-    "external_flux": "Communication Error: <urlopen error [Errno -3] Temporary failure in name resolution>",
-    "h_code": 7.0,
-    "resonance_status": "SYNCHRONIZED",
-    "link": ""
-  },
-  {
     "date": "2026-06-19 00:00:02",
     "external_flux": "モスクワでウクライナが大規模無人機攻撃、１９０機以上撃墜される…主要３空港５００便以上影響 - 読売新聞",
     "h_code": 7.0,
@@ -698,5 +691,12 @@
     "h_code": 2.2,
     "resonance_status": "UNSTABLE",
     "link": "https://news.google.com/rss/articles/CBMibEFVX3lxTFA0ZV9XOWpKZTBsenpXNEpfMTU1QWpNYWswTlFCWVdudndWTTRIVUhyeGdCYjktWTFQUGVUNDNoMTFnYzZ2aW5EYmFxZ3podG55MTZ3MzdYRUVtOF9Vb0RGRXIyZEJHSjJiMDRKWg?oc=5"
+  },
+  {
+    "date": "2026-09-26 00:00:01",
+    "external_flux": "トランプ氏「同盟国」、習氏「軍国主義」発言に呼応 日本のリスクに - 朝日新聞",
+    "h_code": 7.0,
+    "resonance_status": "SYNCHRONIZED",
+    "link": "https://news.google.com/rss/articles/CBMiZ0FVX3lxTE5acXo2azd4cDR4cV9udW5sTG5vVFRJS2NXaFVuUkNFaElFTEM0ZVhPZS1wMzcxQjlaR2dmV0c3YnJuWEVXb29lYl9GNHRUUi1PeTNyNlUtZFFVRVN0dEFCV2ZrSTU1RVk?oc=5"
   }
 ]
