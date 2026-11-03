@@ -1,250 +1,281 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>8-BIT EMOTION COMPOSER: MULTI-LAYER</title>
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap');
-        :root { --neon: #00ff41; --bg: #0d0208; }
-        body { background-color: var(--bg); color: var(--neon); font-family: 'Share Tech Mono', monospace; margin: 0; padding: 20px; display: flex; flex-direction: column; height: 95vh; overflow: hidden; }
-        .header { border-bottom: 2px solid var(--neon); padding-bottom: 10px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: flex-end; }
-        
-        .track-panel { display: flex; gap: 10px; margin-bottom: 20px; }
-        .track-btn { background: transparent; border: 1px solid var(--neon); color: var(--neon); padding: 5px 15px; cursor: pointer; }
-        .track-btn.active { background: var(--neon); color: #000; font-weight: bold; }
-
-        .editor-grid { display: flex; flex-direction: column; gap: 20px; flex-grow: 1; }
-        .emotion-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
-        .piano-roll { display: flex; gap: 5px; flex-wrap: wrap; justify-content: center; }
-        .btn { background: transparent; border: 1px solid var(--neon); color: var(--neon); padding: 10px; cursor: pointer; font-family: 'Share Tech Mono'; }
-        .btn:hover { background: rgba(0, 255, 65, 0.1); }
-        .btn.active { background: var(--neon); color: #000; }
-
-        .sequence-view { border: 1px solid #003b00; padding: 10px; min-height: 40px; font-size: 0.8em; display: flex; gap: 5px; overflow-x: auto; }
-        .note-tag { background: #003b00; padding: 2px 5px; border-radius: 3px; }
-
-        .viz-container { width: 100%; height: 60px; border: 1px solid #003b00; margin: 10px 0; display: flex; align-items: flex-end; gap: 1px; }
-        .viz-bar { background: var(--neon); flex-grow: 1; height: 0%; }
-
-        .footer-controls { border-top: 2px solid var(--neon); padding-top: 15px; display: flex; gap: 15px; flex-wrap: wrap; }
-        #rec-indicator { color: #f00; display: none; animation: blink 1s infinite; }
-        @keyframes blink { 50% { opacity: 0; } }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>チップチューン・スタジオ</title>
+<link href="https://fonts.googleapis.com/css2?family=DotGothic16&display=swap" rel="stylesheet">
+<style>
+:root{color-scheme:dark;--bg:#0a0410;--pn:#150a1f;--ng:#00ff6a;--pk:#ff2d7a;--cy:#25e8ff;--yl:#ffd23f;--tx:#d8ffe6;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+*{box-sizing:border-box}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0 auto;max-width:760px;padding:12px;background:var(--bg);color:var(--tx);font-family:'DotGothic16','Share Tech Mono',monospace;font-size:14px;-webkit-tap-highlight-color:transparent}
+h1{font-size:1.25em;margin:0;color:var(--ng);text-shadow:0 0 8px #00ff6a66;letter-spacing:1px}
+.sub{font-size:.8em;opacity:.7;margin:2px 0 10px}
+.row{display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin:8px 0}
+.b{background:transparent;border:1px solid var(--c,var(--ng));color:var(--c,var(--ng));padding:8px 10px;font:inherit;border-radius:4px;cursor:pointer}
+.b:active{transform:scale(.96)}
+.b.on{background:var(--c,var(--ng));color:#000}
+#play{--c:var(--pk);font-size:1.1em;padding:10px 18px;flex:0 0 auto}
+.gen{--c:var(--cy)}
+.tabs{display:grid;grid-template-columns:repeat(4,1fr);gap:4px}
+.tab{padding:9px 2px;font-size:.85em;border-color:var(--c);color:var(--c)}
+.tab.m{opacity:.4;text-decoration:line-through}
+.panel{background:var(--pn);border:1px solid #2a1740;border-radius:6px;padding:8px;margin:8px 0}
+#grid{display:grid;gap:2px;margin:8px 0}
+.c{background:#1c0f2b;border:0;border-radius:2px;padding:0;aspect-ratio:1/1.25;min-height:22px;cursor:pointer}
+.c.q{background:#27153a}
+.c.r{background:#33204d}
+.c.on{background:var(--tc);box-shadow:0 0 6px var(--tc)}
+.c.p{background:#4a3470}
+.c.on.p{filter:brightness(1.7)}
+.lb{font-size:.65em;display:flex;align-items:center;opacity:.7}
+label{display:flex;align-items:center;gap:6px;font-size:.85em}
+input[type=range]{accent-color:var(--ng);flex:1;min-width:80px}
+select{background:#000;color:var(--ng);border:1px solid var(--ng);font:inherit;padding:5px;border-radius:4px}
+canvas{width:100%;height:56px;background:#000;border:1px solid #1a3320;border-radius:4px;display:block}
+.hint{font-size:.75em;opacity:.65;line-height:1.5}
+#md{position:fixed;inset:0;background:#000d;display:none;align-items:center;justify-content:center;z-index:50;padding:16px}
+#md>div{background:var(--pn);border:2px solid var(--ng);border-radius:8px;padding:16px;width:100%;max-width:520px;display:flex;flex-direction:column;gap:10px}
+textarea{width:100%;height:160px;background:#000;color:var(--ng);border:1px solid var(--ng);font-family:monospace;font-size:11px;padding:6px}
+#toast{position:fixed;bottom:calc(20px + env(safe-area-inset-bottom,0px));left:50%;transform:translateX(-50%);background:var(--ng);color:#000;padding:8px 16px;border-radius:4px;display:none;z-index:60}
+a.b{text-decoration:none;text-align:center}
+</style>
 </head>
 <body>
-    <div class="header">
-        <div>
-            <h1 style="margin:0; font-size: 1.5em;">8-BIT_EMOTION_COMPOSER: MULTI-LAYER</h1>
-            <span id="rec-indicator">● RECORDING...</span>
-        </div>
-        <div id="status">READY</div>
-    </div>
+<h1>♪ CHIPTUNE STUDIO</h1>
+<div class="sub">マスをタップするだけ。どこを押してもスケール内だから、絶対ハズれません。</div>
 
-    <div class="track-panel">
-        <span>SELECT TRACK:</span>
-        <button id="tr-0" class="track-btn active" onclick="switchTrack(0)">TRACK 1 (LEAD)</button>
-        <button id="tr-1" class="track-btn" onclick="switchTrack(1)">TRACK 2 (SUB)</button>
-        <button id="tr-2" class="track-btn" onclick="switchTrack(2)">TRACK 3 (BASS)</button>
-    </div>
+<div class="row">
+  <button class="b" id="play" onclick="toggle()">▶ 再生</button>
+  <button class="b" style="--c:var(--yl)" onclick="omakase()">🎲 おまかせ作曲</button>
+</div>
+<div class="row" id="genres"></div>
 
-    <div class="editor-grid">
-        <div class="emotion-grid">
-            <button id="joy" class="btn active" onclick="setEmotion('joy')">喜 (JOY)</button>
-            <button id="anger" class="btn" onclick="setEmotion('anger')">怒 (ANGER)</button>
-            <button id="sorrow" class="btn" onclick="setEmotion('sorrow')">哀 (SORROW)</button>
-            <button id="pleasure" class="btn" onclick="setEmotion('pleasure')">楽 (PLEASURE)</button>
-        </div>
+<div class="tabs" id="tabs"></div>
+<div class="panel">
+  <div class="row" style="margin:0">
+    <label id="wvrow">音色 <select id="wv" onchange="S.t[cur].w=this.value;touch()"></select></label>
+    <label style="flex:1">音量 <input type="range" id="vol" min="0" max="100" oninput="S.t[cur].v=this.value/100;touch()"></label>
+    <button class="b" id="mute" onclick="S.t[cur].m=!S.t[cur].m;ui();touch()">🔇</button>
+    <button class="b" style="--c:var(--yl)" onclick="genTrack(cur);ui();touch()">🎲</button>
+    <button class="b" style="--c:var(--pk)" onclick="clr()">🗑</button>
+  </div>
+  <div id="grid"></div>
+  <div class="hint">明るい列＝拍の頭／少し明るい段＝ドの音（ルート）。🎲でこのトラックだけ作り直し。</div>
+</div>
 
-        <div class="piano-roll" id="piano">
-            <!-- JS will populate -->
-        </div>
+<div class="panel">
+  <div class="row" style="margin:0 0 6px">
+    <label style="flex:1">テンポ <b id="bv"></b><input type="range" id="bpm" min="60" max="220" oninput="S.bpm=+this.value;$('bv').textContent=S.bpm;if(O)O.dl.delayTime.value=60/S.bpm*.75;touch()"></label>
+  </div>
+  <div class="row" style="margin:0 0 6px">
+    <label>キー <select id="key" onchange="S.key=+this.value;touch()"></select></label>
+    <label>雰囲気 <select id="sc" onchange="S.sc=this.value;touch()"></select></label>
+  </div>
+  <div class="row" style="margin:0">
+    <label style="flex:1">エコー <input type="range" id="echo" min="0" max="70" oninput="S.echo=this.value/100;if(O)O.wet.gain.value=S.echo;touch()"></label>
+    <label style="flex:1">ノリ <input type="range" id="swing" min="0" max="60" oninput="S.swing=this.value/100;touch()"></label>
+  </div>
+</div>
 
-        <div>
-            <div style="font-size: 0.7em; margin-bottom: 5px;">CURRENT SEQUENCE:</div>
-            <div id="seq-view" class="sequence-view"></div>
-            <button class="btn" style="font-size: 0.7em; margin-top: 5px;" onclick="clearSequence()">CLEAR TRACK</button>
-        </div>
+<canvas id="viz" width="700" height="56"></canvas>
+<div class="row">
+  <button class="b" onclick="saveM()">💾 セーブ/ロード</button>
+  <button class="b" style="--c:var(--pk)" onclick="exportWav()" id="wavb">🔊 WAVに書き出し</button>
+</div>
 
-        <div class="viz-container" id="visualizer"></div>
-    </div>
+<div id="md"><div id="mdc"></div></div>
+<div id="toast"></div>
 
-    <div class="footer-controls">
-        <button class="btn" style="font-weight:bold;" onclick="togglePlayback()">START/STOP ALL TRACKS</button>
-        <button class="btn" onclick="startRecording()">RECORD TO WAV</button>
-        <button class="btn" onclick="exportJSON()">EXPORT JSON</button>
-        <label class="btn">IMPORT JSON<input type="file" style="display:none" onchange="importJSON(event)"></label>
-        <a href="arcade.html" class="btn" style="text-decoration:none">EXIT</a>
-    </div>
+<script>
+const $=id=>document.getElementById(id),R=n=>Math.floor(Math.random()*n);
+const SC={minor:[0,2,3,5,7,8,10],major:[0,2,4,5,7,9,11],penta:[0,3,5,7,10],wa:[0,1,5,7,8],blues:[0,3,5,6,7,10]};
+const SCN={major:'明るい（メジャー）',minor:'切ない（マイナー）',penta:'ハズさない（ペンタ）',wa:'和風',blues:'ブルース'};
+const KN=['C','C#','D','D#','E','F','F#','G','G#','A','A#','B'];
+const WV={square:'ピコピコ（矩形）',sawtooth:'ブリブリ（ノコギリ）',triangle:'まろやか（三角）',sine:'ピュア（サイン）'};
+const TI=[{n:'🎹 メロ',c:'#25e8ff',base:62},{n:'✨ アルペジオ',c:'#ffd23f',base:50},{n:'🎸 ベース',c:'#ff2d7a',base:36},{n:'🥁 ドラム',c:'#00ff6a'}];
+const G={
+ adv:{n:'⚔️ ぼうけん',bpm:132,sc:'major',key:0,prog:[0,4,5,3],w:['square','triangle','sawtooth'],bass:[0,1,0,1],ap:[0,1,2,1],dr:['10001000','00100010','11111111'],ld:.8,echo:.25,sw:0},
+ boss:{n:'👹 ボス戦',bpm:156,sc:'minor',key:9,prog:[0,5,6,4],w:['sawtooth','square','sawtooth'],bass:[0,0,1,0],ap:[0,2,1,2],dr:['10101011','00100010','11111111'],ld:.85,echo:.2,sw:0},
+ cyber:{n:'🤖 サイバー',bpm:118,sc:'minor',key:2,prog:[0,2,5,4],w:['square','sawtooth','sawtooth'],bass:[0,-1,0,1],ap:[0,1,2,1],dr:['10100110','00100010','01010101'],ld:.6,echo:.4,sw:.3},
+ dun:{n:'🏰 ダンジョン',bpm:84,sc:'wa',key:4,prog:[0,0,3,2],w:['triangle','sine','triangle'],bass:[0,-1,-1,-1],ap:[0,-1,2,-1],dr:['10000000','00000010','00100010'],ld:.4,echo:.5,sw:0},
+ cute:{n:'🌸 ほのぼの',bpm:112,sc:'major',key:7,prog:[0,5,3,4],w:['triangle','square','triangle'],bass:[0,-1,0,0],ap:[0,1,2,1],dr:['10001010','00100010','10101010'],ld:.75,echo:.3,sw:.25}
+};
+let S={bpm:128,key:0,sc:'major',echo:.25,swing:0,t:[0,1,2].map(()=>({w:'square',v:.8,m:false,s:Array(16).fill(-1)})).concat([{v:.8,m:false,d:[0,1,2].map(()=>Array(16).fill(0))}])};
+let cur=0,cg=G.adv,cells=[],AC,O,an,playing=false,step=0,nextT=0,q=[],timer,ph=-1,dirty=false,gid='adv';
 
-    <script>
-        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-        const mainGain = audioCtx.createGain();
-        mainGain.connect(audioCtx.destination);
-        mainGain.gain.value = 0.5;
+// ---------- 自動作曲 ----------
+function snap(row,r,l){let best=row,bd=99;for(let x=1;x<8;x++){const d=((x-r)%l+l)%l;if([0,2,4].some(v=>v%l===d)){const dist=Math.abs(x-row);if(dist<bd){bd=dist;best=x}}}return best}
+function genTrack(i){
+  const g=cg,l=SC[S.sc].length,t=S.t[i];
+  if(i===3){
+    const m=[g.dr[2],g.dr[1],g.dr[0]];
+    t.d=m.map(p=>Array.from({length:16},(_,c)=>p[c%8]==='1'?1:0));
+    if(Math.random()<.5)t.d[1][15]=1;
+    if(Math.random()<.4)t.d[2][14]=1;
+    return;
+  }
+  for(let c=0;c<16;c++){
+    const ch=g.prog[c>>2]%l;
+    if(i===2){const p=g.bass[c&3];t.s[c]=p<0?-1:(p===1&&ch+l<8?ch+l:ch)}
+    if(i===1){const p=g.ap[c&3],tn=[0,2,4].map(o=>{let x=ch+o;return x>7?x-l:x});t.s[c]=p<0?-1:tn[p]}
+  }
+  if(i===0){
+    let cur2=3+R(3);
+    for(let c=0;c<16;c++){
+      const ch=g.prog[c>>2]%l;
+      if(c>=8&&c<12){t.s[c]=t.s[c-8];if(t.s[c]>=0&&c%4===0)t.s[c]=snap(t.s[c],ch,l);continue}
+      const rest=c>0&&Math.random()>g.ld*(c%2?.75:1.1);
+      if(rest){t.s[c]=-1;continue}
+      cur2=Math.max(1,Math.min(7,cur2+[-2,-1,-1,0,1,1,2][R(7)]));
+      if(c%4===0)cur2=snap(cur2,ch,l);
+      t.s[c]=cur2;
+    }
+  }
+}
+function gen(id){
+  gid=id;cg=G[id];const g=cg;
+  S.bpm=g.bpm;S.sc=g.sc;S.key=g.key;S.echo=g.echo;S.swing=g.sw;
+  for(let i=0;i<3;i++){S.t[i].w=g.w[i];S.t[i].m=false;S.t[i].v=[.8,.55,.9][i]}
+  S.t[3].m=false;S.t[3].v=.8;
+  for(let i=0;i<4;i++)genTrack(i);
+  if(O){O.wet.gain.value=S.echo;O.dl.delayTime.value=60/S.bpm*.75}
+}
+function omakase(){const ks=Object.keys(G).filter(k=>k!==gid);gen(ks[R(ks.length)]);if(Math.random()<.6)S.key=R(12);ui();touch();if(!playing)toggle()}
+function clr(){const t=S.t[cur];if(cur<3)t.s.fill(-1);else t.d.forEach(a=>a.fill(0));touch()}
 
-        // Recording setup
-        const dest = audioCtx.createMediaStreamDestination();
-        mainGain.connect(dest);
-        let mediaRecorder = null;
-        let chunks = [];
+// ---------- 音 ----------
+function mid(i,row){const sc=SC[S.sc],l=sc.length;return TI[i].base+S.key+Math.floor(row/l)*12+sc[row%l]}
+function chain(ctx){
+  const m=ctx.createGain();m.gain.value=.7;
+  const comp=ctx.createDynamicsCompressor(),dl=ctx.createDelay(2),fb=ctx.createGain(),wet=ctx.createGain(),send=ctx.createGain();
+  dl.delayTime.value=60/S.bpm*.75;fb.gain.value=.4;wet.gain.value=S.echo;
+  send.connect(dl);dl.connect(fb);fb.connect(dl);dl.connect(wet);wet.connect(m);m.connect(comp);comp.connect(ctx.destination);
+  return{m,send,wet,dl,comp};
+}
+function nb(ctx){if(!ctx._nb){const b=ctx.createBuffer(1,ctx.sampleRate>>1,ctx.sampleRate),d=b.getChannelData(0);for(let i=0;i<d.length;i++)d[i]=Math.random()*2-1;ctx._nb=b}return ctx._nb}
+function note(ctx,o,t,i,row,dur){
+  const tk=S.t[i],f=440*2**((mid(i,row)-69)/12),osc=ctx.createOscillator(),g=ctx.createGain(),a=tk.v*(i===2?.3:.15);
+  osc.type=tk.w;osc.frequency.value=f;
+  g.gain.setValueAtTime(.0001,t);g.gain.linearRampToValueAtTime(a,t+.006);
+  g.gain.exponentialRampToValueAtTime(a*.55,t+dur*.5);g.gain.exponentialRampToValueAtTime(.0001,t+dur);
+  if(i===0){const lf=ctx.createOscillator(),lg=ctx.createGain();lf.frequency.value=5.5;lg.gain.value=f*.006;lf.connect(lg);lg.connect(osc.frequency);lf.start(t);lf.stop(t+dur+.02)}
+  osc.connect(g);g.connect(o.m);if(i<2)g.connect(o.send);
+  osc.start(t);osc.stop(t+dur+.02);
+}
+function drum(ctx,o,t,k){
+  const v=S.t[3].v,g=ctx.createGain();g.connect(o.m);
+  if(k===2){
+    const os=ctx.createOscillator();os.frequency.setValueAtTime(160,t);os.frequency.exponentialRampToValueAtTime(45,t+.12);
+    g.gain.setValueAtTime(v*.9,t);g.gain.exponentialRampToValueAtTime(.001,t+.22);os.connect(g);os.start(t);os.stop(t+.25);return;
+  }
+  const n=ctx.createBufferSource(),hp=ctx.createBiquadFilter();n.buffer=nb(ctx);hp.type='highpass';hp.frequency.value=k===1?1200:7000;
+  const d=k===1?.15:.045;g.gain.setValueAtTime(v*(k===1?.5:.2),t);g.gain.exponentialRampToValueAtTime(.001,t+d);
+  n.connect(hp);hp.connect(g);n.start(t);n.stop(t+d+.02);
+  if(k===1){const os=ctx.createOscillator(),og=ctx.createGain();os.type='triangle';os.frequency.value=190;og.gain.setValueAtTime(v*.3,t);og.gain.exponentialRampToValueAtTime(.001,t+.09);os.connect(og);og.connect(o.m);os.start(t);os.stop(t+.1)}
+}
+function playStep(ctx,o,t,c,sd){
+  for(let i=0;i<3;i++){const tk=S.t[i];if(!tk.m&&tk.s[c]>=0)note(ctx,o,t,i,tk.s[c],(tk.s[(c+1)%16]<0?1.7:.9)*sd)}
+  const d=S.t[3];if(!d.m)for(let k=0;k<3;k++)if(d.d[k][c])drum(ctx,o,t,k);
+}
+function init(){if(AC)return;AC=new (window.AudioContext||window.webkitAudioContext)();O=chain(AC);an=AC.createAnalyser();an.fftSize=64;O.comp.connect(an)}
+function sched(){
+  while(nextT<AC.currentTime+.12){
+    const sd=60/S.bpm/2,t=nextT+(step%2?S.swing*sd*.6:0),c=step%16;
+    playStep(AC,O,t,c,sd);q.push({s:c,t});nextT+=sd;step++;
+  }
+}
+function toggle(){
+  init();
+  if(playing){playing=false;clearInterval(timer);q=[];ph=-1;paint();$('play').textContent='▶ 再生';return}
+  AC.resume();playing=true;step=0;nextT=AC.currentTime+.06;q=[];timer=setInterval(sched,25);$('play').textContent='■ 停止';
+}
 
-        const emotions = {
-            joy: { tempo: 140, rhythm: [1, 0.5, 0.5, 1] },
-            anger: { tempo: 180, rhythm: [0.25, 0.25, 0.25, 0.25] },
-            sorrow: { tempo: 65, rhythm: [2, 1, 1] },
-            pleasure: { tempo: 115, rhythm: [1.5, 0.5, 1.5, 0.5] }
-        };
+// ---------- 画面 ----------
+function build(){
+  const g=$('grid'),dr=cur===3,n=dr?3:8,LB=['HAT','SN','KICK'];
+  g.style.gridTemplateColumns=(dr?'38px ':'')+'repeat(16,1fr)';g.style.setProperty('--tc',TI[cur].c);g.innerHTML='';cells=[];
+  for(let r=0;r<n;r++){
+    cells[r]=[];
+    if(dr){const l=document.createElement('div');l.className='lb';l.textContent=LB[r];g.appendChild(l)}
+    for(let c=0;c<16;c++){const e=document.createElement('button');e.onclick=()=>tap(r,c);cells[r][c]=e;g.appendChild(e)}
+  }
+}
+function paint(){
+  const t=S.t[cur],l=SC[S.sc].length;
+  cells.forEach((rw,r)=>rw.forEach((e,c)=>{
+    const on=cur<3?t.s[c]===7-r:!!t.d[r][c];
+    e.className='c'+(on?' on':'')+(c%4===0?' q':'')+(cur<3&&(7-r)%l===0?' r':'')+(playing&&c===ph?' p':'');
+  }));
+}
+function ui(){
+  $('bpm').value=S.bpm;$('bv').textContent=S.bpm;$('key').value=S.key;$('sc').value=S.sc;$('echo').value=S.echo*100;$('swing').value=S.swing*100;
+  const t=S.t[cur];$('vol').value=t.v*100;$('mute').classList.toggle('on',!!t.m);
+  $('wvrow').style.display=cur<3?'flex':'none';if(cur<3)$('wv').value=t.w;
+  document.querySelectorAll('.tab').forEach((b,i)=>{b.classList.toggle('on',i===cur);b.classList.toggle('m',!!S.t[i].m)});
+  build();paint();
+}
+function touch(){paint();try{localStorage.setItem('chip2',JSON.stringify(S))}catch(e){}}
+function tap(r,c){
+  const t=S.t[cur];
+  if(cur<3){const row=7-r;t.s[c]=t.s[c]===row?-1:row;if(t.s[c]>=0){init();AC.resume();note(AC,O,AC.currentTime+.01,cur,row,.25)}}
+  else{t.d[r][c]^=1;if(t.d[r][c]){init();AC.resume();drum(AC,O,AC.currentTime+.01,r)}}
+  touch();
+}
+function toast(m){const e=$('toast');e.textContent=m;e.style.display='block';setTimeout(()=>e.style.display='none',1800)}
+function modal(h){$('mdc').innerHTML=h;$('md').style.display='flex'}
+function closeM(){$('md').style.display='none';$('mdc').innerHTML=''}
 
-        const frequencies = {
-            'C3': 130.81, 'D3': 146.83, 'E3': 164.81, 'F3': 174.61, 'G3': 196.00, 'A3': 220.00, 'B3': 246.94,
-            'C4': 261.63, 'D4': 293.66, 'E4': 329.63, 'F4': 349.23, 'G4': 392.00, 'A4': 440.00, 'B4': 493.88,
-            'C5': 523.25, 'D5': 587.33, 'E5': 659.25, 'F5': 698.46, 'G5': 783.99, 'A5': 880.00, 'B5': 987.77
-        };
+// ---------- セーブ/ロード ----------
+function ok(o){return o&&typeof o.bpm==='number'&&SC[o.sc]&&Array.isArray(o.t)&&o.t.length===4&&o.t.slice(0,3).every(x=>Array.isArray(x.s)&&x.s.length===16)&&o.t[3].d&&o.t[3].d.length===3}
+function saveM(){
+  modal('<b style="color:var(--cyan)">セーブ / ロード</b><div class="hint">コピーして保存しておけば、あとで貼り付けて続きから作れます。友だちに送って聴いてもらうのもOK。</div><textarea id="js"></textarea><div class="row" style="margin:0"><button class="b" onclick="cp()">コピー</button><button class="b" style="--c:var(--yl)" onclick="ld()">この内容を読み込む</button><button class="b" style="--c:var(--pk)" onclick="closeM()">とじる</button></div>');
+  $('js').value=JSON.stringify(S);
+}
+function cp(){const e=$('js');e.select();let done=false;try{done=document.execCommand('copy')}catch(x){}
+  if(!done&&navigator.clipboard)navigator.clipboard.writeText(e.value).then(()=>toast('コピーしました'),()=>toast('長押しでコピーしてね'));else toast(done?'コピーしました':'長押しでコピーしてね')}
+function ld(){try{const o=JSON.parse($('js').value);if(!ok(o))throw 0;S=o;cur=0;ui();touch();closeM();toast('読み込みました')}catch(e){toast('読み込めませんでした')}}
 
-        let tracks = [
-            { emotion: 'joy', sequence: [], step: 0, timer: null },
-            { emotion: 'pleasure', sequence: [], step: 0, timer: null },
-            { emotion: 'sorrow', sequence: [], step: 0, timer: null }
-        ];
-        let currentTrackIdx = 0;
-        let isPlaying = false;
+// ---------- WAV ----------
+function wav(b){
+  const n=b.length,d=new DataView(new ArrayBuffer(44+n*4)),w=(o,s)=>[...s].forEach((c,i)=>d.setUint8(o+i,c.charCodeAt(0)));
+  w(0,'RIFF');d.setUint32(4,36+n*4,true);w(8,'WAVEfmt ');d.setUint32(16,16,true);d.setUint16(20,1,true);d.setUint16(22,2,true);
+  d.setUint32(24,b.sampleRate,true);d.setUint32(28,b.sampleRate*4,true);d.setUint16(32,4,true);d.setUint16(34,16,true);w(36,'data');d.setUint32(40,n*4,true);
+  const L=b.getChannelData(0),Rr=b.getChannelData(1);
+  for(let i=0;i<n;i++){d.setInt16(44+i*4,Math.max(-1,Math.min(1,L[i]))*32767,true);d.setInt16(46+i*4,Math.max(-1,Math.min(1,Rr[i]))*32767,true)}
+  return new Blob([d],{type:'audio/wav'});
+}
+async function exportWav(){
+  const btn=$('wavb');btn.textContent='書き出し中…';
+  try{
+    const sd=60/S.bpm/2,loops=2,len=16*sd*loops+2.5,ctx=new OfflineAudioContext(2,Math.ceil(44100*len),44100),o=chain(ctx);
+    for(let n=0;n<16*loops;n++)playStep(ctx,o,.05+n*sd+(n%2?S.swing*sd*.6:0),n%16,sd);
+    const u=URL.createObjectURL(wav(await ctx.startRendering()));
+    modal('<b style="color:var(--cyan)">できた！ 🎉（2ループ分）</b><audio controls src="'+u+'" style="width:100%"></audio><a class="b" href="'+u+'" download="chiptune.wav">ダウンロード</a><div class="hint">ダウンロードできない時は、プレーヤー右の「︙」から保存できます。</div><button class="b" style="--c:var(--pk)" onclick="closeM()">とじる</button>');
+  }catch(e){toast('書き出しに失敗しました')}
+  btn.textContent='🔊 WAVに書き出し';
+}
 
-        // Init UI
-        const piano = document.getElementById('piano');
-        Object.keys(frequencies).forEach(note => {
-            const b = document.createElement('button');
-            b.className = 'note-btn btn';
-            b.innerText = note;
-            b.onclick = () => addNote(note);
-            piano.appendChild(b);
-        });
-
-        const viz = document.getElementById('visualizer');
-        for(let i=0; i<64; i++) {
-            const bar = document.createElement('div');
-            bar.className = 'viz-bar';
-            viz.appendChild(bar);
-        }
-
-        function switchTrack(idx) {
-            currentTrackIdx = idx;
-            document.querySelectorAll('.track-btn').forEach((b, i) => b.classList.toggle('active', i === idx));
-            setEmotion(tracks[idx].emotion);
-            updateSeqView();
-        }
-
-        function setEmotion(e) {
-            tracks[currentTrackIdx].emotion = e;
-            document.querySelectorAll('.emotion-grid .btn').forEach(b => b.classList.toggle('active', b.id === e));
-        }
-
-        function addNote(note) {
-            play8bit(note, 0.2);
-            tracks[currentTrackIdx].sequence.push(note);
-            if(tracks[currentTrackIdx].sequence.length > 32) tracks[currentTrackIdx].sequence.shift();
-            updateSeqView();
-        }
-
-        function clearSequence() {
-            tracks[currentTrackIdx].sequence = [];
-            updateSeqView();
-        }
-
-        function updateSeqView() {
-            const view = document.getElementById('seq-view');
-            view.innerHTML = tracks[currentTrackIdx].sequence.map(n => `<span class="note-tag">${n}</span>`).join('');
-        }
-
-        function play8bit(note, dur) {
-            const osc = audioCtx.createOscillator();
-            const g = audioCtx.createGain();
-            osc.type = 'square';
-            osc.frequency.value = frequencies[note];
-            g.gain.setValueAtTime(0.1, audioCtx.currentTime);
-            g.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + dur);
-            osc.connect(g);
-            g.connect(mainGain);
-            osc.start();
-            osc.stop(audioCtx.currentTime + dur);
-            animateViz();
-        }
-
-        function animateViz() {
-            const bars = document.querySelectorAll('.viz-bar');
-            bars.forEach(b => {
-                if(Math.random() > 0.8) b.style.height = Math.random()*100 + "%";
-                setTimeout(() => b.style.height = "0%", 150);
-            });
-        }
-
-        function togglePlayback() {
-            if(isPlaying) {
-                isPlaying = false;
-                tracks.forEach(t => clearTimeout(t.timer));
-                document.getElementById('status').innerText = "STOPPED";
-            } else {
-                isPlaying = true;
-                tracks.forEach((t, i) => { t.step = 0; playTrack(i); });
-                document.getElementById('status').innerText = "SYNCING...";
-            }
-        }
-
-        function playTrack(idx) {
-            if(!isPlaying) return;
-            const t = tracks[idx];
-            const emo = emotions[t.emotion];
-            const nextNote = t.sequence[t.step % t.sequence.length];
-            const interval = (60 / emo.tempo) * emo.rhythm[t.step % emo.rhythm.length] * 1000;
-
-            if(nextNote) play8bit(nextNote, interval / 1000);
-            
-            t.step++;
-            t.timer = setTimeout(() => playTrack(idx), interval);
-        }
-
-        // --- EXPORT / RECORDING ---
-
-        function startRecording() {
-            if(!isPlaying) { alert("START PLAYBACK FIRST"); return; }
-            chunks = [];
-            mediaRecorder = new MediaRecorder(dest.stream);
-            mediaRecorder.ondataavailable = e => chunks.push(e.data);
-            mediaRecorder.onstop = () => {
-                const blob = new Blob(chunks, { type: 'audio/wav' });
-                const url = URL.createObjectURL(blob);
-                const a = document.createElement('a');
-                a.href = url;
-                a.download = `8bit_emotion_archive_${Date.now()}.wav`;
-                a.click();
-            };
-            mediaRecorder.start();
-            document.getElementById('rec-indicator').style.display = 'inline';
-            setTimeout(() => {
-                mediaRecorder.stop();
-                document.getElementById('rec-indicator').style.display = 'none';
-                alert("RECORDING FINISHED");
-            }, 10000); // Auto stop after 10s for now
-        }
-
-        function exportJSON() {
-            const blob = new Blob([JSON.stringify(tracks, null, 2)], { type: 'application/json' });
-            const a = document.createElement('a');
-            a.href = URL.createObjectURL(blob);
-            a.download = `lcp_music_archive.json`;
-            a.click();
-        }
-
-        function importJSON(e) {
-            const file = e.target.files[0];
-            const reader = new FileReader();
-            reader.onload = (event) => {
-                tracks = JSON.parse(event.target.result);
-                switchTrack(0);
-                alert("MUSIC ARCHIVE LOADED");
-            };
-            reader.readAsText(file);
-        }
-    </script>
+// ---------- 初期化 ----------
+$('wv').innerHTML=Object.entries(WV).map(([k,v])=>'<option value="'+k+'">'+v+'</option>').join('');
+$('key').innerHTML=KN.map((k,i)=>'<option value="'+i+'">'+k+'</option>').join('');
+$('sc').innerHTML=Object.entries(SCN).map(([k,v])=>'<option value="'+k+'">'+v+'</option>').join('');
+$('genres').innerHTML=Object.entries(G).map(([k,g])=>'<button class="b gen" onclick="gen(\''+k+'\');ui();touch()">'+g.n+'</button>').join('');
+$('tabs').innerHTML=TI.map((t,i)=>'<button class="b tab" style="--c:'+t.c+'" onclick="cur='+i+';ui()">'+t.n+'</button>').join('');
+try{const o=JSON.parse(localStorage.getItem('chip2'));if(ok(o))S=o;else gen('adv')}catch(e){gen('adv')}
+ui();
+document.addEventListener('keydown',e=>{if(e.code==='Space'&&!/INPUT|SELECT|TEXTAREA|BUTTON/.test(e.target.tagName)){e.preventDefault();toggle()}});
+const vz=$('viz'),vx=vz.getContext('2d');
+function loop(){
+  if(AC&&playing){while(q.length&&q[0].t<=AC.currentTime){ph=q.shift().s;dirty=true}}
+  if(dirty){paint();dirty=false}
+  vx.clearRect(0,0,700,56);
+  if(an&&playing){const d=new Uint8Array(an.frequencyBinCount);an.getByteFrequencyData(d);const w=700/d.length;
+    d.forEach((v,i)=>{vx.fillStyle=i%2?'#00ff6a':'#25e8ff';const h=v/255*56;vx.fillRect(i*w+1,56-h,w-2,h)})}
+  requestAnimationFrame(loop);
+}
+loop();
+</script>
 </body>
 </html>
