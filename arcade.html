@@ -85,6 +85,7 @@
             text-decoration: none;
             color: var(--term-green);
             font-size: 0.9em;
+            box-sizing: border-box;
         }
 
         .menu-item:hover {
@@ -224,6 +225,14 @@
                 <a href="v_stage.html" class="menu-item">[UNIT-23] LCP_STREAMING_STAGE ... <span class="status-online">CYBER_LAB</span></a>
                 <a href="kamen_rider_union.html" class="menu-item">[UNIT-24] KAMEN RIDER UNION ... <span class="status-legendary">NEW_HERO</span></a>
             </nav>
+
+            <!-- Code Copy Feature Added -->
+            <div style="margin-top: 20px; border-top: 1px dashed var(--term-green); padding-top: 15px;">
+                <button onclick="copyArcadeCode()" class="menu-item" style="background:var(--term-dim); border:1px solid var(--term-green); text-align:center; font-weight:bold; width:100%; cursor:pointer;">[SYS] COPY ARCADE HTML SOURCE CODE</button>
+                <button onclick="toggleSourceViewer()" class="menu-item" style="background:transparent; border:1px solid var(--term-dim); text-align:center; font-size:0.8em; width:100%; margin-top:5px; cursor:pointer; color:var(--term-gold);">[TOGGLE SOURCE CODE VIEWER]</button>
+                <textarea id="source-viewer" style="width:100%; height:140px; background:#000; color:var(--term-green); border:1px solid var(--term-dim); font-family:monospace; font-size:0.7em; display:none; margin-top:10px; padding:8px; box-sizing:border-box;" readonly></textarea>
+            </div>
+
             <div style="margin-top: 20px; font-size: 0.8em;">
                 Command: arcade_start --all<span class="cursor"></span>
             </div>
@@ -253,6 +262,26 @@
                     console.log('PWA Registration failed', err);
                 });
             });
+        }
+
+        function copyArcadeCode() {
+            const code = document.documentElement.outerHTML;
+            navigator.clipboard.writeText(code).then(() => {
+                alert("ARCADE HTML SOURCE COPIED TO CLIPBOARD!");
+            }).catch(err => {
+                console.error('Failed to copy: ', err);
+                alert("COPY FAILED. PLEASE USE SOURCE VIEWER.");
+            });
+        }
+
+        function toggleSourceViewer() {
+            const viewer = document.getElementById('source-viewer');
+            if (viewer.style.display === 'none') {
+                viewer.value = document.documentElement.outerHTML;
+                viewer.style.display = 'block';
+            } else {
+                viewer.style.display = 'none';
+            }
         }
     </script>
 </body>
