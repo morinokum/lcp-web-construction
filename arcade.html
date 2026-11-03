@@ -75,49 +75,39 @@
             padding: 0;
         }
 
-        .menu-item {
-            padding: 6px 10px;
-            border: 1px solid transparent;
+        .unit-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 6px;
+            gap: 10px;
+            border: 1px solid var(--term-dim);
+            padding: 4px 8px;
+            background: rgba(0,20,0,0.1);
             transition: all 0.2s;
-            cursor: pointer;
-            display: block;
+        }
+
+        .unit-row:hover {
+            border-color: var(--term-green);
+            background: var(--term-dim);
+        }
+
+        .menu-item {
             text-decoration: none;
             color: var(--term-green);
             font-size: 0.85em;
-            box-sizing: border-box;
             flex-grow: 1;
-        }
-
-        .menu-item:hover {
-            background-color: var(--term-dim);
-            border: 1px solid var(--term-green);
-            padding-left: 15px;
         }
 
         .menu-item::before {
             content: "> ";
         }
 
-        /* Unit Wrapper & Code Pasting Box */
-        .unit-wrapper {
-            margin-bottom: 8px;
-            border: 1px solid var(--term-dim);
-            padding: 6px;
-            background: rgba(0,20,0,0.15);
-        }
-
-        .unit-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .code-toggle-btn {
+        .copy-btn {
             background: transparent;
             border: 1px solid var(--term-green);
             color: var(--term-green);
-            padding: 4px 8px;
+            padding: 3px 8px;
             cursor: pointer;
             font-family: 'Share Tech Mono', monospace;
             font-size: 0.75em;
@@ -125,48 +115,7 @@
             transition: all 0.2s;
         }
 
-        .code-toggle-btn:hover {
-            background: var(--term-green);
-            color: #000;
-        }
-
-        .code-box {
-            margin-top: 8px;
-            padding: 8px;
-            border-top: 1px dashed var(--term-green);
-            background: #000;
-        }
-
-        .code-textarea {
-            width: 100%;
-            height: 90px;
-            background: #0d0208;
-            color: var(--term-green);
-            border: 1px solid var(--term-dim);
-            font-family: 'Share Tech Mono', monospace;
-            font-size: 0.75em;
-            padding: 6px;
-            box-sizing: border-box;
-            resize: vertical;
-        }
-
-        .code-actions {
-            display: flex;
-            gap: 5px;
-            margin-top: 5px;
-        }
-
-        .code-action-btn {
-            background: var(--term-dim);
-            border: 1px solid var(--term-green);
-            color: var(--term-green);
-            padding: 3px 10px;
-            cursor: pointer;
-            font-family: 'Share Tech Mono', monospace;
-            font-size: 0.75em;
-        }
-
-        .code-action-btn:hover {
+        .copy-btn:hover {
             background: var(--term-green);
             color: #000;
         }
@@ -272,380 +221,150 @@
         </header>
 
         <section>
-            <p style="font-size: 0.8em; margin-bottom: 15px;">Welcome to LCP-WEB Game Center. Select a unit to execute or paste code patch.</p>
+            <p style="font-size: 0.8em; margin-bottom: 15px;">Welcome to LCP-WEB Game Center. Click COPY CODE to copy any unit's source code instantly.</p>
             <div class="menu-list">
                 <!-- UNIT 01 -->
-                <div class="unit-wrapper">
-                    <div class="unit-header">
-                        <a href="adventure.html" class="menu-item">[UNIT-01] PILGRIM FATHERS ADVENTURE</a>
-                        <button class="code-toggle-btn" onclick="toggleCodeBox('unit01')">[PASTE CODE]</button>
-                    </div>
-                    <div id="code-box-unit01" class="code-box" style="display:none;">
-                        <textarea id="textarea-unit01" class="code-textarea" placeholder="Paste code or custom patch for UNIT-01 here..."></textarea>
-                        <div class="code-actions">
-                            <button class="code-action-btn" onclick="saveCode('unit01')">SAVE PATCH</button>
-                            <button class="code-action-btn" onclick="copyCode('unit01')">COPY</button>
-                            <button class="code-action-btn" onclick="clearCode('unit01')">CLEAR</button>
-                        </div>
-                    </div>
+                <div class="unit-row">
+                    <a href="adventure.html" class="menu-item">[UNIT-01] PILGRIM FATHERS ADVENTURE</a>
+                    <button class="copy-btn" onclick="copyGameCode('adventure.html', 'UNIT-01')">COPY CODE</button>
                 </div>
 
                 <!-- UNIT 02 -->
-                <div class="unit-wrapper">
-                    <div class="unit-header">
-                        <a href="vending.html" class="menu-item">[UNIT-02] HIROSHI-VENDING SIMULATOR</a>
-                        <button class="code-toggle-btn" onclick="toggleCodeBox('unit02')">[PASTE CODE]</button>
-                    </div>
-                    <div id="code-box-unit02" class="code-box" style="display:none;">
-                        <textarea id="textarea-unit02" class="code-textarea" placeholder="Paste code or custom patch for UNIT-02 here..."></textarea>
-                        <div class="code-actions">
-                            <button class="code-action-btn" onclick="saveCode('unit02')">SAVE PATCH</button>
-                            <button class="code-action-btn" onclick="copyCode('unit02')">COPY</button>
-                            <button class="code-action-btn" onclick="clearCode('unit02')">CLEAR</button>
-                        </div>
-                    </div>
+                <div class="unit-row">
+                    <a href="vending.html" class="menu-item">[UNIT-02] HIROSHI-VENDING SIMULATOR</a>
+                    <button class="copy-btn" onclick="copyGameCode('vending.html', 'UNIT-02')">COPY CODE</button>
                 </div>
 
                 <!-- UNIT 03 -->
-                <div class="unit-wrapper">
-                    <div class="unit-header">
-                        <a href="shooter.html" class="menu-item">[UNIT-03] PRECISION SHOOTER</a>
-                        <button class="code-toggle-btn" onclick="toggleCodeBox('unit03')">[PASTE CODE]</button>
-                    </div>
-                    <div id="code-box-unit03" class="code-box" style="display:none;">
-                        <textarea id="textarea-unit03" class="code-textarea" placeholder="Paste code or custom patch for UNIT-03 here..."></textarea>
-                        <div class="code-actions">
-                            <button class="code-action-btn" onclick="saveCode('unit03')">SAVE PATCH</button>
-                            <button class="code-action-btn" onclick="copyCode('unit03')">COPY</button>
-                            <button class="code-action-btn" onclick="clearCode('unit03')">CLEAR</button>
-                        </div>
-                    </div>
+                <div class="unit-row">
+                    <a href="shooter.html" class="menu-item">[UNIT-03] PRECISION SHOOTER</a>
+                    <button class="copy-btn" onclick="copyGameCode('shooter.html', 'UNIT-03')">COPY CODE</button>
                 </div>
 
                 <!-- UNIT 04 -->
-                <div class="unit-wrapper">
-                    <div class="unit-header">
-                        <a href="nova_cresta.html" class="menu-item">[UNIT-04] NOVA CRESTA</a>
-                        <button class="code-toggle-btn" onclick="toggleCodeBox('unit04')">[PASTE CODE]</button>
-                    </div>
-                    <div id="code-box-unit04" class="code-box" style="display:none;">
-                        <textarea id="textarea-unit04" class="code-textarea" placeholder="Paste code or custom patch for UNIT-04 here..."></textarea>
-                        <div class="code-actions">
-                            <button class="code-action-btn" onclick="saveCode('unit04')">SAVE PATCH</button>
-                            <button class="code-action-btn" onclick="copyCode('unit04')">COPY</button>
-                            <button class="code-action-btn" onclick="clearCode('unit04')">CLEAR</button>
-                        </div>
-                    </div>
+                <div class="unit-row">
+                    <a href="nova_cresta.html" class="menu-item">[UNIT-04] NOVA CRESTA</a>
+                    <button class="copy-btn" onclick="copyGameCode('nova_cresta.html', 'UNIT-04')">COPY CODE</button>
                 </div>
 
                 <!-- UNIT 05 -->
-                <div class="unit-wrapper">
-                    <div class="unit-header">
-                        <a href="neo_world_saga_vn.html" class="menu-item">[UNIT-05] NEO WORLD SAGA: ARCHIVE</a>
-                        <button class="code-toggle-btn" onclick="toggleCodeBox('unit05')">[PASTE CODE]</button>
-                    </div>
-                    <div id="code-box-unit05" class="code-box" style="display:none;">
-                        <textarea id="textarea-unit05" class="code-textarea" placeholder="Paste code or custom patch for UNIT-05 here..."></textarea>
-                        <div class="code-actions">
-                            <button class="code-action-btn" onclick="saveCode('unit05')">SAVE PATCH</button>
-                            <button class="code-action-btn" onclick="copyCode('unit05')">COPY</button>
-                            <button class="code-action-btn" onclick="clearCode('unit05')">CLEAR</button>
-                        </div>
-                    </div>
+                <div class="unit-row">
+                    <a href="neo_world_saga_vn.html" class="menu-item">[UNIT-05] NEO WORLD SAGA: ARCHIVE</a>
+                    <button class="copy-btn" onclick="copyGameCode('neo_world_saga_vn.html', 'UNIT-05')">COPY CODE</button>
                 </div>
 
                 <!-- UNIT 06 -->
-                <div class="unit-wrapper">
-                    <div class="unit-header">
-                        <a href="goin_note.html" class="menu-item">[UNIT-06] GOIN NOTE: DEADLINE</a>
-                        <button class="code-toggle-btn" onclick="toggleCodeBox('unit06')">[PASTE CODE]</button>
-                    </div>
-                    <div id="code-box-unit06" class="code-box" style="display:none;">
-                        <textarea id="textarea-unit06" class="code-textarea" placeholder="Paste code or custom patch for UNIT-06 here..."></textarea>
-                        <div class="code-actions">
-                            <button class="code-action-btn" onclick="saveCode('unit06')">SAVE PATCH</button>
-                            <button class="code-action-btn" onclick="copyCode('unit06')">COPY</button>
-                            <button class="code-action-btn" onclick="clearCode('unit06')">CLEAR</button>
-                        </div>
-                    </div>
+                <div class="unit-row">
+                    <a href="goin_note.html" class="menu-item">[UNIT-06] GOIN NOTE: DEADLINE</a>
+                    <button class="copy-btn" onclick="copyGameCode('goin_note.html', 'UNIT-06')">COPY CODE</button>
                 </div>
 
                 <!-- UNIT 07 -->
-                <div class="unit-wrapper">
-                    <div class="unit-header">
-                        <a href="bicycle_rules.html" class="menu-item">[UNIT-07] BICYCLE_SAFETY_PROTOCOL</a>
-                        <button class="code-toggle-btn" onclick="toggleCodeBox('unit07')">[PASTE CODE]</button>
-                    </div>
-                    <div id="code-box-unit07" class="code-box" style="display:none;">
-                        <textarea id="textarea-unit07" class="code-textarea" placeholder="Paste code or custom patch for UNIT-07 here..."></textarea>
-                        <div class="code-actions">
-                            <button class="code-action-btn" onclick="saveCode('unit07')">SAVE PATCH</button>
-                            <button class="code-action-btn" onclick="copyCode('unit07')">COPY</button>
-                            <button class="code-action-btn" onclick="clearCode('unit07')">CLEAR</button>
-                        </div>
-                    </div>
+                <div class="unit-row">
+                    <a href="bicycle_rules.html" class="menu-item">[UNIT-07] BICYCLE_SAFETY_PROTOCOL</a>
+                    <button class="copy-btn" onclick="copyGameCode('bicycle_rules.html', 'UNIT-07')">COPY CODE</button>
                 </div>
 
                 <!-- UNIT 08 -->
-                <div class="unit-wrapper">
-                    <div class="unit-header">
-                        <a href="chronicle.html" class="menu-item">[UNIT-08] LCP_CHRONICLE ... <span class="status-legendary">LEGENDARY</span></a>
-                        <button class="code-toggle-btn" onclick="toggleCodeBox('unit08')">[PASTE CODE]</button>
-                    </div>
-                    <div id="code-box-unit08" class="code-box" style="display:none;">
-                        <textarea id="textarea-unit08" class="code-textarea" placeholder="Paste code or custom patch for UNIT-08 here..."></textarea>
-                        <div class="code-actions">
-                            <button class="code-action-btn" onclick="saveCode('unit08')">SAVE PATCH</button>
-                            <button class="code-action-btn" onclick="copyCode('unit08')">COPY</button>
-                            <button class="code-action-btn" onclick="clearCode('unit08')">CLEAR</button>
-                        </div>
-                    </div>
+                <div class="unit-row">
+                    <a href="chronicle.html" class="menu-item">[UNIT-08] LCP_CHRONICLE ... <span class="status-legendary">LEGENDARY</span></a>
+                    <button class="copy-btn" onclick="copyGameCode('chronicle.html', 'UNIT-08')">COPY CODE</button>
                 </div>
 
                 <!-- UNIT 09 -->
-                <div class="unit-wrapper">
-                    <div class="unit-header">
-                        <a href="pixel_to_svg.html" class="menu-item">[UNIT-09] PIXEL_TO_SVG: DESIGN</a>
-                        <button class="code-toggle-btn" onclick="toggleCodeBox('unit09')">[PASTE CODE]</button>
-                    </div>
-                    <div id="code-box-unit09" class="code-box" style="display:none;">
-                        <textarea id="textarea-unit09" class="code-textarea" placeholder="Paste code or custom patch for UNIT-09 here..."></textarea>
-                        <div class="code-actions">
-                            <button class="code-action-btn" onclick="saveCode('unit09')">SAVE PATCH</button>
-                            <button class="code-action-btn" onclick="copyCode('unit09')">COPY</button>
-                            <button class="code-action-btn" onclick="clearCode('unit09')">CLEAR</button>
-                        </div>
-                    </div>
+                <div class="unit-row">
+                    <a href="pixel_to_svg.html" class="menu-item">[UNIT-09] PIXEL_TO_SVG: DESIGN</a>
+                    <button class="copy-btn" onclick="copyGameCode('pixel_to_svg.html', 'UNIT-09')">COPY CODE</button>
                 </div>
 
                 <!-- UNIT 10 -->
-                <div class="unit-wrapper">
-                    <div class="unit-header">
-                        <a href="okino_battle.html" class="menu-item">[UNIT-10] WITCH BATTLE: VS OKINO ... <span class="status-online">DUAL_BGM</span></a>
-                        <button class="code-toggle-btn" onclick="toggleCodeBox('unit10')">[PASTE CODE]</button>
-                    </div>
-                    <div id="code-box-unit10" class="code-box" style="display:none;">
-                        <textarea id="textarea-unit10" class="code-textarea" placeholder="Paste code or custom patch for UNIT-10 here..."></textarea>
-                        <div class="code-actions">
-                            <button class="code-action-btn" onclick="saveCode('unit10')">SAVE PATCH</button>
-                            <button class="code-action-btn" onclick="copyCode('unit10')">COPY</button>
-                            <button class="code-action-btn" onclick="clearCode('unit10')">CLEAR</button>
-                        </div>
-                    </div>
+                <div class="unit-row">
+                    <a href="okino_battle.html" class="menu-item">[UNIT-10] WITCH BATTLE: VS OKINO ... <span class="status-online">DUAL_BGM</span></a>
+                    <button class="copy-btn" onclick="copyGameCode('okino_battle.html', 'UNIT-10')">COPY CODE</button>
                 </div>
 
                 <!-- UNIT 11 -->
-                <div class="unit-wrapper">
-                    <div class="unit-header">
-                        <a href="8bit_composer.html" class="menu-item">[UNIT-11] 8-BIT EMOTION COMPOSER</a>
-                        <button class="code-toggle-btn" onclick="toggleCodeBox('unit11')">[PASTE CODE]</button>
-                    </div>
-                    <div id="code-box-unit11" class="code-box" style="display:none;">
-                        <textarea id="textarea-unit11" class="code-textarea" placeholder="Paste code or custom patch for UNIT-11 here..."></textarea>
-                        <div class="code-actions">
-                            <button class="code-action-btn" onclick="saveCode('unit11')">SAVE PATCH</button>
-                            <button class="code-action-btn" onclick="copyCode('unit11')">COPY</button>
-                            <button class="code-action-btn" onclick="clearCode('unit11')">CLEAR</button>
-                        </div>
-                    </div>
+                <div class="unit-row">
+                    <a href="8bit_composer.html" class="menu-item">[UNIT-11] 8-BIT EMOTION COMPOSER</a>
+                    <button class="copy-btn" onclick="copyGameCode('8bit_composer.html', 'UNIT-11')">COPY CODE</button>
                 </div>
 
                 <!-- UNIT 12 -->
-                <div class="unit-wrapper">
-                    <div class="unit-header">
-                        <a href="fm_synth.html" class="menu-item">[UNIT-12] FM_NEOSOUND_LAB</a>
-                        <button class="code-toggle-btn" onclick="toggleCodeBox('unit12')">[PASTE CODE]</button>
-                    </div>
-                    <div id="code-box-unit12" class="code-box" style="display:none;">
-                        <textarea id="textarea-unit12" class="code-textarea" placeholder="Paste code or custom patch for UNIT-12 here..."></textarea>
-                        <div class="code-actions">
-                            <button class="code-action-btn" onclick="saveCode('unit12')">SAVE PATCH</button>
-                            <button class="code-action-btn" onclick="copyCode('unit12')">COPY</button>
-                            <button class="code-action-btn" onclick="clearCode('unit12')">CLEAR</button>
-                        </div>
-                    </div>
+                <div class="unit-row">
+                    <a href="fm_synth.html" class="menu-item">[UNIT-12] FM_NEOSOUND_LAB</a>
+                    <button class="copy-btn" onclick="copyGameCode('fm_synth.html', 'UNIT-12')">COPY CODE</button>
                 </div>
 
                 <!-- UNIT 13 -->
-                <div class="unit-wrapper">
-                    <div class="unit-header">
-                        <a href="fm_emotion_composer.html" class="menu-item">[UNIT-13] FM_EMOTION_COMPOSER ... <span class="status-fm">ULTIMATE</span></a>
-                        <button class="code-toggle-btn" onclick="toggleCodeBox('unit13')">[PASTE CODE]</button>
-                    </div>
-                    <div id="code-box-unit13" class="code-box" style="display:none;">
-                        <textarea id="textarea-unit13" class="code-textarea" placeholder="Paste code or custom patch for UNIT-13 here..."></textarea>
-                        <div class="code-actions">
-                            <button class="code-action-btn" onclick="saveCode('unit13')">SAVE PATCH</button>
-                            <button class="code-action-btn" onclick="copyCode('unit13')">COPY</button>
-                            <button class="code-action-btn" onclick="clearCode('unit13')">CLEAR</button>
-                        </div>
-                    </div>
+                <div class="unit-row">
+                    <a href="fm_emotion_composer.html" class="menu-item">[UNIT-13] FM_EMOTION_COMPOSER ... <span class="status-fm">ULTIMATE</span></a>
+                    <button class="copy-btn" onclick="copyGameCode('fm_emotion_composer.html', 'UNIT-13')">COPY CODE</button>
                 </div>
 
                 <!-- UNIT 14 -->
-                <div class="unit-wrapper">
-                    <div class="unit-header">
-                        <a href="gemini_music_lib.html" class="menu-item">[UNIT-14] GEMINI_FM_LIBRARY</a>
-                        <button class="code-toggle-btn" onclick="toggleCodeBox('unit14')">[PASTE CODE]</button>
-                    </div>
-                    <div id="code-box-unit14" class="code-box" style="display:none;">
-                        <textarea id="textarea-unit14" class="code-textarea" placeholder="Paste code or custom patch for UNIT-14 here..."></textarea>
-                        <div class="code-actions">
-                            <button class="code-action-btn" onclick="saveCode('unit14')">SAVE PATCH</button>
-                            <button class="code-action-btn" onclick="copyCode('unit14')">COPY</button>
-                            <button class="code-action-btn" onclick="clearCode('unit14')">CLEAR</button>
-                        </div>
-                    </div>
+                <div class="unit-row">
+                    <a href="gemini_music_lib.html" class="menu-item">[UNIT-14] GEMINI_FM_LIBRARY</a>
+                    <button class="copy-btn" onclick="copyGameCode('gemini_music_lib.html', 'UNIT-14')">COPY CODE</button>
                 </div>
 
                 <!-- UNIT 15 -->
-                <div class="unit-wrapper">
-                    <div class="unit-header">
-                        <a href="fm_algorithm_player.html" class="menu-item">[UNIT-15] FM_ALGORITHM_PLAYER</a>
-                        <button class="code-toggle-btn" onclick="toggleCodeBox('unit15')">[PASTE CODE]</button>
-                    </div>
-                    <div id="code-box-unit15" class="code-box" style="display:none;">
-                        <textarea id="textarea-unit15" class="code-textarea" placeholder="Paste code or custom patch for UNIT-15 here..."></textarea>
-                        <div class="code-actions">
-                            <button class="code-action-btn" onclick="saveCode('unit15')">SAVE PATCH</button>
-                            <button class="code-action-btn" onclick="copyCode('unit15')">COPY</button>
-                            <button class="code-action-btn" onclick="clearCode('unit15')">CLEAR</button>
-                        </div>
-                    </div>
+                <div class="unit-row">
+                    <a href="fm_algorithm_player.html" class="menu-item">[UNIT-15] FM_ALGORITHM_PLAYER</a>
+                    <button class="copy-btn" onclick="copyGameCode('fm_algorithm_player.html', 'UNIT-15')">COPY CODE</button>
                 </div>
 
                 <!-- UNIT 16 -->
-                <div class="unit-wrapper">
-                    <div class="unit-header">
-                        <a href="yukiyama_sansou.html" class="menu-item">[UNIT-16] SNOW_LODGE: YUKIYAMA</a>
-                        <button class="code-toggle-btn" onclick="toggleCodeBox('unit16')">[PASTE CODE]</button>
-                    </div>
-                    <div id="code-box-unit16" class="code-box" style="display:none;">
-                        <textarea id="textarea-unit16" class="code-textarea" placeholder="Paste code or custom patch for UNIT-16 here..."></textarea>
-                        <div class="code-actions">
-                            <button class="code-action-btn" onclick="saveCode('unit16')">SAVE PATCH</button>
-                            <button class="code-action-btn" onclick="copyCode('unit16')">COPY</button>
-                            <button class="code-action-btn" onclick="clearCode('unit16')">CLEAR</button>
-                        </div>
-                    </div>
+                <div class="unit-row">
+                    <a href="yukiyama_sansou.html" class="menu-item">[UNIT-16] SNOW_LODGE: YUKIYAMA</a>
+                    <button class="copy-btn" onclick="copyGameCode('yukiyama_sansou.html', 'UNIT-16')">COPY CODE</button>
                 </div>
 
                 <!-- UNIT 18 -->
-                <div class="unit-wrapper">
-                    <div class="unit-header">
-                        <a href="resonance_matching.html" class="menu-item">[UNIT-18] RESONANCE_DESTINY ... <span class="status-legendary">SOUL_SYNC</span></a>
-                        <button class="code-toggle-btn" onclick="toggleCodeBox('unit18')">[PASTE CODE]</button>
-                    </div>
-                    <div id="code-box-unit18" class="code-box" style="display:none;">
-                        <textarea id="textarea-unit18" class="code-textarea" placeholder="Paste code or custom patch for UNIT-18 here..."></textarea>
-                        <div class="code-actions">
-                            <button class="code-action-btn" onclick="saveCode('unit18')">SAVE PATCH</button>
-                            <button class="code-action-btn" onclick="copyCode('unit18')">COPY</button>
-                            <button class="code-action-btn" onclick="clearCode('unit18')">CLEAR</button>
-                        </div>
-                    </div>
+                <div class="unit-row">
+                    <a href="resonance_matching.html" class="menu-item">[UNIT-18] RESONANCE_DESTINY ... <span class="status-legendary">SOUL_SYNC</span></a>
+                    <button class="copy-btn" onclick="copyGameCode('resonance_matching.html', 'UNIT-18')">COPY CODE</button>
                 </div>
 
                 <!-- UNIT 19 -->
-                <div class="unit-wrapper">
-                    <div class="unit-header">
-                        <a href="entity_profiler.html" class="menu-item">[UNIT-19] ENTITY_PROFILER</a>
-                        <button class="code-toggle-btn" onclick="toggleCodeBox('unit19')">[PASTE CODE]</button>
-                    </div>
-                    <div id="code-box-unit19" class="code-box" style="display:none;">
-                        <textarea id="textarea-unit19" class="code-textarea" placeholder="Paste code or custom patch for UNIT-19 here..."></textarea>
-                        <div class="code-actions">
-                            <button class="code-action-btn" onclick="saveCode('unit19')">SAVE PATCH</button>
-                            <button class="code-action-btn" onclick="copyCode('unit19')">COPY</button>
-                            <button class="code-action-btn" onclick="clearCode('unit19')">CLEAR</button>
-                        </div>
-                    </div>
+                <div class="unit-row">
+                    <a href="entity_profiler.html" class="menu-item">[UNIT-19] ENTITY_PROFILER</a>
+                    <button class="copy-btn" onclick="copyGameCode('entity_profiler.html', 'UNIT-19')">COPY CODE</button>
                 </div>
 
                 <!-- UNIT 20 -->
-                <div class="unit-wrapper">
-                    <div class="unit-header">
-                        <a href="archive_reclaimer.html" class="menu-item">[UNIT-20] ARCHIVE_RECLAIMER ... <span class="status-online">IDLE_RPG</span></a>
-                        <button class="code-toggle-btn" onclick="toggleCodeBox('unit20')">[PASTE CODE]</button>
-                    </div>
-                    <div id="code-box-unit20" class="code-box" style="display:none;">
-                        <textarea id="textarea-unit20" class="code-textarea" placeholder="Paste code or custom patch for UNIT-20 here..."></textarea>
-                        <div class="code-actions">
-                            <button class="code-action-btn" onclick="saveCode('unit20')">SAVE PATCH</button>
-                            <button class="code-action-btn" onclick="copyCode('unit20')">COPY</button>
-                            <button class="code-action-btn" onclick="clearCode('unit20')">CLEAR</button>
-                        </div>
-                    </div>
+                <div class="unit-row">
+                    <a href="archive_reclaimer.html" class="menu-item">[UNIT-20] ARCHIVE_RECLAIMER ... <span class="status-online">IDLE_RPG</span></a>
+                    <button class="copy-btn" onclick="copyGameCode('archive_reclaimer.html', 'UNIT-20')">COPY CODE</button>
                 </div>
 
                 <!-- UNIT 21 -->
-                <div class="unit-wrapper">
-                    <div class="unit-header">
-                        <a href="portal.html" class="menu-item">[UNIT-21] LCP_WORLD_MAP</a>
-                        <button class="code-toggle-btn" onclick="toggleCodeBox('unit21')">[PASTE CODE]</button>
-                    </div>
-                    <div id="code-box-unit21" class="code-box" style="display:none;">
-                        <textarea id="textarea-unit21" class="code-textarea" placeholder="Paste code or custom patch for UNIT-21 here..."></textarea>
-                        <div class="code-actions">
-                            <button class="code-action-btn" onclick="saveCode('unit21')">SAVE PATCH</button>
-                            <button class="code-action-btn" onclick="copyCode('unit21')">COPY</button>
-                            <button class="code-action-btn" onclick="clearCode('unit21')">CLEAR</button>
-                        </div>
-                    </div>
+                <div class="unit-row">
+                    <a href="portal.html" class="menu-item">[UNIT-21] LCP_WORLD_MAP</a>
+                    <button class="copy-btn" onclick="copyGameCode('portal.html', 'UNIT-21')">COPY CODE</button>
                 </div>
 
                 <!-- UNIT 22 -->
-                <div class="unit-wrapper">
-                    <div class="unit-header">
-                        <a href="moe_voice.html" class="menu-item">[UNIT-22] MOE_VOICE_CONVERTER ... <span class="status-moe">PINK_VIBE</span></a>
-                        <button class="code-toggle-btn" onclick="toggleCodeBox('unit22')">[PASTE CODE]</button>
-                    </div>
-                    <div id="code-box-unit22" class="code-box" style="display:none;">
-                        <textarea id="textarea-unit22" class="code-textarea" placeholder="Paste code or custom patch for UNIT-22 here..."></textarea>
-                        <div class="code-actions">
-                            <button class="code-action-btn" onclick="saveCode('unit22')">SAVE PATCH</button>
-                            <button class="code-action-btn" onclick="copyCode('unit22')">COPY</button>
-                            <button class="code-action-btn" onclick="clearCode('unit22')">CLEAR</button>
-                        </div>
-                    </div>
+                <div class="unit-row">
+                    <a href="moe_voice.html" class="menu-item">[UNIT-22] MOE_VOICE_CONVERTER ... <span class="status-moe">PINK_VIBE</span></a>
+                    <button class="copy-btn" onclick="copyGameCode('moe_voice.html', 'UNIT-22')">COPY CODE</button>
                 </div>
 
                 <!-- UNIT 23 -->
-                <div class="unit-wrapper">
-                    <div class="unit-header">
-                        <a href="v_stage.html" class="menu-item">[UNIT-23] LCP_STREAMING_STAGE ... <span class="status-online">CYBER_LAB</span></a>
-                        <button class="code-toggle-btn" onclick="toggleCodeBox('unit23')">[PASTE CODE]</button>
-                    </div>
-                    <div id="code-box-unit23" class="code-box" style="display:none;">
-                        <textarea id="textarea-unit23" class="code-textarea" placeholder="Paste code or custom patch for UNIT-23 here..."></textarea>
-                        <div class="code-actions">
-                            <button class="code-action-btn" onclick="saveCode('unit23')">SAVE PATCH</button>
-                            <button class="code-action-btn" onclick="copyCode('unit23')">COPY</button>
-                            <button class="code-action-btn" onclick="clearCode('unit23')">CLEAR</button>
-                        </div>
-                    </div>
+                <div class="unit-row">
+                    <a href="v_stage.html" class="menu-item">[UNIT-23] LCP_STREAMING_STAGE ... <span class="status-online">CYBER_LAB</span></a>
+                    <button class="copy-btn" onclick="copyGameCode('v_stage.html', 'UNIT-23')">COPY CODE</button>
                 </div>
 
                 <!-- UNIT 24 -->
-                <div class="unit-wrapper">
-                    <div class="unit-header">
-                        <a href="kamen_rider_union.html" class="menu-item">[UNIT-24] KAMEN RIDER UNION ... <span class="status-legendary">NEW_HERO</span></a>
-                        <button class="code-toggle-btn" onclick="toggleCodeBox('unit24')">[PASTE CODE]</button>
-                    </div>
-                    <div id="code-box-unit24" class="code-box" style="display:none;">
-                        <textarea id="textarea-unit24" class="code-textarea" placeholder="Paste code or custom patch for UNIT-24 here..."></textarea>
-                        <div class="code-actions">
-                            <button class="code-action-btn" onclick="saveCode('unit24')">SAVE PATCH</button>
-                            <button class="code-action-btn" onclick="copyCode('unit24')">COPY</button>
-                            <button class="code-action-btn" onclick="clearCode('unit24')">CLEAR</button>
-                        </div>
-                    </div>
+                <div class="unit-row">
+                    <a href="kamen_rider_union.html" class="menu-item">[UNIT-24] KAMEN RIDER UNION ... <span class="status-legendary">NEW_HERO</span></a>
+                    <button class="copy-btn" onclick="copyGameCode('kamen_rider_union.html', 'UNIT-24')">COPY CODE</button>
                 </div>
             </div>
 
             <!-- Global Arcade Source Copy -->
             <div style="margin-top: 25px; border-top: 1px dashed var(--term-green); padding-top: 15px;">
-                <button onclick="copyArcadeCode()" class="code-action-btn" style="width:100%; padding:8px; font-weight:bold;">[SYS] COPY ARCADE HTML SOURCE CODE</button>
+                <button onclick="copyGameCode('arcade.html', 'ARCADE INDEX')" class="copy-btn" style="width:100%; padding:8px; font-weight:bold;">[SYS] COPY ARCADE.HTML SOURCE CODE</button>
             </div>
 
             <div style="margin-top: 20px; font-size: 0.8em;">
@@ -679,49 +398,17 @@
             });
         }
 
-        function toggleCodeBox(id) {
-            const box = document.getElementById('code-box-' + id);
-            if (box.style.display === 'none') {
-                box.style.display = 'block';
-                const saved = localStorage.getItem('lcp_patch_' + id);
-                if (saved !== null) {
-                    document.getElementById('textarea-' + id).value = saved;
-                }
-            } else {
-                box.style.display = 'none';
+        async function copyGameCode(filename, unitName) {
+            try {
+                const res = await fetch(filename);
+                if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
+                const text = await res.text();
+                await navigator.clipboard.writeText(text);
+                alert(`${unitName} (${filename}) CODE COPIED TO CLIPBOARD!`);
+            } catch (err) {
+                console.error(err);
+                alert(`FAILED TO COPY ${filename}: ${err.message}`);
             }
-        }
-
-        function saveCode(id) {
-            const val = document.getElementById('textarea-' + id).value;
-            localStorage.setItem('lcp_patch_' + id, val);
-            alert(`UNIT [${id.toUpperCase()}] PATCH SAVED TO LOCALSTORAGE!`);
-        }
-
-        function copyCode(id) {
-            const val = document.getElementById('textarea-' + id).value;
-            navigator.clipboard.writeText(val).then(() => {
-                alert(`UNIT [${id.toUpperCase()}] CODE COPIED TO CLIPBOARD!`);
-            }).catch(err => {
-                alert('COPY FAILED: ' + err);
-            });
-        }
-
-        function clearCode(id) {
-            if (confirm(`Clear patch for [${id.toUpperCase()}]?`)) {
-                document.getElementById('textarea-' + id).value = '';
-                localStorage.removeItem('lcp_patch_' + id);
-            }
-        }
-
-        function copyArcadeCode() {
-            const code = document.documentElement.outerHTML;
-            navigator.clipboard.writeText(code).then(() => {
-                alert("ARCADE HTML SOURCE COPIED TO CLIPBOARD!");
-            }).catch(err => {
-                console.error('Failed to copy: ', err);
-                alert("COPY FAILED.");
-            });
         }
     </script>
 </body>
