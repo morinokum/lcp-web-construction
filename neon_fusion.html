@@ -1,0 +1,656 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Neon Fusion - ぱする AI-GAME-PORTFOLIO</title>
+    <!-- AI-GAME-PORTFOLIO -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Noto+Sans+JP:wght@400;700&display=swap');
+
+        body {
+            font-family: 'Noto Sans JP', sans-serif;
+            background-color: #0d0f17;
+            color: #e2e8f0;
+            touch-action: manipulation;
+            overflow: hidden;
+        }
+
+        .font-orbitron {
+            font-family: 'Orbitron', sans-serif;
+        }
+
+        /* ネオンシャドウとグラデーション効果 */
+        .neon-box {
+            box-shadow: 0 0 15px rgba(59, 130, 246, 0.3), inset 0 0 15px rgba(59, 130, 246, 0.2);
+            border: 1px solid rgba(96, 165, 250, 0.3);
+        }
+
+        .neon-text-cyan {
+            text-shadow: 0 0 8px rgba(6, 182, 212, 0.8), 0 0 20px rgba(6, 182, 212, 0.5);
+        }
+
+        .neon-text-magenta {
+            text-shadow: 0 0 8px rgba(236, 72, 153, 0.8), 0 0 20px rgba(236, 72, 153, 0.5);
+        }
+
+        /* パズルキャンバスアニメーション用 */
+        #game-canvas {
+            touch-action: none;
+            border-radius: 1rem;
+            background: rgba(15, 23, 42, 0.85);
+            backdrop-filter: blur(12px);
+        }
+
+        /* カスタムボタン */
+        .btn-neon {
+            background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
+            transition: all 0.2s ease;
+            box-shadow: 0 0 12px rgba(99, 102, 241, 0.4);
+        }
+
+        .btn-neon:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 0 20px rgba(99, 102, 241, 0.7);
+        }
+
+        .btn-neon:active {
+            transform: translateY(1px);
+        }
+
+        /* モーダル背景 */
+        .modal-bg {
+            background: rgba(5, 7, 13, 0.85);
+            backdrop-filter: blur(8px);
+        }
+
+        /* 浮遊アニメーション */
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-6px); }
+        }
+        .animate-float {
+            animation: float 3s ease-in-out infinite;
+        }
+    </style>
+</head>
+<body class="h-screen w-screen flex flex-col justify-between items-center p-2 sm:p-4 select-none relative">
+
+    <!-- 背景装飾グリッド & 光源効果 -->
+    <div class="absolute inset-0 pointer-events-none opacity-20 bg-[radial-gradient(#3b82f6_1px,transparent_1px)] [background-size:24px_24px]"></div>
+    <div class="absolute -top-32 -left-32 w-96 h-96 bg-cyan-500/20 rounded-full blur-3xl pointer-events-none"></div>
+    <div class="absolute -bottom-32 -right-32 w-96 h-96 bg-fuchsia-500/20 rounded-full blur-3xl pointer-events-none"></div>
+
+    <!-- ヘッダー: スコア & コントロール -->
+    <header class="w-full max-w-md flex flex-col gap-3 z-10">
+        <div class="flex justify-between items-center">
+            <div>
+                <h1 class="text-2xl sm:text-3xl font-black font-orbitron tracking-wider text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-purple-400 to-pink-500">
+                    NEON FUSION
+                </h1>
+                <p class="text-xs text-slate-400">同色・同数字ブロックをドッグ・融合しよう！</p>
+            </div>
+            <div class="flex gap-2">
+                <!-- サウンド切り替え -->
+                <button id="sound-toggle-btn" class="w-10 h-10 rounded-xl bg-slate-800/80 border border-slate-700 hover:border-slate-500 flex justify-center items-center text-slate-300 transition">
+                    <i class="fas fa-volume-up text-lg" id="sound-icon"></i>
+                </button>
+                <!-- ルール説明 -->
+                <button id="help-btn" class="w-10 h-10 rounded-xl bg-slate-800/80 border border-slate-700 hover:border-slate-500 flex justify-center items-center text-slate-300 transition">
+                    <i class="fas fa-question-circle text-lg"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- スコアボード -->
+        <div class="grid grid-cols-2 gap-3">
+            <div class="bg-slate-900/90 rounded-xl p-2.5 border border-slate-800 flex flex-col items-center justify-center neon-box">
+                <span class="text-[10px] uppercase font-orbitron tracking-widest text-slate-400">SCORE</span>
+                <span id="score-val" class="text-xl sm:text-2xl font-bold font-orbitron text-cyan-400 neon-text-cyan">0</span>
+            </div>
+            <div class="bg-slate-900/90 rounded-xl p-2.5 border border-slate-800 flex flex-col items-center justify-center neon-box">
+                <span class="text-[10px] uppercase font-orbitron tracking-widest text-slate-400">BEST SCORE</span>
+                <span id="high-score-val" class="text-xl sm:text-2xl font-bold font-orbitron text-pink-400 neon-text-magenta">0</span>
+            </div>
+        </div>
+    </header>
+
+    <!-- ゲーム領域（キャンバス） -->
+    <main class="w-full flex-1 max-w-md flex flex-col justify-center items-center relative my-2 z-10">
+        <canvas id="game-canvas" class="w-full h-auto max-h-[68vh] aspect-square shadow-2xl border border-slate-700/50"></canvas>
+    </main>
+
+    <!-- フッター: コントロール & 補助 -->
+    <footer class="w-full max-w-md flex justify-between items-center z-10 gap-2 mb-2">
+        <button id="restart-btn" class="flex-1 py-3 px-4 rounded-xl btn-neon font-bold text-white text-sm tracking-wider flex items-center justify-center gap-2">
+            <i class="fas fa-redo-alt"></i> やり直す
+        </button>
+        <button id="undo-btn" class="py-3 px-4 rounded-xl bg-slate-800/80 border border-slate-700 hover:border-slate-500 text-slate-300 font-bold text-sm tracking-wider flex items-center justify-center gap-2">
+            <i class="fas fa-undo"></i> 待った
+        </button>
+    </footer>
+
+    <!-- ルール解説 modal -->
+    <div id="help-modal" class="fixed inset-0 modal-bg z-50 flex justify-center items-center p-4 hidden">
+        <div class="bg-slate-900 border border-cyan-500/30 rounded-2xl p-6 max-w-sm w-full shadow-2xl relative text-slate-200">
+            <h2 class="text-xl font-bold font-orbitron text-cyan-400 mb-3 flex items-center gap-2">
+                <i class="fas fa-gamepad"></i> 遊び方説明
+            </h2>
+            <div class="text-sm space-y-3 leading-relaxed text-slate-300">
+                <p>1. 画面上のブロックを<strong class="text-cyan-300">上下左右にスライド（ドラッグ/フリック）</strong>して移動させます。</p>
+                <p>2. <strong class="text-pink-400">「同じ数字（レベル）」</strong>のブロック同士が衝突すると合体（フュージョン）し、ランクアップ！</p>
+                <p>3. 連続で合体させると<strong class="text-yellow-400">コンボボーナス</strong>発生！高得点を狙おう。</p>
+                <p>4. マス目が全て埋まり、移動できなくなると<strong class="text-red-400">ゲームオーバー</strong>です。</p>
+            </div>
+            <button id="close-help-btn" class="w-full mt-6 py-2.5 rounded-xl btn-neon font-bold text-white text-sm">
+                理解した！プレイを開始
+            </button>
+        </div>
+    </div>
+
+    <!-- ゲームオーバー modal -->
+    <div id="gameover-modal" class="fixed inset-0 modal-bg z-50 flex justify-center items-center p-4 hidden">
+        <div class="bg-slate-900 border border-pink-500/40 rounded-2xl p-6 max-w-sm w-full shadow-2xl text-center text-slate-200 animate-float">
+            <div class="w-16 h-16 bg-red-500/10 border border-red-500/30 rounded-full flex justify-center items-center mx-auto mb-3 text-red-400 text-2xl">
+                <i class="fas fa-times-circle"></i>
+            </div>
+            <h2 class="text-2xl font-black font-orbitron text-pink-500 mb-1">GAME OVER</h2>
+            <p class="text-xs text-slate-400 mb-4">動かせるブロックが無くなりました</p>
+            
+            <div class="bg-slate-800/60 rounded-xl p-4 mb-5 space-y-2 border border-slate-700/50">
+                <div class="flex justify-between items-center">
+                    <span class="text-xs text-slate-400">最終スコア:</span>
+                    <span id="final-score" class="text-xl font-bold font-orbitron text-cyan-400">0</span>
+                </div>
+                <div class="flex justify-between items-center">
+                    <span class="text-xs text-slate-400">ハイスコア:</span>
+                    <span id="final-best-score" class="text-xl font-bold font-orbitron text-pink-400">0</span>
+                </div>
+            </div>
+
+            <button id="modal-retry-btn" class="w-full py-3 rounded-xl btn-neon font-bold text-white text-base tracking-wider shadow-lg flex items-center justify-center gap-2">
+                <i class="fas fa-play"></i> もう一度挑戦する
+            </button>
+        </div>
+    </div>
+
+    <!-- JavaScript ロジック -->
+    <script>
+        /**
+         * Web Audio API Synthesizer - 効果音自動生成
+         */
+        class SoundEngine {
+            constructor() {
+                this.ctx = null;
+                this.muted = false;
+            }
+
+            init() {
+                if (!this.ctx) {
+                    const AudioContext = window.AudioContext || window.webkitAudioContext;
+                    this.ctx = new AudioContext();
+                }
+            }
+
+            playMove() {
+                if (this.muted) return;
+                this.init();
+                const osc = this.ctx.createOscillator();
+                const gain = this.ctx.createGain();
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(180, this.ctx.currentTime);
+                osc.frequency.exponentialRampToValueAtTime(320, this.ctx.currentTime + 0.08);
+                gain.gain.setValueAtTime(0.15, this.ctx.currentTime);
+                gain.gain.linearRampToValueAtTime(0, this.ctx.currentTime + 0.08);
+                osc.connect(gain);
+                gain.connect(this.ctx.destination);
+                osc.start();
+                osc.stop(this.ctx.currentTime + 0.08);
+            }
+
+            playMerge(level) {
+                if (this.muted) return;
+                this.init();
+                const osc = this.ctx.createOscillator();
+                const gain = this.ctx.createGain();
+                const baseFreq = 220 + level * 60;
+                osc.type = 'triangle';
+                osc.frequency.setValueAtTime(baseFreq, this.ctx.currentTime);
+                osc.frequency.exponentialRampToValueAtTime(baseFreq * 1.5, this.ctx.currentTime + 0.15);
+                gain.gain.setValueAtTime(0.3, this.ctx.currentTime);
+                gain.gain.linearRampToValueAtTime(0, this.ctx.currentTime + 0.15);
+                osc.connect(gain);
+                gain.connect(this.ctx.destination);
+                osc.start();
+                osc.stop(this.ctx.currentTime + 0.15);
+            }
+
+            playGameOver() {
+                if (this.muted) return;
+                this.init();
+                const osc = this.ctx.createOscillator();
+                const gain = this.ctx.createGain();
+                osc.type = 'sawtooth';
+                osc.frequency.setValueAtTime(250, this.ctx.currentTime);
+                osc.frequency.exponentialRampToValueAtTime(80, this.ctx.currentTime + 0.4);
+                gain.gain.setValueAtTime(0.3, this.ctx.currentTime);
+                gain.gain.linearRampToValueAtTime(0, this.ctx.currentTime + 0.4);
+                osc.connect(gain);
+                gain.connect(this.ctx.destination);
+                osc.start();
+                osc.stop(this.ctx.currentTime + 0.4);
+            }
+        }
+
+        // ゲーム定数と設定
+        const GRID_SIZE = 4;
+        const STORAGE_KEY = 'neon_fusion_highscore_v1';
+        
+        // ブロックの色設定 (レベル毎)
+        const BLOCK_COLORS = {
+            1: { bg: '#1e293b', border: '#38bdf8', text: '#38bdf8', glow: 'rgba(56, 189, 248, 0.4)' },
+            2: { bg: '#0f3854', border: '#06b6d4', text: '#67e8f9', glow: 'rgba(6, 182, 212, 0.4)' },
+            3: { bg: '#1e1b4b', border: '#6366f1', text: '#a5b4fc', glow: 'rgba(99, 102, 241, 0.4)' },
+            4: { bg: '#311042', border: '#a855f7', text: '#e9d5ff', glow: 'rgba(168, 85, 247, 0.4)' },
+            5: { bg: '#4c0519', border: '#ec4899', text: '#fbcfe8', glow: 'rgba(236, 72, 153, 0.5)' },
+            6: { bg: '#450a0a', border: '#ef4444', text: '#fca5a5', glow: 'rgba(239, 68, 68, 0.5)' },
+            7: { bg: '#431407', border: '#f97316', text: '#fed7aa', glow: 'rgba(249, 115, 22, 0.5)' },
+            8: { bg: '#3f2c06', border: '#eab308', text: '#fef08a', glow: 'rgba(234, 179, 8, 0.6)' },
+            9: { bg: '#14532d', border: '#22c55e', text: '#bbf7d0', glow: 'rgba(34, 197, 94, 0.6)' }
+        };
+
+        const sound = new SoundEngine();
+
+        // アプリケーション状態管理
+        let canvas, ctx;
+        let grid = [];
+        let score = 0;
+        let highScore = 0;
+        let previousState = null;
+        let particles = [];
+        let touchStartX = 0, touchStartY = 0;
+        let isAnimating = false;
+
+        // 初期化処理
+        window.addEventListener('load', () => {
+            canvas = document.getElementById('game-canvas');
+            ctx = canvas.getContext('2d');
+            
+            // 解像度とキャンバスサイズ調整
+            resizeCanvas();
+            window.addEventListener('resize', resizeCanvas);
+
+            // ハイスコアロード
+            highScore = parseInt(localStorage.getItem(STORAGE_KEY) || '0', 10);
+            updateScoreUI();
+
+            // イベントリスナー登録
+            setupInputHandlers();
+            setupUIHandlers();
+
+            // 新規ゲーム開始
+            initGame();
+
+            // アニメーションループ開始
+            requestAnimationFrame(gameLoop);
+        });
+
+        function resizeCanvas() {
+            const container = canvas.parentElement;
+            const size = Math.min(container.clientWidth, window.innerHeight * 0.65);
+            const dpr = window.devicePixelRatio || 1;
+            
+            canvas.width = size * dpr;
+            canvas.height = size * dpr;
+            canvas.style.width = `${size}px`;
+            canvas.style.height = `${size}px`;
+            
+            ctx.scale(dpr, dpr);
+        }
+
+        // 新しいゲーム状態のセットアップ
+        function initGame() {
+            grid = Array(GRID_SIZE).fill(null).map(() => Array(GRID_SIZE).fill(null));
+            score = 0;
+            previousState = null;
+            updateScoreUI();
+            
+            // 初期ブロック2つ生成
+            spawnBlock();
+            spawnBlock();
+        }
+
+        // ブロック生成
+        function spawnBlock() {
+            const emptyCells = [];
+            for (let r = 0; r < GRID_SIZE; r++) {
+                for (let c = 0; c < GRID_SIZE; c++) {
+                    if (!grid[r][c]) emptyCells.push({ r, c });
+                }
+            }
+
+            if (emptyCells.length > 0) {
+                const { r, c } = emptyCells[Math.floor(Math.random() * emptyCells.length)];
+                const val = Math.random() < 0.85 ? 1 : 2;
+                grid[r][c] = {
+                    val: val,
+                    scale: 0,
+                    x: c,
+                    y: r,
+                    targetX: c,
+                    targetY: r
+                };
+            }
+        }
+
+        // スコア表示の更新
+        function updateScoreUI() {
+            document.getElementById('score-val').innerText = score;
+            if (score > highScore) {
+                highScore = score;
+                localStorage.setItem(STORAGE_KEY, highScore.toString());
+            }
+            document.getElementById('high-score-val').innerText = highScore;
+        }
+
+        // 入力イベント登録
+        function setupInputHandlers() {
+            // キーボード操作
+            window.addEventListener('keydown', (e) => {
+                if (['ArrowUp', 'KeyW'].includes(e.code)) handleMove('UP');
+                else if (['ArrowDown', 'KeyS'].includes(e.code)) handleMove('DOWN');
+                else if (['ArrowLeft', 'KeyA'].includes(e.code)) handleMove('LEFT');
+                else if (['ArrowRight', 'KeyD'].includes(e.code)) handleMove('RIGHT');
+            });
+
+            // タッチ操作（キャンバス上）
+            canvas.addEventListener('touchstart', (e) => {
+                touchStartX = e.touches[0].clientX;
+                touchStartY = e.touches[0].clientY;
+                e.preventDefault();
+            }, { passive: false });
+
+            canvas.addEventListener('touchend', (e) => {
+                if (!touchStartX || !touchStartY) return;
+                const dx = e.changedTouches[0].clientX - touchStartX;
+                const dy = e.changedTouches[0].clientY - touchStartY;
+                const minDistance = 30;
+
+                if (Math.abs(dx) > Math.abs(dy)) {
+                    if (Math.abs(dx) > minDistance) handleMove(dx > 0 ? 'RIGHT' : 'LEFT');
+                } else {
+                    if (Math.abs(dy) > minDistance) handleMove(dy > 0 ? 'DOWN' : 'UP');
+                }
+                touchStartX = 0;
+                touchStartY = 0;
+                e.preventDefault();
+            }, { passive: false });
+        }
+
+        // UIボタンのイベント登録
+        function setupUIHandlers() {
+            document.getElementById('restart-btn').addEventListener('click', initGame);
+            document.getElementById('modal-retry-btn').addEventListener('click', () => {
+                document.getElementById('gameover-modal').classList.add('hidden');
+                initGame();
+            });
+
+            // 待った（Undo）機能
+            document.getElementById('undo-btn').addEventListener('click', () => {
+                if (previousState) {
+                    grid = JSON.parse(JSON.stringify(previousState.grid));
+                    score = previousState.score;
+                    updateScoreUI();
+                    previousState = null;
+                }
+            });
+
+            // サウンド切り替え
+            document.getElementById('sound-toggle-btn').addEventListener('click', () => {
+                sound.muted = !sound.muted;
+                const icon = document.getElementById('sound-icon');
+                icon.className = sound.muted ? 'fas fa-volume-mute text-lg text-red-400' : 'fas fa-volume-up text-lg';
+            });
+
+            // ルール説明モーダル制御
+            const helpModal = document.getElementById('help-modal');
+            document.getElementById('help-btn').addEventListener('click', () => helpModal.classList.remove('hidden'));
+            document.getElementById('close-help-btn').addEventListener('click', () => helpModal.classList.add('hidden'));
+        }
+
+        // 移動ロジック
+        function handleMove(direction) {
+            saveState();
+            let moved = false;
+            let mergeScore = 0;
+
+            const isVertical = direction === 'UP' || direction === 'DOWN';
+            const isForward = direction === 'RIGHT' || direction === 'DOWN';
+
+            for (let i = 0; i < GRID_SIZE; i++) {
+                let line = [];
+                for (let j = 0; j < GRID_SIZE; j++) {
+                    const r = isVertical ? j : i;
+                    const c = isVertical ? i : j;
+                    if (grid[r][c]) line.push(grid[r][c]);
+                }
+
+                if (isForward) line.reverse();
+
+                const newLine = [];
+                let skip = false;
+
+                for (let k = 0; k < line.length; k++) {
+                    if (skip) {
+                        skip = false;
+                        continue;
+                    }
+                    if (k + 1 < line.length && line[k].val === line[k + 1].val) {
+                        // フュージョン（合体）
+                        const newVal = line[k].val + 1;
+                        newLine.push({ val: newVal, merged: true });
+                        mergeScore += Math.pow(2, newVal);
+                        createParticles(isVertical ? i : (isForward ? GRID_SIZE - 1 - newLine.length + 1 : newLine.length - 1),
+                                        isVertical ? (isForward ? GRID_SIZE - 1 - newLine.length + 1 : newLine.length - 1) : i,
+                                        newVal);
+                        sound.playMerge(newVal);
+                        skip = true;
+                        moved = true;
+                    } else {
+                        newLine.push({ val: line[k].val, merged: false });
+                    }
+                }
+
+                while (newLine.length < GRID_SIZE) {
+                    newLine.push(null);
+                }
+
+                if (isForward) newLine.reverse();
+
+                // グリッドへ反映＆移動有無チェック
+                for (let j = 0; j < GRID_SIZE; j++) {
+                    const r = isVertical ? j : i;
+                    const c = isVertical ? i : j;
+                    const cell = newLine[j];
+                    if (grid[r][c] !== (cell ? cell : null)) {
+                        if (cell || grid[r][c]) moved = true;
+                    }
+                    grid[r][c] = cell ? { val: cell.val, scale: cell.merged ? 1.2 : 1.0 } : null;
+                }
+            }
+
+            if (moved) {
+                sound.playMove();
+                score += mergeScore;
+                updateScoreUI();
+                spawnBlock();
+
+                if (checkGameOver()) {
+                    sound.playGameOver();
+                    setTimeout(() => {
+                        document.getElementById('final-score').innerText = score;
+                        document.getElementById('final-best-score').innerText = highScore;
+                        document.getElementById('gameover-modal').classList.remove('hidden');
+                    }, 400);
+                }
+            }
+        }
+
+        // 状態保存 (Undo用)
+        function saveState() {
+            previousState = {
+                grid: JSON.parse(JSON.stringify(grid)),
+                score: score
+            };
+        }
+
+        // ゲームオーバー判定
+        function checkGameOver() {
+            for (let r = 0; r < GRID_SIZE; r++) {
+                for (let c = 0; c < GRID_SIZE; c++) {
+                    if (!grid[r][c]) return false;
+                    if (c + 1 < GRID_SIZE && grid[r][c + 1] && grid[r][c].val === grid[r][c + 1].val) return false;
+                    if (r + 1 < GRID_SIZE && grid[r + 1][c] && grid[r][c].val === grid[r + 1][c].val) return false;
+                }
+            }
+            return true;
+        }
+
+        // パーティクル生成 (合体時エフェクト)
+        function createParticles(col, row, level) {
+            const size = canvas.width / (window.devicePixelRatio || 1);
+            const cellSize = size / GRID_SIZE;
+            const x = col * cellSize + cellSize / 2;
+            const y = row * cellSize + cellSize / 2;
+            const colorInfo = BLOCK_COLORS[Math.min(level, 9)] || BLOCK_COLORS[9];
+
+            for (let i = 0; i < 12; i++) {
+                const angle = Math.random() * Math.PI * 2;
+                const speed = 2 + Math.random() * 4;
+                particles.push({
+                    x: x,
+                    y: y,
+                    vx: Math.cos(angle) * speed,
+                    vy: Math.sin(angle) * speed,
+                    size: 3 + Math.random() * 3,
+                    color: colorInfo.border,
+                    alpha: 1
+                });
+            }
+        }
+
+        // アニメーションループ & レンダリング
+        function gameLoop() {
+            const size = canvas.width / (window.devicePixelRatio || 1);
+            ctx.clearRect(0, 0, size, size);
+
+            const cellSize = size / GRID_SIZE;
+            const padding = 8;
+
+            // 背景枠の描画
+            for (let r = 0; r < GRID_SIZE; r++) {
+                for (let c = 0; c < GRID_SIZE; c++) {
+                    const x = c * cellSize + padding;
+                    const y = r * cellSize + padding;
+                    const w = cellSize - padding * 2;
+
+                    ctx.fillStyle = 'rgba(30, 41, 59, 0.4)';
+                    drawRoundedRect(ctx, x, y, w, w, 12);
+                    ctx.fill();
+                    ctx.strokeStyle = 'rgba(51, 65, 85, 0.3)';
+                    ctx.stroke();
+                }
+            }
+
+            // ブロックの描画
+            for (let r = 0; r < GRID_SIZE; r++) {
+                for (let c = 0; c < GRID_SIZE; c++) {
+                    const cell = grid[r][c];
+                    if (cell) {
+                        // アニメーション処理 (スケールスムーズ縮小)
+                        if (cell.scale > 1.0) {
+                            cell.scale -= 0.04;
+                        } else if (cell.scale < 1.0) {
+                            cell.scale += 0.1;
+                            if (cell.scale > 1.0) cell.scale = 1.0;
+                        }
+
+                        const colorInfo = BLOCK_COLORS[Math.min(cell.val, 9)] || BLOCK_COLORS[9];
+                        const x = c * cellSize + padding;
+                        const y = r * cellSize + padding;
+                        const w = cellSize - padding * 2;
+
+                        ctx.save();
+                        ctx.translate(x + w / 2, y + w / 2);
+                        ctx.scale(cell.scale, cell.scale);
+
+                        // グロー効果
+                        ctx.shadowColor = colorInfo.glow;
+                        ctx.shadowBlur = 12;
+
+                        // ブロック背景
+                        ctx.fillStyle = colorInfo.bg;
+                        drawRoundedRect(ctx, -w / 2, -w / 2, w, w, 12);
+                        ctx.fill();
+
+                        // ブロック枠線
+                        ctx.lineWidth = 2;
+                        ctx.strokeStyle = colorInfo.border;
+                        ctx.stroke();
+
+                        // 数字テキスト
+                        ctx.shadowBlur = 0;
+                        ctx.fillStyle = colorInfo.text;
+                        ctx.font = `bold ${w * 0.4}px Orbitron, sans-serif`;
+                        ctx.textAlign = 'center';
+                        ctx.textBaseline = 'middle';
+                        ctx.fillText(Math.pow(2, cell.val), 0, 2);
+
+                        ctx.restore();
+                    }
+                }
+            }
+
+            // パーティクルの更新・描画
+            for (let i = particles.length - 1; i >= 0; i--) {
+                const p = particles[i];
+                p.x += p.vx;
+                p.y += p.vy;
+                p.alpha -= 0.03;
+
+                if (p.alpha <= 0) {
+                    particles.splice(i, 1);
+                    continue;
+                }
+
+                ctx.save();
+                ctx.globalAlpha = p.alpha;
+                ctx.fillStyle = p.color;
+                ctx.beginPath();
+                ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.restore();
+            }
+
+            requestAnimationFrame(gameLoop);
+        }
+
+        // 角丸四角形描画ヘルパー
+        function drawRoundedRect(ctx, x, y, width, height, radius) {
+            ctx.beginPath();
+            ctx.moveTo(x + radius, y);
+            ctx.lineTo(x + width - radius, y);
+            ctx.quadraticCurveTo(x + width, y, x + width, y + radius);
+            ctx.lineTo(x + width, y + height - radius);
+            ctx.quadraticCurveTo(x + width, y + height, x + width - radius, y + height);
+            ctx.lineTo(x + radius, y + height);
+            ctx.quadraticCurveTo(x, y + height, x, y + height - radius);
+            ctx.lineTo(x, y + radius);
+            ctx.quadraticCurveTo(x, y, x + radius, y);
+            ctx.closePath();
+        }
+    </script>
+</body>
+</html>
