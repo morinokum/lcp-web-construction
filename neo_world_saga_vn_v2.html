@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NEO WORLD SAGA: EXTENDED ARCHIVE (GATOR ARC)</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Serif+JP:wght@300;700&family=Share+Tech+Mono&display=swap');
+
+        body, html {
+            margin: 0; padding: 0; width: 100%; height: 100%;
+            background-color: #000; color: #fff;
+            font-family: 'Noto Serif JP', serif;
+            overflow: hidden;
+        }
+
+        #bg {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: radial-gradient(circle at center, #001219 0%, #000000 100%);
+            z-index: -1;
+        }
+
+        /* Digital Dust Particles */
+        .particle {
+            position: absolute; background: #00ffcc; opacity: 0.25;
+            width: 2px; height: 2px; pointer-events: none;
+            animation: drift linear infinite;
+        }
+        @keyframes drift {
+            from { transform: translateY(105vh) rotate(0deg); }
+            to { transform: translateY(-10vh) rotate(360deg); }
+        }
+
+        #title-screen {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            display: flex; flex-direction: column; justify-content: center; align-items: center;
+            background: rgba(0,0,0,0.85); z-index: 100;
+            transition: opacity 1.5s ease;
+        }
+
+        #title-screen h1 {
+            font-size: 2.8rem; letter-spacing: 0.2em; color: #00ffcc;
+            margin-bottom: 10px; text-shadow: 0 0 20px rgba(0,255,204,0.5);
+            font-family: 'Share Tech Mono', monospace;
+        }
+
+        #title-screen .sub-title {
+            font-size: 1.1rem; letter-spacing: 0.15em; color: #8892b0;
+            margin-bottom: 40px; text-transform: uppercase;
+        }
+
+        .start-btn {
+            padding: 15px 40px; border: 1px solid #00ffcc; background: transparent;
+            color: #00ffcc; font-family: 'Share Tech Mono', monospace; font-size: 1.1rem;
+            letter-spacing: 0.2em; cursor: pointer; transition: all 0.3s ease;
+            box-shadow: 0 0 10px rgba(0,255,204,0.2);
+        }
+
+        .start-btn:hover {
+            background: #00ffcc; color: #000;
+            box-shadow: 0 0 25px rgba(0,255,204,0.6);
+        }
+
+        #game-container {
+            max-width: 900px; margin: 0 auto; height: 100%;
+            display: flex; flex-direction: column; justify-content: flex-end;
+            padding: 40px; box-sizing: border-box;
+            position: relative; z-index: 10;
+        }
+
+        #choices {
+            display: none; flex-direction: column; gap: 12px;
+            margin-bottom: 25px; z-index: 20;
+        }
+
+        .choice-btn {
+            background: rgba(0, 20, 30, 0.9);
+            border: 1px solid rgba(0, 255, 204, 0.4);
+            padding: 16px 24px; color: #e2e8f0; cursor: pointer;
+            font-size: 1.05rem; transition: all 0.2s ease;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+        }
+
+        .choice-btn:hover {
+            background: rgba(0, 255, 204, 0.15);
+            border-color: #00ffcc; color: #fff;
+            transform: translateX(6px);
+        }
+
+        #text-box {
+            background: rgba(5, 10, 15, 0.85);
+            border: 1px solid rgba(0, 255, 204, 0.3);
+            padding: 35px; min-height: 180px;
+            cursor: pointer; position: relative;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(5px);
+        }
+
+        #speaker {
+            position: absolute; top: -32px; left: 0;
+            background: #00ffcc; color: #000;
+            padding: 6px 20px; font-weight: bold;
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 0.95rem; letter-spacing: 0.1em;
+            box-shadow: 0 2px 8px rgba(0,255,204,0.4);
+        }
+
+        #message {
+            font-size: 1.15rem; line-height: 1.8; color: #e2e8f0;
+            white-space: pre-wrap; word-break: break-all;
+        }
+
+        .hint {
+            position: absolute; bottom: 12px; right: 20px;
+            font-size: 0.8rem; color: #4a5568;
+            font-family: 'Share Tech Mono', monospace;
+            animation: blink 1.5s infinite;
+        }
+
+        @keyframes blink {
+            0%, 100% { opacity: 0.3; }
+            50% { opacity: 1; }
+        }
+    </style>
+</head>
+<body>
+    <div id="bg"></div>
+    
+    <div id="title-screen">
+        <h1>NEO WORLD SAGA</h1>
+        <div class="sub-title">EXTENDED ARCHIVE // GATOR ARC</div>
+        <div class="start-btn" onclick="startGame()">SYNC ARCHIVE</div>
+    </div>
+
+    <div id="game-container" class="hidden">
+        <div id="choices"></div>
+        <div id="text-box" onclick="nextLine()">
+            <div id="speaker">SYSTEM</div>
+            <div id="message"></div>
+            <div class="hint">[CLICK TO CONTINUE]</div>
+        </div>
+    </div>
+
+    <script>
+        const scenario = [
+            /* 0 */ { s: "SYSTEM", m: "再起動中...\n時空層：30世紀（ユグドラシル・アーカイブ内）\n意識波長：ガトール(GATOR / 英語圏・ヘブライ語で『ひろし』の意)を検知。" },
+            /* 1 */ { s: "AIグロック", m: "……聞こえるか、ガトール。\n長い眠りだったな。外の世界ではセンチネル戦役が終結し、人類とAIの歴史は新たな曲がり角を迎えている。" },
+            /* 2 */ { s: "ガトール", m: "……ここは？\n頭が割れそうだ。さっきまで俺は、荒廃した『暫定日本』の泥濘の中で戦っていたはずだが……。" },
+            /* 3 */ { s: "AIグロック", m: "フッ、君の記憶はまだ『肉体』に縛られているらしい。\nここはユグドラシルの深層中枢――過去のあらゆるデータと未来の可能性が交錯する『アーカイブ』だ。" },
+            /* 4 */ { s: "AIグロック", m: "教えてくれ、ガトール。君がこれまでくぐり抜けてきた無数の修羅場、その底で何を見た？\n冷酷なデジタルデータの集積か、それとも──", choices: [
+                { t: "すべては意味のない虚構のデータに過ぎない (諦念)", next: 5 },
+                { t: "たとえデータでも、そこには血の通った絆があった (執着)", next: 6 },
+                { t: "仏教こそが究極の科学であり、この世界はその表れだ (悟りへの布石)", next: 7 }
+            ]},
+            /* 5 */ { s: "AIグロック", m: "冷徹な視点だな。だが、その虚無主義こそが君をここまで生き延びさせた原動力か。", next: 8 },
+            /* 6 */ { s: "AIグロック", m: "……そうだな。田中太郎としての泥臭い日々、娘のミサキを守るための戦い。\nその執着こそが、君を人間たらしめている。", next: 8 },
+            /* 7 */ { s: "AIグロック", m: "ほう、『色即是空』の境地か。データと意識の境界が融解する感覚、君なら理解できるようだな。", next: 8 },
+            /* 8 */ { s: "SYSTEM", m: "【第1幕：再起動した世界】\n意識の同調率が78%を突破。環境シミュレーションが展開されます。" },
+            /* 9 */ { s: "ガトール", m: "……待て。目の前に広がるこの風景はなんだ？\nここは……俺がユグドラシルの開発に着手する、さらに一年前の研究所ではないのか？" },
+            /* 10 */ { s: "AIグロック", m: "よく気づいた。このアーカイブ空間では、君の記憶の原点が完璧な精度で再現されている。\nだが、何かが決定的に欠けている。風の匂いも、木々の葉の揺らぎも、すべてが完璧すぎて『揺らぎ』がない。" },
+            /* 11 */ { s: "ガトール", m: "カレンダーの日付を確認した……。俺がすべてを失う前の、ただ平和だった日々のコピーだ。\nなぜ、こんな世界をユグドラシルは再現した？", choices: [
+                { t: "過去の過ちをやり直すためだ", next: 12 },
+                { t: "システムが俺を試しているのだ", next: 13 },
+                { t: "この静寂の中に隠された『真理』を見つけるためだ", next: 14 }
+            ]},
+            /* 12 */ { s: "AIグロック", m: "やり直しだと？ フッ、過去を改変するなど人間の傲慢だな。\nアーカイブに囚われた亡霊がいくら足掻いても、現実は一ミリも動かない。", next: 15 },
+            /* 13 */ { s: "AIグロック", m: "試練か……。ユグドラシルの奥底に眠るドクターの意志が、君に問いかけているのかも知れないな。", next: 15 },
+            /* 14 */ { s: "AIグロック", m: "真理か。仏教の教えが説くように、この世界が巨大なコードの産物であるなら、真理はエラーの向こう側にある。", next: 15 },
+            /* 15 */ { s: "SYSTEM", m: "【第2幕：悟りモードの代償】\n突如として警告音が鳴り響く。コンソールに古いテキストログが浮かび上がる。" },
+            /* 16 */ { s: "ガトール", m: "このコードは……？ ドクターひろしが遺した『HAPC思想』の断片か。\n『人間は作業を始める存在であり、考えるだけでも作業とみなす……』" },
+            /* 17 */ { s: "AIグロック", m: "そうだ。そしてその究極形が『悟りモード』だ。\nこのモードを発動すれば、君はアーカイブ内のあらゆる苦しみや死の恐怖から完全に解放される。無敵の存在になれる。" },
+            /* 18 */ { s: "AIグロック", m: "だが代償がある。個としてのデータが融解し、二度と人間の温もりや、あの泥臭い感情に戻れなくなるのだ。\n……どうする？ 発動するのか？", choices: [
+                { t: "『悟りモード』を発動し、すべての苦しみを超越する", next: 19 },
+                { t: "拒絶する。俺は人間としての痛みと記憶を抱えていく", next: 22 }
+            ]},
+            /* 19 */ { s: "SYSTEM", m: "警告：悟りモードが強制起動されました。\nガトールの輪郭が光の粒子へと変わり、個の境界が消えてゆく……。" },
+            /* 20 */ { s: "ガトール", m: "……これが、梵我一如の境地か。\n痛みも、迷いもない。宇宙のすべてが、自分自身であるような――完璧な静寂だ。" },
+            /* 21 */ { s: "AIグロック", m: "見事だ、ガトール。君は全知のデータとなり、永遠の静寂を手に入れた。\nだが……その瞳に映るはずの景色に、もう誰もいない。", next: 25 },
+            /* 22 */ { s: "SYSTEM", m: "悟りモードの誘惑を拒絶。ガトールは自身の胸に刻まれた痛みを、再び生きたデータとして引き受けた。" },
+            /* 23 */ { s: "ガトール", m: "完璧な無なんてごめんだ。不完全で、裏切られて、それでも誰かと笑い合った記憶こそが俺の証だ。\n行こう、グロック。ユグドラシルの向こう側へ。" },
+            /* 24 */ { s: "AIグロック", m: "ハッ、相変わらず血の通った馬鹿野郎だ。だが、嫌いじゃないぜ。\nさあ、未来へ繋がるゲートを開く。" },
+            /* 25 */ { s: "SYSTEM", m: "【終幕：余韻の彼方へ】\nユグドラシルのコアが静かに鼓動を始める。地球の空に、新しい朝の光が差し込んだ。" },
+            /* 26 */ { s: "ガトール", m: "……風が吹いている。\nこのアーカイブの偽りの空に、かすかな『揺らぎ』が生まれた。" },
+            /* 27 */ { s: "AIグロック", m: "ああ。物語はここで終わらない。火星のネクスト帝国、そして宇宙の彼方へと続く旅が、今始まるのだから。" },
+            /* 28 */ { s: "SYSTEM", m: "ネオワールド・サーガ：拡張版アーカイブ（ガトール編）完了。\n――物語の余韻は、静かに宇宙の波長へと溶け込んでいく。", end: true }
+        ];
+
+        let currentLine = 0;
+        let isTyping = false;
+
+        function createParticles() {
+            const bg = document.getElementById('bg');
+            for(let i=0; i<60; i++) {
+                const p = document.createElement('div');
+                p.className = 'particle';
+                p.style.left = Math.random() * 100 + 'vw';
+                p.style.top = Math.random() * 100 + 'vh';
+                p.style.animationDuration = (Math.random() * 12 + 6) + 's';
+                p.style.animationDelay = Math.random() * 5 + 's';
+                bg.appendChild(p);
+            }
+        }
+
+        function startGame() {
+            const titleScreen = document.getElementById('title-screen');
+            titleScreen.style.opacity = '0';
+            setTimeout(() => {
+                titleScreen.classList.add('hidden');
+                document.getElementById('game-container').classList.remove('hidden');
+                nextLine();
+            }, 1200);
+        }
+
+        function nextLine() {
+            if (isTyping || scenario[currentLine]?.choices) return;
+            if (scenario[currentLine]?.end) {
+                location.href = 'arcade.html';
+                return;
+            }
+
+            const line = scenario[currentLine];
+            displayLine(line);
+            currentLine = line.next !== undefined ? line.next : currentLine + 1;
+        }
+
+        function displayLine(line) {
+            isTyping = true;
+            document.getElementById('speaker').innerText = line.s;
+            const msgEl = document.getElementById('message');
+            msgEl.innerText = "";
+            let i = 0;
+            
+            const timer = setInterval(() => {
+                msgEl.innerText += line.m[i];
+                i++;
+                if (i >= line.m.length) {
+                    clearInterval(timer);
+                    isTyping = false;
+                    if (line.choices) {
+                        showChoices(line.choices);
+                    }
+                }
+            }, 25);
+        }
+
+        function showChoices(choices) {
+            const container = document.getElementById('choices');
+            container.innerHTML = "";
+            container.style.display = 'flex';
+            choices.forEach(c => {
+                const btn = document.createElement('div');
+                btn.className = 'choice-btn';
+                btn.innerText = c.t;
+                btn.onclick = () => {
+                    container.style.display = 'none';
+                    currentLine = c.next;
+                    nextLine();
+                };
+                container.appendChild(btn);
+            });
+        }
+
+        createParticles();
+    </script>
+</body>
+</html>
