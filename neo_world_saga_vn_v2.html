@@ -12,6 +12,7 @@
             background-color: #000; color: #fff;
             font-family: 'Noto Serif JP', serif;
             overflow: hidden;
+            user-select: none;
         }
 
         #bg {
@@ -35,7 +36,7 @@
             position: absolute; top: 0; left: 0; width: 100%; height: 100%;
             display: flex; flex-direction: column; justify-content: center; align-items: center;
             background: rgba(0,0,0,0.85); z-index: 100;
-            transition: opacity 1.5s ease;
+            transition: opacity 1s ease;
         }
 
         #title-screen h1 {
@@ -88,8 +89,8 @@
         }
 
         #text-box {
-            background: rgba(5, 10, 15, 0.85);
-            border: 1px solid rgba(0, 255, 204, 0.3);
+            background: rgba(5, 10, 15, 0.9);
+            border: 1px solid rgba(0, 255, 204, 0.4);
             padding: 35px; min-height: 180px;
             cursor: pointer; position: relative;
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.7);
@@ -114,7 +115,7 @@
             position: absolute; bottom: 12px; right: 20px;
             font-size: 0.8rem; color: #4a5568;
             font-family: 'Share Tech Mono', monospace;
-            animation: blink 1.5s infinite;
+            animation: blink 1.2s infinite;
         }
 
         @keyframes blink {
@@ -134,10 +135,10 @@
 
     <div id="game-container" class="hidden">
         <div id="choices"></div>
-        <div id="text-box" onclick="nextLine()">
+        <div id="text-box" onclick="handleClick()">
             <div id="speaker">SYSTEM</div>
             <div id="message"></div>
-            <div class="hint">[CLICK TO CONTINUE]</div>
+            <div class="hint">[CLICK / ENTER TO CONTINUE]</div>
         </div>
     </div>
 
@@ -187,6 +188,8 @@
 
         let currentLine = 0;
         let isTyping = false;
+        let typingTimer = null;
+        let currentText = "";
 
         function createParticles() {
             const bg = document.getElementById('bg');
@@ -208,11 +211,27 @@
                 titleScreen.classList.add('hidden');
                 document.getElementById('game-container').classList.remove('hidden');
                 nextLine();
-            }, 1200);
+            }, 800);
+        }
+
+        function handleClick() {
+            if (scenario[currentLine]?.choices) return;
+            if (isTyping) {
+                // Instant complete typing on click
+                clearInterval(typingTimer);
+                document.getElementById('message').innerText = currentText;
+                isTyping = false;
+                const line = scenario[currentLine - 1];
+                if (line && line.choices) {
+                    showChoices(line.choices);
+                }
+                return;
+            }
+            nextLine();
         }
 
         function nextLine() {
-            if (isTyping || scenario[currentLine]?.choices) return;
+            if (scenario[currentLine]?.choices) return;
             if (scenario[currentLine]?.end) {
                 location.href = 'arcade.html';
                 return;
@@ -228,19 +247,20 @@
             document.getElementById('speaker').innerText = line.s;
             const msgEl = document.getElementById('message');
             msgEl.innerText = "";
+            currentText = line.m;
             let i = 0;
             
-            const timer = setInterval(() => {
-                msgEl.innerText += line.m[i];
+            typingTimer = setInterval(() => {
+                msgEl.innerText += currentText[i];
                 i++;
-                if (i >= line.m.length) {
-                    clearInterval(timer);
+                if (i >= currentText.length) {
+                    clearInterval(typingTimer);
                     isTyping = false;
                     if (line.choices) {
                         showChoices(line.choices);
                     }
                 }
-            }, 25);
+            }, 12); // Speeded up typing (12ms per char)
         }
 
         function showChoices(choices) {
@@ -251,7 +271,8 @@
                 const btn = document.createElement('div');
                 btn.className = 'choice-btn';
                 btn.innerText = c.t;
-                btn.onclick = () => {
+                btn.onclick = (e) => {
+                    e.stopPropagation();
                     container.style.display = 'none';
                     currentLine = c.next;
                     nextLine();
@@ -259,6 +280,14 @@
                 container.appendChild(btn);
             });
         }
+
+        // Keyboard support (Enter / Space)
+        window.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                handleClick();
+            }
+        });
 
         createParticles();
     </script>
