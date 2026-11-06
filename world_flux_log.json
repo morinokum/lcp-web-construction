@@ -1,5 +1,19 @@
 [
   {
+    "date": "2026-10-20 06:21:12",
+    "external_flux": "[INTERNAL-S1] ",
+    "h_code": 1.0,
+    "resonance_status": "SYNCHRONIZED",
+    "link": "#"
+  },
+  {
+    "date": "2026-10-18 11:55:40",
+    "external_flux": "[INTERNAL-S5] HAPC Nexus initialized successfully.",
+    "h_code": 9.0,
+    "resonance_status": "SYNCHRONIZED",
+    "link": "#"
+  },
+  {
     "date": "2026-06-22 00:00:03",
     "external_flux": "米イランがスイスで協議開始へ、仲介国も参加 ホルムズ海峡「再封鎖」が影 - Reuters",
     "h_code": 1.1,
