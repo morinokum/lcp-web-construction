@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>[UNIT-26] IDLE ACTION HERO: YGGDRASIL DEFENDER</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Noto+Sans+JP:wght@400;700&display=swap');
+
+        body {
+            margin: 0; padding: 0; background: #020408; color: #00ffcc;
+            font-family: 'Share Tech Mono', monospace; overflow: hidden;
+            display: flex; flex-direction: column; height: 100vh;
+        }
+
+        header {
+            background: #050d14; border-bottom: 1px solid #00ffcc44;
+            padding: 10px 20px; display: flex; justify-content: space-between; align-items: center;
+        }
+
+        h1 { margin: 0; font-size: 1.2rem; letter-spacing: 0.1em; color: #00ffcc; text-shadow: 0 0 10px rgba(0,255,204,0.4); }
+
+        .back-btn {
+            background: transparent; border: 1px solid #00ffcc; color: #00ffcc;
+            padding: 5px 15px; cursor: pointer; font-family: 'Share Tech Mono', monospace;
+            transition: 0.2s;
+        }
+        .back-btn:hover { background: #00ffcc; color: #000; }
+
+        .main-container {
+            display: flex; flex: 1; overflow: hidden;
+        }
+
+        .game-panel {
+            flex: 2; display: flex; flex-direction: column; align-items: center; justify-content: center;
+            background: #000; position: relative; border-right: 1px solid #00ffcc22;
+        }
+
+        canvas {
+            background: #03080e; box-shadow: inset 0 0 40px rgba(0,255,204,0.1);
+            border: 1px solid #00ffcc44;
+        }
+
+        .control-panel {
+            flex: 1; background: #050b10; padding: 20px; overflow-y: auto;
+            display: flex; flex-direction: column; gap: 15px;
+        }
+
+        .section-title {
+            font-size: 0.9rem; color: #8892b0; border-bottom: 1px solid #233554;
+            padding-bottom: 5px; margin-bottom: 5px; letter-spacing: 0.1em;
+        }
+
+        .stat-grid {
+            display: grid; grid-template-columns: 1fr 1fr; gap: 10px;
+        }
+
+        .stat-card {
+            background: #0a192f; border: 1px solid #172a45; padding: 10px;
+            text-align: center; border-radius: 4px;
+        }
+
+        .stat-value { font-size: 1.2rem; font-weight: bold; color: #64ffda; }
+        .stat-label { font-size: 0.75rem; color: #8892b0; }
+
+        .upgrade-btn {
+            background: #0a192f; border: 1px solid #64ffda; color: #64ffda;
+            padding: 10px; width: 100%; cursor: pointer; font-family: 'Share Tech Mono', monospace;
+            text-align: left; display: flex; justify-content: space-between; align-items: center;
+            transition: 0.2s; border-radius: 4px; font-size: 0.9rem;
+        }
+        .upgrade-btn:hover:not(:disabled) { background: rgba(100,255,218,0.15); box-shadow: 0 0 10px rgba(100,255,218,0.3); }
+        .upgrade-btn:disabled { border-color: #233554; color: #4a5568; cursor: not-allowed; }
+
+        .action-btn {
+            background: #64ffda; color: #0a192f; border: none; padding: 15px;
+            font-family: 'Share Tech Mono', monospace; font-weight: bold; font-size: 1.1rem;
+            cursor: pointer; text-shadow: none; box-shadow: 0 0 15px rgba(100,255,218,0.5);
+            transition: 0.2s; border-radius: 4px; text-align: center;
+        }
+        .action-btn:hover { background: #52e3c2; box-shadow: 0 0 25px rgba(100,255,218,0.8); }
+
+        .log-box {
+            background: #020c1b; border: 1px solid #172a45; padding: 10px;
+            height: 100px; overflow-y: auto; font-size: 0.75rem; color: #8892b0;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>[UNIT-26] IDLE ACTION HERO: YGGDRASIL DEFENDER</h1>
+        <button class="back-btn" onclick="location.href='arcade.html'">&lt; BACK TO ARCADE</button>
+    </header>
+
+    <div class="main-container">
+        <div class="game-panel">
+            <canvas id="gameCanvas" width="600" height="400"></canvas>
+            <div style="margin-top: 15px; width: 600px;">
+                <button class="action-btn" onclick="manualStrike()" style="width: 100%;">⚡ HYPER STRIKE [ACTIVE ATTACK]</button>
+            </div>
+        </div>
+
+        <div class="control-panel">
+            <div class="section-title">SYSTEM STATUS</div>
+            <div class="stat-grid">
+                <div class="stat-card">
+                    <div class="stat-value" id="creditsDisplay">0</div>
+                    <div class="stat-label">DATA CREDITS</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="dpsDisplay">0</div>
+                    <div class="stat-label">AUTO DPS</div>
+                </div>
+            </div>
+
+            <div class="section-title" style="margin-top: 10px;">TACTICAL LOG</div>
+            <div class="log-box" id="logBox">
+                [SYSTEM] Yggdrasil core defense protocol initiated.<br>
+                [SYSTEM] Autonomous rider units deployed in sector 7.<br>
+            </div>
+
+            <div class="section-title" style="margin-top: 10px;">AUTOMATED UPGRADES</div>
+            <div id="upgradesList" style="display: flex; flex-direction: column; gap: 8px;">
+                <!-- Upgrade buttons populated by JS -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+
+        // Game State
+        let game = {
+            credits: 100,
+            totalKills: 0,
+            clickPower: 1,
+            autoDps: 0,
+            heroLevel: 1,
+            coreHp: 100,
+            maxCoreHp: 100
+        };
+
+        // Upgrades
+        let upgrades = [
+            { id: 'rider', name: 'Rider Unit (田中太郎)', dps: 2, cost: 50, count: 0, costScale: 1.15 },
+            { id: 'drone', name: 'Arachne Drone', dps: 12, cost: 300, count: 0, costScale: 1.18 },
+            { id: 'sentinel', name: 'Autonomous Sentinel', dps: 60, cost: 1500, count: 0, costScale: 1.2 },
+            { id: 'aiCore', name: 'Yggdrasil Amplifier', dps: 300, cost: 8000, count: 0, costScale: 1.25 }
+        ];
+
+        // Entities
+        let enemies = [];
+        let particles = [];
+        let floatingTexts = [];
+
+        class Enemy {
+            constructor() {
+                this.x = canvas.width + 30;
+                this.y = 100 + Math.random() * 200;
+                this.maxHp = 20 + Math.floor(game.totalKills * 3.5);
+                this.hp = this.maxHp;
+                this.speed = 0.8 + Math.random() * 0.5;
+                this.size = 18;
+                this.reward = Math.floor(this.maxHp * 0.8);
+            }
+            update() {
+                this.x -= this.speed;
+                if (this.x < 80) {
+                    // Attack core
+                    game.coreHp -= 0.5;
+                    if (game.coreHp <= 0) {
+                        game.coreHp = game.maxCoreHp;
+                        addLog("[WARNING] Core breach detected! System rebooting defense matrix.");
+                    }
+                }
+            }
+            draw() {
+                ctx.fillStyle = '#ff3366';
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.strokeStyle = '#fff';
+                ctx.lineWidth = 2;
+                ctx.stroke();
+
+                // HP Bar
+                ctx.fillStyle = '#333';
+                ctx.fillRect(this.x - 20, this.y - 30, 40, 5);
+                ctx.fillStyle = '#00ffcc';
+                ctx.fillRect(this.x - 20, this.y - 30, 40 * (this.hp / this.maxHp), 5);
+            }
+        }
+
+        class FloatingText {
+            constructor(text, x, y, color = '#64ffda') {
+                this.text = text;
+                this.x = x;
+                this.y = y;
+                this.color = color;
+                this.alpha = 1.0;
+                this.vy = -1.5;
+            }
+            update() {
+                this.y += this.vy;
+                this.alpha -= 0.02;
+            }
+            draw() {
+                ctx.save();
+                ctx.globalAlpha = Math.max(0, this.alpha);
+                ctx.fillStyle = this.color;
+                ctx.font = 'bold 14px "Share Tech Mono", monospace';
+                ctx.fillText(this.text, this.x, this.y);
+                ctx.restore();
+            }
+        }
+
+        function addLog(text) {
+            const box = document.getElementById('logBox');
+            box.innerHTML += text + '<br>';
+            box.scrollTop = box.scrollHeight;
+        }
+
+        function manualStrike() {
+            if (enemies.length > 0) {
+                const target = enemies[0];
+                const dmg = 10 * game.heroLevel;
+                target.hp -= dmg;
+                floatingTexts.push(new FloatingText(`-${dmg}`, target.x, target.y - 15, '#ff3366'));
+                if (target.hp <= 0) {
+                    defeatEnemy(target);
+                }
+            }
+        }
+
+        function defeatEnemy(enemy) {
+            game.credits += enemy.reward;
+            game.totalKills++;
+            floatingTexts.push(new FloatingText(`+${enemy.reward} CR`, enemy.x, enemy.y, '#64ffda'));
+            addLog(`[COMBAT] Enemy neutralized. Acquired ${enemy.reward} Credits.`);
+            enemies = enemies.filter(e => e !== enemy);
+        }
+
+        function buyUpgrade(index) {
+            const up = upgrades[index];
+            if (game.credits >= up.cost) {
+                game.credits -= up.cost;
+                up.count++;
+                up.cost = Math.floor(up.cost * up.costScale);
+                updateDps();
+                renderUpgrades();
+                addLog(`[UPGRADE] Deployed ${up.name} (Lv.${up.count}).`);
+            }
+        }
+
+        function updateDps() {
+            let total = 0;
+            upgrades.forEach(u => {
+                total += u.dps * u.count;
+            });
+            game.autoDps = total;
+            document.getElementById('dpsDisplay').innerText = game.autoDps;
+        }
+
+        function renderUpgrades() {
+            const container = document.getElementById('upgradesList');
+            container.innerHTML = '';
+            upgrades.forEach((u, i) => {
+                const canBuy = game.credits >= u.cost;
+                container.innerHTML += `
+                    <button class="upgrade-btn" onclick="buyUpgrade(${i})" ${!canBuy ? 'disabled' : ''}>
+                        <div>
+                            <div>${u.name} (Lv.${u.count})</div>
+                            <div style="font-size:0.75rem; color:#8892b0;">DPS: +${u.dps}</div>
+                        </div>
+                        <div style="color: ${canBuy ? '#64ffda' : '#ff3366'}; font-weight:bold;">${u.cost} CR</div>
+                    </button>
+                `;
+            });
+        }
+
+        // Game Loop
+        let lastTick = Date.now();
+        function loop() {
+            const now = Date.now();
+            const dt = (now - lastTick) / 1000;
+            lastTick = now;
+
+            // Auto DPS logic
+            if (game.autoDps > 0 && enemies.length > 0) {
+                const damage = game.autoDps * dt;
+                enemies[0].hp -= damage;
+                if (enemies[0].hp <= 0) {
+                    defeatEnemy(enemies[0]);
+                }
+            }
+
+            // Spawn enemies
+            if (enemies.length < 3 && Math.random() < 0.03) {
+                enemies.push(new Enemy());
+            }
+
+            // Render
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            // Draw Yggdrasil Core Base
+            ctx.fillStyle = '#0a192f';
+            ctx.fillRect(10, 50, 60, 300);
+            ctx.strokeStyle = '#64ffda';
+            ctx.lineWidth = 2;
+            ctx.strokeRect(10, 50, 60, 300);
+
+            ctx.fillStyle = '#64ffda';
+            ctx.font = '12px "Share Tech Mono"';
+            ctx.fillText("CORE", 23, 200);
+
+            // Core HP Bar
+            ctx.fillStyle = '#172a45';
+            ctx.fillRect(20, 60, 10, 280);
+            ctx.fillStyle = '#64ffda';
+            let hpHeight = 280 * (game.coreHp / game.maxCoreHp);
+            ctx.fillRect(20, 60 + (280 - hpHeight), 10, hpHeight);
+
+            // Update & Draw Enemies
+            enemies.forEach(e => {
+                e.update();
+                e.draw();
+            });
+
+            // Update & Draw Floating Texts
+            floatingTexts.forEach(ft => {
+                ft.update();
+                ft.draw();
+            });
+            floatingTexts = floatingTexts.filter(ft => ft.alpha > 0);
+
+            // Update UI Stats
+            document.getElementById('creditsDisplay').innerText = Math.floor(game.credits);
+            renderUpgrades();
+
+            requestAnimationFrame(loop);
+        }
+
+        renderUpgrades();
+        loop();
+    </script>
+</body>
+</html>
